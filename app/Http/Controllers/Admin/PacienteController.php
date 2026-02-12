@@ -8,9 +8,20 @@ use Illuminate\Http\Request;
 
 class PacienteController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $pacientes = User::pacientes()->latest()->get();
+        $query = User::pacientes();
+
+        if ($request->filled('search')) {
+            $search = $request->get('search');
+            $query->where(function($q) use ($search) {
+                $q->where('nombre', 'like', "%{$search}%")
+                  ->orWhere('apellido1', 'like', "%{$search}%")
+                  ->orWhere('apellido2', 'like', "%{$search}%");
+            });
+        }
+
+        $pacientes = $query->latest()->get();
         return view('admin.pacientes.index', compact('pacientes'));
     }
 

@@ -10,6 +10,17 @@
         <a href="{{ route('admin.pacientes.create') }}" class="btn btn-primary">+ Nuevo Paciente</a>
     </div>
 
+    <div class="search-container" style="margin-bottom: 1.5rem;">
+        <form action="{{ route('admin.pacientes.index') }}" method="GET" style="display: flex; gap: 10px;">
+            <input type="text" name="search" class="form-control" placeholder="🔍 Buscar por nombre..."
+                value="{{ request('search') }}" style="max-width: 300px;">
+            <button type="submit" class="btn btn-secondary">Buscar</button>
+            @if(request('search'))
+                <a href="{{ route('admin.pacientes.index') }}" class="btn btn-link" style="align-self: center;">Limpiar</a>
+            @endif
+        </form>
+    </div>
+
     <div class="card">
         <div class="card-body">
             @if($pacientes->isEmpty())

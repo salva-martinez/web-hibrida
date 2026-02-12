@@ -46,9 +46,9 @@ class Plan extends Model
      */
     public function ejerciciosPorEstimulo()
     {
-        return $this->planEjercicios()
-            ->with('ejercicio.estimulo')
-            ->get()
+        return $this->planEjercicios
+            ->loadMissing('ejercicio.estimulo')
+            ->sortBy(fn($pe) => $pe->ejercicio->estimulo->orden)
             ->groupBy(fn($pe) => $pe->ejercicio->estimulo->nombre);
     }
 }
