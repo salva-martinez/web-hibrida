@@ -94,4 +94,3 @@ Para desplegar en un servidor de producción:
 4. Configurar un proxy inverso (Nginx) para apuntar al puerto del contenedor.
 
 ---
-Desarrollado con ❤️ y Laravel.
