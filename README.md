@@ -2,7 +2,8 @@
 
 Aplicación web profesional para fisioterapeutas que permite la gestión integral de pacientes, diseño de planes de entrenamiento personalizados y seguimiento del progreso mediante feedback.
 
-![Dashboard Preview](https://via.placeholder.com/800x400.png?text=FisioApp+Dashboard)
+![Fisioterapeuta Preview](screenshots/fisio.png)
+![Paciente Preview](screenshots/paciente.png)
 
 ## 🚀 Características Principales
 
