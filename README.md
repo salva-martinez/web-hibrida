@@ -36,7 +36,7 @@ El proyecto utiliza **Laravel Sail**, un entorno de desarrollo basado en Docker.
 1. **Clonar el repositorio**:
    ```bash
    git clone https://github.com/tu-usuario/web-hibrida.git
-   cd fisioapp
+   cd web-hibrida
    ```
 
 2. **Copiar configuración de entorno**:
