@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Log;
 class GeminiService
 {
     protected $apiKey;
-    protected $baseUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent';
+    protected $baseUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent';
 
     public function __construct()
     {
@@ -18,9 +18,11 @@ class GeminiService
     public function analyzeFeedback($dureza, $dolor, $evolucion, $comentario)
     {
         if (!$this->apiKey) {
-            Log::warning('Gemini API Key non configured.');
+            Log::error('GeminiService: API Key is missing in .env (GEMINI_API_KEY)');
             return null;
         }
+
+        Log::info('GeminiService: Sending prompt to API...');
 
         $prompt = "Actúa como un fisioterapeuta experto y redacta un BREVE informe clínico (máximo 100 palabras) en base al siguiente feedback de un paciente tras su sesión de ejercicios.\n\n" .
             "Datos del paciente:\n" .
@@ -35,7 +37,7 @@ class GeminiService
         try {
             $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
-            ])->post("{$this->baseUrl}?key={$this->apiKey}", [
+            ])->timeout(30)->post("{$this->baseUrl}?key={$this->apiKey}", [
                 'contents' => [
                     [
                         'parts' => [
@@ -46,9 +48,11 @@ class GeminiService
             ]);
 
             if ($response->successful()) {
-                return $response->json()['candidates'][0]['content']['parts'][0]['text'] ?? null;
+                $text = $response->json()['candidates'][0]['content']['parts'][0]['text'] ?? null;
+                Log::info('GeminiService: API Response received', ['text_preview' => substr($text, 0, 50) . '...']);
+                return $text;
             } else {
-                Log::error('Gemini API Error: ' . $response->body());
+                Log::error('GeminiService: API Error', ['status' => $response->status(), 'body' => $response->body()]);
                 return null;
             }
         } catch (\Exception $e) {

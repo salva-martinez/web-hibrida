@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Plan;
 use App\Models\Feedback;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class PlanController extends Controller
 {
@@ -48,12 +49,14 @@ class PlanController extends Controller
         ]);
 
         // AI Analysis
+        Log::info('PlanController: Starting AI analysis for plan ' . $plan->id);
         $analisis = $geminiService->analyzeFeedback(
             $validated['dureza'],
             $validated['dolor'] ?? null,
             $validated['evolucion'] ?? null,
             $validated['comentario'] ?? null
         );
+        Log::info('PlanController: AI Analysis result: ' . ($analisis ? 'Success' : 'Failed/Null'));
 
         Feedback::updateOrCreate(
             ['plan_id' => $plan->id],
