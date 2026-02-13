@@ -118,5 +118,12 @@ class DatabaseSeeder extends Seeder
 
         // Metabólico
         PlanEjercicio::create(['plan_id' => $plan->id, 'ejercicio_id' => $eMet1->id, 'series' => 1, 'repeticiones' => '20\'', 'intensidad' => 6, 'kg' => null, 'descanso' => null, 'orden' => $orden++]);
+        PlanEjercicio::create(['plan_id' => $plan->id, 'ejercicio_id' => $eMet1->id, 'series' => 1, 'repeticiones' => '20\'', 'intensidad' => 6, 'kg' => null, 'descanso' => null, 'orden' => $orden++]);
+
+        // 6. Ejecutar otros seeders
+        $this->call([
+            PlanHistorialSeeder::class,
+            FeedbackSeeder::class,
+        ]);
     }
 }
