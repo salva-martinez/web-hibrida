@@ -11,7 +11,7 @@ class Feedback extends Model
 
     protected $table = 'feedback';
 
-    protected $fillable = ['plan_id', 'dureza', 'comentario'];
+    protected $fillable = ['plan_id', 'dureza', 'dolor', 'evolucion', 'comentario', 'analisis_ia'];
 
     public function plan()
     {

@@ -56,12 +56,15 @@
                                                 Dureza: {{ $plan->feedback->dureza }}/10
                                             </span>
                                             @if($plan->feedback->comentario)
-                                                <br><small
-                                                    style="color: var(--text-secondary)">{{ Str::limit($plan->feedback->comentario, 50) }}</small>
+                                                <style="color: var(--text-secondary)">
+                                                    {{ Str::limit($plan->feedback->comentario, 40) }}</small>
                                             @endif
+                                                @if($plan->feedback->analisis_ia)
+                                                    <br><span class="badge badge-info" title="Análisis IA disponible">IA ✨</span>
+                                                @endif
                                         @else
-                                            <span style="color: var(--text-muted)">—</span>
-                                        @endif
+                                                <span style="color: var(--text-muted)">—</span>
+                                            @endif
                                     </td>
                                     <td>
                                         <a href="{{ route('admin.planes.show', $plan) }}" class="btn btn-sm btn-secondary">Ver

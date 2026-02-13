@@ -34,7 +34,7 @@ class PlanController extends Controller
         return view('paciente.plan', compact('plan', 'ejerciciosPorEstimulo', 'planAnterior', 'planSiguiente'));
     }
 
-    public function storeFeedback(Request $request, Plan $plan)
+    public function storeFeedback(Request $request, Plan $plan, \App\Services\GeminiService $geminiService)
     {
         if ($plan->paciente_id !== auth()->id()) {
             abort(403);
@@ -42,15 +42,28 @@ class PlanController extends Controller
 
         $validated = $request->validate([
             'dureza' => 'required|integer|min:1|max:10',
+            'dolor' => 'required|string|in:Sin dolor,Molestia ligera,Dolor moderado,Dolor intenso,Incapacitante',
+            'evolucion' => 'required|string|in:Muy enérgico,Bien,Normal,Cansado,Agotado',
             'comentario' => 'nullable|string|max:1000',
         ]);
 
+        // AI Analysis
+        $analisis = $geminiService->analyzeFeedback(
+            $validated['dureza'],
+            $validated['dolor'] ?? null,
+            $validated['evolucion'] ?? null,
+            $validated['comentario'] ?? null
+        );
+
         Feedback::updateOrCreate(
             ['plan_id' => $plan->id],
-            $validated
+            [
+                ...$validated,
+                'analisis_ia' => $analisis
+            ]
         );
 
         return redirect()->route('paciente.plan.show', $plan)
-            ->with('success', '¡Feedback enviado correctamente!');
+            ->with('success', '¡Feedback enviado correctamente! La IA está analizando tus resultados.');
     }
 }

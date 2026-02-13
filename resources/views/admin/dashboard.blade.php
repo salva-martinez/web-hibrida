@@ -54,6 +54,7 @@
                                 <th>Plan</th>
                                 <th>Dureza</th>
                                 <th>Comentario</th>
+                                <th>Análisis IA</th>
                                 <th>Fecha</th>
                             </tr>
                         </thead>
@@ -65,7 +66,14 @@
                                     <td><span
                                             class="badge badge-{{ $fb->dureza > 7 ? 'danger' : ($fb->dureza > 4 ? 'warning' : 'success') }}">{{ $fb->dureza }}/10</span>
                                     </td>
-                                    <td>{{ Str::limit($fb->comentario, 60) ?: '—' }}</td>
+                                    <td>{{ Str::limit($fb->comentario, 40) ?: '—' }}</td>
+                                    <td>
+                                        @if($fb->analisis_ia)
+                                            <span class="badge badge-info" title="{{ $fb->analisis_ia }}">Ver Análisis 🤖</span>
+                                        @else
+                                            <span class="text-muted small">Pendiente</span>
+                                        @endif
+                                    </td>
                                     <td>{{ $fb->created_at->format('d/m/Y') }}</td>
                                 </tr>
                             @endforeach

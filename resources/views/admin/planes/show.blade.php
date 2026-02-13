@@ -75,16 +75,54 @@
                 <h3>📩 Feedback del Paciente</h3>
             </div>
             <div class="card-body">
-                <div class="feedback-existing">
-                    <p><strong>Dureza del entreno:</strong> <span class="dureza-badge">{{ $plan->feedback->dureza }}/10</span>
-                    </p>
-                    @if($plan->feedback->comentario)
-                        <p style="margin-top: 0.75rem"><strong>Comentario:</strong></p>
-                        <p style="color: var(--text-secondary)">{{ $plan->feedback->comentario }}</p>
-                    @endif
-                    <p style="margin-top: 0.5rem; color: var(--text-muted); font-size: 0.8rem">
-                        Enviado el {{ $plan->feedback->created_at->format('d/m/Y H:i') }}
-                    </p>
+                <div class="feedback-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                    <div class="feedback-user">
+                        <h4>📝 Datos del Paciente</h4>
+                        <p><strong>Dureza del entreno:</strong> <span
+                                class="dureza-badge">{{ $plan->feedback->dureza }}/10</span></p>
+
+                        @if($plan->feedback->dolor)
+                            <div style="margin-top: 1rem">
+                                <p><strong>🤕 Zonas de Dolor:</strong></p>
+                                <p style="color: var(--text-secondary)">{{ $plan->feedback->dolor }}</p>
+                            </div>
+                        @endif
+
+                        @if($plan->feedback->evolucion)
+                            <div style="margin-top: 1rem">
+                                <p><strong>📈 Evolución Semanal:</strong></p>
+                                <p style="color: var(--text-secondary)">{{ $plan->feedback->evolucion }}</p>
+                            </div>
+                        @endif
+
+                        @if($plan->feedback->comentario)
+                            <div style="margin-top: 1rem">
+                                <p><strong>💬 Comentario Adicional:</strong></p>
+                                <p style="color: var(--text-secondary)">{{ $plan->feedback->comentario }}</p>
+                            </div>
+                        @endif
+
+                        <p style="margin-top: 1rem; color: var(--text-muted); font-size: 0.8rem">
+                            Enviado el {{ $plan->feedback->created_at->format('d/m/Y H:i') }}
+                        </p>
+                    </div>
+
+                    <div class="feedback-ai"
+                        style="background: rgba(var(--primary-rgb), 0.05); padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(var(--primary-rgb), 0.1);">
+                        <h4 style="display: flex; align-items: center; gap: 0.5rem; color: var(--primary-color);">
+                            🤖 Análisis del Asistente de IA 
+                        </h4>
+                        @if($plan->feedback->analisis_ia)
+                            <div style="margin-top: 1rem; line-height: 1.6; white-space: pre-line;">
+                                {{ $plan->feedback->analisis_ia }}
+                            </div>
+                        @else
+                            <div
+                                style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; color: var(--text-muted);">
+                                <p>Análisis pendiente o no disponible.</p>
+                            </div>
+                        @endif
+                    </div>
                 </div>
             </div>
         </div>

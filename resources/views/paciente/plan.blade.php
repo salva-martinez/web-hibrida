@@ -115,6 +115,36 @@
             </div>
 
             <div class="form-group">
+                <label for="dolor">¿Has sentido dolor o molestias?</label>
+                <select name="dolor" id="dolor" class="form-control">
+                    <option value="Sin dolor" {{ ($plan->feedback->dolor ?? '') == 'Sin dolor' ? 'selected' : '' }}>Sin dolor
+                    </option>
+                    <option value="Molestia ligera" {{ ($plan->feedback->dolor ?? '') == 'Molestia ligera' ? 'selected' : '' }}>Molestia ligera</option>
+                    <option value="Dolor moderado" {{ ($plan->feedback->dolor ?? '') == 'Dolor moderado' ? 'selected' : '' }}>
+                        Dolor moderado</option>
+                    <option value="Dolor intenso" {{ ($plan->feedback->dolor ?? '') == 'Dolor intenso' ? 'selected' : '' }}>
+                        Dolor intenso</option>
+                    <option value="Incapacitante" {{ ($plan->feedback->dolor ?? '') == 'Incapacitante' ? 'selected' : '' }}>
+                        Incapacitante</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="evolucion">¿Cómo has notado tu evolución esta semana?</label>
+                <select name="evolucion" id="evolucion" class="form-control">
+                    <option value="Muy enérgico" {{ ($plan->feedback->evolucion ?? '') == 'Muy enérgico' ? 'selected' : '' }}>
+                        Muy enérgico</option>
+                    <option value="Bien" {{ ($plan->feedback->evolucion ?? '') == 'Bien' ? 'selected' : '' }}>Bien</option>
+                    <option value="Normal" {{ ($plan->feedback->evolucion ?? '') == 'Normal' ? 'selected' : '' }}>Normal
+                    </option>
+                    <option value="Cansado" {{ ($plan->feedback->evolucion ?? '') == 'Cansado' ? 'selected' : '' }}>Cansado
+                    </option>
+                    <option value="Agotado" {{ ($plan->feedback->evolucion ?? '') == 'Agotado' ? 'selected' : '' }}>Agotado
+                    </option>
+                </select>
+            </div>
+
+            <div class="form-group">
                 <label for="comentario">¿Algún comentario respecto a este día?</label>
                 <textarea name="comentario" id="comentario" class="form-control" rows="3"
                     placeholder="Cuéntale a tu fisio cómo te has sentido...">{{ $plan->feedback->comentario ?? '' }}</textarea>
@@ -140,21 +170,19 @@
 
     @push('scripts')
         <script>
-            function openVideo(url, title) {
-                document.getElementById('videoFrame').src = url;
-                document.getElementById('videoTitle').textContent = title;
-                document.getElementById('videoModal').classList.add('active');
-            }
+                    function openVideo(url, title) {
+                        document.getElementById('videoFrame').src = url;
+                        document.getElementById('videoTitle').textContent = title;
+                        document.getElementById('videoModal').classList.add('active');
+                    }
 
-            function closeVideo(event) {
-                if (event && event.target !== event.currentTarget) return;
-                document.getElementById('videoFrame').src = '';
-                document.getElementById('videoModal').classList.remove('active');
-            }
-
-            document.addEventListener('keydown', function (e) {
-                if (e.key === 'Escape') closeVideo();
-            });
+                    function closeVideo(event) {
+                        if (event && event.target !== event.currentTarget) return;
+                        document.getElementById('videoFrame').src = '';
+                        document.getEleme ntById('videoModal').classList.remove('active');
+                    }   document.addEventListener('keydown', function (e) {
+                        if (e.key === 'Escape') closeVideo();
+                    });
         </script>
     @endpush
 @endsection
