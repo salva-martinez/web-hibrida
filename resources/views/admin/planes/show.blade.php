@@ -49,8 +49,10 @@
                             <tr>
                                 <td class="ejercicio-nombre">
                                     @if($pe->ejercicio->video_url)
-                                        <a href="{{ $pe->ejercicio->video_url }}" target="_blank"
-                                            class="video-link">{{ $pe->ejercicio->nombre }}</a>
+                                        <a href="{{ $pe->ejercicio->video_url }}" target="_blank" class="video-link"
+                                            style="text-decoration: none; display: inline-flex; align-items: center; gap: 0.3rem;">
+                                            <span>▶️</span> {{ $pe->ejercicio->nombre }}
+                                        </a>
                                     @else
                                         {{ $pe->ejercicio->nombre }}
                                     @endif
@@ -110,7 +112,7 @@
                     <div class="feedback-ai"
                         style="background: rgba(var(--primary-rgb), 0.05); padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(var(--primary-rgb), 0.1);">
                         <h4 style="display: flex; align-items: center; gap: 0.5rem; color: var(--primary-color);">
-                            🤖 Análisis del Asistente de IA 
+                            🤖 Análisis del Asistente de IA
                         </h4>
                         @if($plan->feedback->analisis_ia)
                             <div style="margin-top: 1rem; line-height: 1.6; white-space: pre-line;">

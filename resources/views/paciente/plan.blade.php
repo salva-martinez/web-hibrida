@@ -62,9 +62,9 @@
                             <tr>
                                 <td class="ejercicio-nombre">
                                     @if($pe->ejercicio->video_url)
-                                        <a href="#" class="video-link"
-                                            onclick="openVideo('{{ $pe->ejercicio->embed_url }}', '{{ $pe->ejercicio->nombre }}'); return false;">
-                                            🎬 {{ $pe->ejercicio->nombre }}
+                                        <a href="javascript:void(0)" class="video-link"
+                                            onclick="openVideo('{{ $pe->ejercicio->embed_url }}', '{{ $pe->ejercicio->nombre }}')">
+                                            <span>▶️</span> {{ $pe->ejercicio->nombre }}
                                         </a>
                                     @else
                                         {{ $pe->ejercicio->nombre }}
@@ -170,19 +170,30 @@
 
     @push('scripts')
         <script>
-                    function openVideo(url, title) {
-                        document.getElementById('videoFrame').src = url;
-                        document.getElementById('videoTitle').textContent = title;
-                        document.getElementById('videoModal').classList.add('active');
-                    }
+            function openVideo(url, title) {
+                if (!url) return;
+                var frame = document.getElementById('videoFrame');
+                var titleEl = document.getElementById('videoTitle');
+                var modal = document.getElementById('videoModal');
 
-                    function closeVideo(event) {
-                        if (event && event.target !== event.currentTarget) return;
-                        document.getElementById('videoFrame').src = '';
-                        document.getEleme ntById('videoModal').classList.remove('active');
-                    }   document.addEventListener('keydown', function (e) {
-                        if (e.key === 'Escape') closeVideo();
-                    });
+                if (frame) frame.src = url;
+                if (titleEl) titleEl.textContent = title;
+                if (modal) modal.classList.add('active');
+            }
+
+            function closeVideo(event) {
+                if (event && event.target !== event.currentTarget) return;
+
+                var frame = document.getElementById('videoFrame');
+                var modal = document.getElementById('videoModal');
+
+                if (frame) frame.src = '';
+                if (modal) modal.classList.remove('active');
+            }
+
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') closeVideo();
+            });
         </script>
     @endpush
 @endsection
