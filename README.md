@@ -5,6 +5,30 @@ Aplicación web profesional para fisioterapeutas que permite la gestión integra
 ![Fisioterapeuta Preview](screenshots/fisio.png)
 ![Paciente Preview](screenshots/paciente.png)
 
+## 🧠 Integración con IA (Gemini)
+
+La plataforma utiliza la API de **Google Gemini** para actuar como un asistente clínico virtual, procesando el feedback subjetivo de los pacientes para ofrecer *insights* valiosos al fisioterapeuta.
+
+### ¿Cómo funciona el proceso?
+1.  **Recogida de Datos**: El paciente completa su sesión y rellena un formulario estructurado:
+    *   **RPE (Percepción de Esfuerzo)**: Escala 1-10.
+    *   **Zonas de Dolor**: Selectores específicos (Sin dolor, Molestia, Dolor incapacitante...).
+    *   **Evolución Semanal**: Estado de energía y recuperación (Agotado, Energico...).
+    *   **Comentarios**: Texto libre para detalles cualitativos.
+
+2.  **Procesamiento Inteligente**:
+    *   La aplicación construye un **prompt clínico** con estos datos y los envía a Gemini.
+    *   La IA analiza la correlación entre la carga (RPE) y la sintomatología (Dolor/Fatiga).
+
+3.  **Resultado para el Fisioterapeuta**:
+    *   **Resumen Ejecutivo**: Un párrafo conciso que sintetiza el estado del paciente sin tener que leer todos los logs.
+    *   **Análisis de Tendencias**: Detecta si el paciente está sobreentrenado o infraentrenado.
+    *   **Sugerencia de Progresión**: Recomienda explícitamente aplicar el principio de sobrecarga progresiva, descarga o mantenimiento para la siguiente sesión.
+
+> **Objetivo**: Reducir el tiempo de análisis de datos del profesional y mejorar la precisión en la toma de decisiones clínicas.
+
+---
+
 ## 🚀 Características Principales
 
 ### 🩺 Para el Fisioterapeuta (Admin)
