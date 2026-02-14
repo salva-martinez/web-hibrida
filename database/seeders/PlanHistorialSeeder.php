@@ -14,19 +14,6 @@ class PlanHistorialSeeder extends Seeder
 {
     public function run(): void
     {
-        // 1. Get our patient Carlos
-        $paciente = User::where('nombre', 'Carlos')
-            ->where('apellido1', 'García')
-            ->first();
-
-        if (!$paciente) {
-            $this->command->info('Paciente Carlos no encontrado. Seeding abortado.');
-            return;
-        }
-
-        // CLEAR existing plans for this patient to ensure clean history
-        Plan::where('paciente_id', $paciente->id)->delete();
-
         $fisio = User::fisios()->first();
         $ejercicios = Ejercicio::all();
 
@@ -35,57 +22,103 @@ class PlanHistorialSeeder extends Seeder
             return;
         }
 
-        // --- Plan 1: Inicio (Hace 1 mes) ---
-        $plan1 = Plan::create([
-            'paciente_id' => $paciente->id,
-            'fisio_id' => $fisio->id ?? 1,
-            'titulo' => 'Fase 1: Adaptación y Control Motor',
-            'fecha' => Carbon::now()->subMonths(1),
-            'activo' => false, // Ya no es el actual
-        ]);
-        $this->addEjercicios($plan1, $ejercicios, 3, 2, '12-15', 4);
-        Feedback::create([
-            'plan_id' => $plan1->id,
-            'dureza' => 8,
-            'comentario' => 'Me costó un poco al principio, sobre todo la coordinación. Pero bien.',
-            'created_at' => Carbon::now()->subWeeks(3)
-        ]);
+        // Obtener todos los pacientes
+        $pacientes = User::pacientes()->get();
 
-        // --- Plan 2: Intermedio (Hace 2 semanas) ---
-        $plan2 = Plan::create([
-            'paciente_id' => $paciente->id,
-            'fisio_id' => $fisio->id ?? 1,
-            'titulo' => 'Fase 2: Fuerza Base',
-            'fecha' => Carbon::now()->subWeeks(2),
-            'activo' => false,
-        ]);
-        $this->addEjercicios($plan2, $ejercicios, 4, 3, '10', 6, 5);
-        Feedback::create([
-            'plan_id' => $plan2->id,
-            'dureza' => 6,
-            'comentario' => 'Me sentí más fuerte. Listo para subir peso.',
-            'created_at' => Carbon::now()->subWeek()
-        ]);
+        foreach ($pacientes as $paciente) {
+            $this->command->info("Generando planes para: {$paciente->nombre_completo}");
+            
+            // Limpiar planes anteriores
+            Plan::where('paciente_id', $paciente->id)->delete();
 
-        // --- Plan 3: Avanzado (Actual) ---
-        $plan3 = Plan::create([
-            'paciente_id' => $paciente->id,
-            'fisio_id' => $fisio->id ?? 1,
-            'titulo' => 'Fase 3: Hipertrofia y Potencia',
-            'fecha' => Carbon::now(),
-            'activo' => true, // Activo
-        ]);
-        $this->addEjercicios($plan3, $ejercicios, 5, 4, '8-10', 8, 10);
-        
-        $this->command->info('Historial de 3 planes generado para Carlos García.');
+            // Escenario basado en el paciente
+            switch ($paciente->nombre) {
+                case 'Carlos': // Caso estándar: Evolución positiva
+                    $this->crearHistorialCarlos($paciente, $fisio, $ejercicios);
+                    break;
+                case 'Ana': // Caso dolor: Reporta molestias
+                    $this->crearHistorialAna($paciente, $fisio, $ejercicios);
+                    break;
+                case 'Beto': // Caso estancamiento
+                    $this->crearHistorialBeto($paciente, $fisio, $ejercicios);
+                    break;
+                default:
+                    // Genérico para otros
+                    $this->crearHistorialGenerico($paciente, $fisio, $ejercicios);
+                    break;
+            }
+        }
     }
 
-    private function addEjercicios($plan, $ejercicios, $count, $series, $reps, $intensidad, $kg = null)
+    private function crearHistorialCarlos($paciente, $fisio, $ejercicios)
     {
-        // Shuffle and take some exercises
+        // Plan 1 (-2 meses)
+        $p1 = $this->createPlan($paciente, $fisio, 'Fase 1: Adaptación', -60, false);
+        $this->addEjercicios($p1, $ejercicios, 3, 2, '12-15', 5);
+        $this->createFeedback($p1, 7, 'Sin dolor', 'Normal', 'Todo bien, agujetas normales.', 
+            "El paciente inicia con buena adaptación. RPE 7/10 adecuado para fase 1. Sin dolor reportado. \nRecomendación: Mantener volumen, empezar a subir intensidad.");
+
+        // Plan 2 (-1 mes)
+        $p2 = $this->createPlan($paciente, $fisio, 'Fase 2: Fuerza Base', -30, false);
+        $this->addEjercicios($p2, $ejercicios, 4, 3, '10-12', 7);
+        $this->createFeedback($p2, 8, 'Molestia ligera', 'Bien', 'Un poco de molestia en rodilla al acabar, pero se pasa rápido.', 
+            "Aumento de intensidad bien tolerado (RPE 8). La molestia ligera en rodilla es esperable por el aumento de carga. \nRecomendación: Monitorizar rodilla, asegurar descanso entre series.");
+
+        // Plan 3 (Actual)
+        $p3 = $this->createPlan($paciente, $fisio, 'Fase 3: Hipertrofia', 0, true);
+        $this->addEjercicios($p3, $ejercicios, 5, 4, '8-10', 8);
+        // Sin feedback (para que el usuario lo rellene)
+    }
+
+    private function crearHistorialAna($paciente, $fisio, $ejercicios)
+    {
+        // Plan 1 (-3 semanas)
+        $p1 = $this->createPlan($paciente, $fisio, 'Inicio Rehabilitación', -21, false);
+        $this->addEjercicios($p1, $ejercicios, 3, 2, '15', 4);
+        $this->createFeedback($p1, 9, 'Dolor moderado', 'Cansado', 'Me duele bastante al hacer las sentadillas.', 
+            "ALERTA: Paciente reporta dolor moderado y RPE alto (9/10) para una carga inicial. \nRecomendación: BAJAR carga inmediatamente. Revisar técnica de sentadilla o sustituir por ejercicio isométrico.");
+
+        // Plan 2 (Actual) - Plan modificado por dolor
+        $p2 = $this->createPlan($paciente, $fisio, 'Ajuste: Carga Baja', 0, true);
+        $this->addEjercicios($p2, $ejercicios, 3, 2, '10', 3); 
+        // Sin feedback
+    }
+
+    private function crearHistorialBeto($paciente, $fisio, $ejercicios)
+    {
+        // Plan 1 (-1 mes)
+        $p1 = $this->createPlan($paciente, $fisio, 'Fuerza General', -30, false);
+        $this->addEjercicios($p1, $ejercicios, 4, 3, '10', 6);
+        $this->createFeedback($p1, 5, 'Sin dolor', 'Normal', 'Muy fácil, no me canso.', 
+            "Paciente reporta RPE 5/10 (muy bajo). La carga es insuficiente para generar adaptaciones. \nRecomendación: Aumentar peso o repeticiones significativamente.");
+        
+        // Plan 2 (Actual)
+        $p2 = $this->createPlan($paciente, $fisio, 'Fuerza General II', 0, true);
+        $this->addEjercicios($p2, $ejercicios, 4, 3, '10', 8);
+    }
+    
+    private function crearHistorialGenerico($paciente, $fisio, $ejercicios)
+    {
+        $p1 = $this->createPlan($paciente, $fisio, 'Plan General', 0, true);
+        $this->addEjercicios($p1, $ejercicios, 3, 3, '12', 6);
+    }
+
+    // Helpers
+    private function createPlan($paciente, $fisio, $titulo, $daysOffset, $activo)
+    {
+        return Plan::create([
+            'paciente_id' => $paciente->id,
+            'fisio_id' => $fisio->id,
+            'titulo' => $titulo,
+            'fecha' => Carbon::now()->addDays($daysOffset),
+            'activo' => $activo,
+        ]);
+    }
+
+    private function addEjercicios($plan, $ejercicios, $count, $series, $reps, $intensidad)
+    {
         $selected = $ejercicios->shuffle()->take($count);
         $orden = 1;
-        
         foreach ($selected as $ej) {
             PlanEjercicio::create([
                 'plan_id' => $plan->id,
@@ -93,10 +126,22 @@ class PlanHistorialSeeder extends Seeder
                 'series' => $series,
                 'repeticiones' => $reps,
                 'intensidad' => $intensidad,
-                'kg' => $kg,
-                'descanso' => '2 min',
+                'descanso' => '1-2 min',
                 'orden' => $orden++,
             ]);
         }
+    }
+
+    private function createFeedback($plan, $dureza, $dolor, $evolucion, $comentario, $analisis)
+    {
+        Feedback::create([
+            'plan_id' => $plan->id,
+            'dureza' => $dureza,
+            'dolor' => $dolor,
+            'evolucion' => $evolucion,
+            'comentario' => $comentario,
+            'analisis_ia' => $analisis,
+            'created_at' => $plan->fecha->copy()->addDays(5) // Feedback enviado 5 días después del plan
+        ]);
     }
 }

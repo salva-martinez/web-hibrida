@@ -51,6 +51,8 @@
                                         <div class="btn-group">
                                             <a href="{{ route('admin.pacientes.show', $pac) }}"
                                                 class="btn btn-sm btn-secondary">Ver</a>
+                                            <a href="{{ route('admin.planes.create', ['paciente_id' => $pac->id]) }}"
+                                                class="btn btn-sm btn-success">Añadir Plan</a>
                                             <a href="{{ route('admin.pacientes.edit', $pac) }}"
                                                 class="btn btn-sm btn-primary">Editar</a>
                                             <form action="{{ route('admin.pacientes.destroy', $pac) }}" method="POST"

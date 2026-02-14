@@ -8,6 +8,8 @@
             <p class="subtitle">Ficha del paciente</p>
         </div>
         <div class="btn-group">
+            <a href="{{ route('admin.planes.create', ['paciente_id' => $paciente->id]) }}" class="btn btn-success">+ Añadir
+                Plan</a>
             <a href="{{ route('admin.pacientes.edit', $paciente) }}" class="btn btn-primary">Editar</a>
             <a href="{{ route('admin.pacientes.index') }}" class="btn btn-secondary">← Volver</a>
         </div>
@@ -16,7 +18,6 @@
     <div class="card" style="margin-bottom: 1.5rem">
         <div class="card-header">
             <h3>📋 Planes de Ejercicios</h3>
-            <a href="{{ route('admin.planes.create') }}" class="btn btn-sm btn-primary">+ Nuevo Plan</a>
         </div>
         <div class="card-body">
             @if($paciente->planesComoPaciente->isEmpty())

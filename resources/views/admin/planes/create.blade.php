@@ -4,7 +4,7 @@
 @section('content')
     <div class="page-header">
         <div>
-            <h1>{{ isset($plan) ? 'Editar Plan' : 'Nuevo Plan de Ejercicios' }}</h1>
+            <h1>{{ isset($plan) ? 'Editar Plan' : (isset($clonedPlan) ? 'Duplicar Plan (Nuevo)' : 'Nuevo Plan de Ejercicios') }}</h1>
         </div>
         <a href="{{ route('admin.planes.index') }}" class="btn btn-secondary">← Volver</a>
     </div>
@@ -22,7 +22,7 @@
                         <select name="paciente_id" id="paciente_id" class="form-control" required>
                             <option value="">— Selecciona paciente —</option>
                             @foreach($pacientes as $pac)
-                                <option value="{{ $pac->id }}" {{ old('paciente_id', $plan->paciente_id ?? '') == $pac->id ? 'selected' : '' }}>
+                                <option value="{{ $pac->id }}" {{ old('paciente_id', $plan->paciente_id ?? ($clonedPlan->paciente_id ?? request('paciente_id'))) == $pac->id ? 'selected' : '' }}>
                                     {{ $pac->nombre_completo }}
                                 </option>
                             @endforeach
@@ -31,7 +31,7 @@
                     <div class="form-group">
                         <label for="titulo">Título del Plan *</label>
                         <input type="text" name="titulo" id="titulo" class="form-control"
-                            value="{{ old('titulo', $plan->titulo ?? '') }}" placeholder="Ej: Semana 1 - Plan Inicial"
+                            value="{{ old('titulo', $plan->titulo ?? ($clonedPlan ? $clonedPlan->titulo . ' (Copia)' : '')) }}" placeholder="Ej: Semana 1 - Plan Inicial"
                             required>
                     </div>
                     <div class="form-group">
@@ -70,9 +70,13 @@
             </div>
 
             <div id="exercise-list">
-                {{-- Existing exercises (for edit mode) --}}
-                @if(isset($plan))
-                    @foreach($plan->planEjercicios as $i => $pe)
+                {{-- Existing exercises (for edit mode OB for clone mode) --}}
+                @php
+                    $exercisesToLoad = isset($plan) ? $plan->planEjercicios : (isset($clonedPlan) ? $clonedPlan->planEjercicios : []);
+                @endphp
+
+                @if(count($exercisesToLoad) > 0)
+                    @foreach($exercisesToLoad as $i => $pe)
                         <div class="exercise-row" data-index="{{ $i }}">
                             <select name="ejercicios[{{ $i }}][ejercicio_id]" class="form-control" required>
                                 <option value="">— Ejercicio —</option>
@@ -110,7 +114,7 @@
 
     @push('scripts')
         <script>
-            let exerciseIndex = {{ isset($plan) ? $plan->planEjercicios->count() : 0 }};
+            let exerciseIndex = {{ isset($plan) ? $plan->planEjercicios->count() : (isset($clonedPlan) ? $clonedPlan->planEjercicios->count() : 0) }};
             const estimulos = @json($estimulos);
 
             function addExerciseRow() {
@@ -144,10 +148,10 @@
                 btn.closest('.exercise-row').remove();
             }
 
-            // Start with one empty row if creating new plan
-            @unless(isset($plan))
+            // Start with one empty row if creating new plan AND not cloning
+            @if(!isset($plan) && !isset($clonedPlan))
                 addExerciseRow();
-            @endunless
+            @endif
         </script>
     @endpush
 @endsection

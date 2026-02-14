@@ -43,8 +43,25 @@ class EstimuloController extends Controller
         $validated = $request->validate([
             'nombre' => 'required|string|max:255',
             'descripcion' => 'nullable|string',
-            'orden' => 'nullable|integer',
+            'orden' => 'required|integer',
         ]);
+
+        $oldOrden = $estimulo->orden;
+        $newOrden = $validated['orden'];
+
+        if ($oldOrden != $newOrden) {
+            if ($newOrden < $oldOrden) {
+                // Moving UP (e.g. 5 -> 2): Increment items in [2, 4]
+                Estimulo::where('orden', '>=', $newOrden)
+                    ->where('orden', '<', $oldOrden)
+                    ->increment('orden');
+            } else {
+                // Moving DOWN (e.g. 2 -> 5): Decrement items in [3, 5]
+                Estimulo::where('orden', '>', $oldOrden)
+                    ->where('orden', '<=', $newOrden)
+                    ->decrement('orden');
+            }
+        }
 
         $estimulo->update($validated);
 

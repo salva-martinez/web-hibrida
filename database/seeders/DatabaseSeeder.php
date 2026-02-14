@@ -23,14 +23,23 @@ class DatabaseSeeder extends Seeder
             'role' => 'fisio',
         ]);
 
-        // 2. Paciente de ejemplo
-        $paciente = User::create([
-            'nombre' => 'Carlos',
-            'apellido1' => 'García',
-            'apellido2' => 'López',
-            'password' => bcrypt('password'),
-            'role' => 'paciente',
-        ]);
+        // 2. Pacientes de ejemplo
+        $pacientes = [
+            ['nombre' => 'Carlos', 'apellido1' => 'García', 'apellido2' => 'López'],
+            ['nombre' => 'Ana', 'apellido1' => 'Martínez', 'apellido2' => 'Ruiz'],
+            ['nombre' => 'Beto', 'apellido1' => 'Sánchez', 'apellido2' => 'Gómez'],
+            ['nombre' => 'David', 'apellido1' => 'Fernández', 'apellido2' => 'Díaz'],
+        ];
+
+        foreach ($pacientes as $p) {
+            User::create([
+                'nombre' => $p['nombre'],
+                'apellido1' => $p['apellido1'],
+                'apellido2' => $p['apellido2'],
+                'password' => bcrypt('password'),
+                'role' => 'paciente',
+            ]);
+        }
 
         // 3. Estímulos
         $calentamiento = Estimulo::create([
@@ -88,42 +97,11 @@ class DatabaseSeeder extends Seeder
         // Metabólico
         $eMet1 = Ejercicio::create(['estimulo_id' => $metabolico->id, 'nombre' => 'Elíptica', 'video_url' => null]);
 
-        // 5. Plan de ejemplo para el paciente
-        $plan = Plan::create([
-            'paciente_id' => $paciente->id,
-            'fisio_id' => $fisio->id,
-            'titulo' => 'Semana 1 - Plan Inicial',
-            'fecha' => now(),
-            'activo' => true,
-        ]);
 
-        // Ejercicios del plan (como el Excel del screenshot)
-        $orden = 0;
-
-        // Calentamiento
-        PlanEjercicio::create(['plan_id' => $plan->id, 'ejercicio_id' => $eCalen1->id, 'series' => 2, 'repeticiones' => '5', 'intensidad' => 0, 'kg' => null, 'descanso' => '0', 'orden' => $orden++]);
-        PlanEjercicio::create(['plan_id' => $plan->id, 'ejercicio_id' => $eCalen2->id, 'series' => 3, 'repeticiones' => '10', 'intensidad' => 0, 'kg' => null, 'descanso' => '0', 'orden' => $orden++]);
-        PlanEjercicio::create(['plan_id' => $plan->id, 'ejercicio_id' => $eCalen3->id, 'series' => 2, 'repeticiones' => '6', 'intensidad' => 0, 'kg' => null, 'descanso' => '0', 'orden' => $orden++]);
-
-        // Básico
-        PlanEjercicio::create(['plan_id' => $plan->id, 'ejercicio_id' => $eBas1->id, 'series' => 2, 'repeticiones' => '6-10', 'intensidad' => 7, 'kg' => null, 'descanso' => '2-3\'', 'orden' => $orden++]);
-        PlanEjercicio::create(['plan_id' => $plan->id, 'ejercicio_id' => $eBas2->id, 'series' => 2, 'repeticiones' => '10-15', 'intensidad' => 7, 'kg' => null, 'descanso' => '2-3\'', 'orden' => $orden++]);
-
-        // Auxiliares
-        PlanEjercicio::create(['plan_id' => $plan->id, 'ejercicio_id' => $eAux1->id, 'series' => 2, 'repeticiones' => '5-8', 'intensidad' => 8, 'kg' => null, 'descanso' => '2\'', 'orden' => $orden++]);
-        PlanEjercicio::create(['plan_id' => $plan->id, 'ejercicio_id' => $eAux2->id, 'series' => 2, 'repeticiones' => '15', 'intensidad' => 7, 'kg' => null, 'descanso' => '2\'', 'orden' => $orden++]);
-        PlanEjercicio::create(['plan_id' => $plan->id, 'ejercicio_id' => $eAux3->id, 'series' => 2, 'repeticiones' => '19-33"', 'intensidad' => 8, 'kg' => null, 'descanso' => '2\'', 'orden' => $orden++]);
-        PlanEjercicio::create(['plan_id' => $plan->id, 'ejercicio_id' => $eAux4->id, 'series' => 2, 'repeticiones' => '33-60"', 'intensidad' => 8, 'kg' => null, 'descanso' => '1-2\'', 'orden' => $orden++]);
-        PlanEjercicio::create(['plan_id' => $plan->id, 'ejercicio_id' => $eAux5->id, 'series' => 2, 'repeticiones' => '19-33"', 'intensidad' => 8, 'kg' => null, 'descanso' => '1-2\'', 'orden' => $orden++]);
-
-        // Metabólico
-        PlanEjercicio::create(['plan_id' => $plan->id, 'ejercicio_id' => $eMet1->id, 'series' => 1, 'repeticiones' => '20\'', 'intensidad' => 6, 'kg' => null, 'descanso' => null, 'orden' => $orden++]);
-        PlanEjercicio::create(['plan_id' => $plan->id, 'ejercicio_id' => $eMet1->id, 'series' => 1, 'repeticiones' => '20\'', 'intensidad' => 6, 'kg' => null, 'descanso' => null, 'orden' => $orden++]);
 
         // 6. Ejecutar otros seeders
         $this->call([
             PlanHistorialSeeder::class,
-            FeedbackSeeder::class,
         ]);
     }
 }

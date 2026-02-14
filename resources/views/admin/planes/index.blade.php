@@ -7,7 +7,6 @@
             <h1>Planes de Ejercicios</h1>
             <p class="subtitle">Todas las rutinas pautadas</p>
         </div>
-        <a href="{{ route('admin.planes.create') }}" class="btn btn-primary">+ Nuevo Plan</a>
     </div>
 
     <div class="card">

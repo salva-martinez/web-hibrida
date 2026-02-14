@@ -1,121 +1,74 @@
-# FisioApp - Gestión de Rehabilitación y Entrenamiento 🏋️‍♂️
+# FisioApp - Gestión de Rehabilitación Inteligente 🏋️‍♂️🧠
 
-Aplicación web profesional para fisioterapeutas que permite la gestión integral de pacientes, diseño de planes de entrenamiento personalizados y seguimiento del progreso mediante feedback.
-
-![Fisioterapeuta Preview](screenshots/fisio.png)
-![Paciente Preview](screenshots/paciente.png)
-
-## 🧠 Integración con IA (Gemini)
-
-La plataforma utiliza la API de **Google Gemini** para actuar como un asistente clínico virtual, procesando el feedback subjetivo de los pacientes para ofrecer *insights* valiosos al fisioterapeuta.
-
-### ¿Cómo funciona el proceso?
-1.  **Recogida de Datos**: El paciente completa su sesión y rellena un formulario estructurado:
-    *   **RPE (Percepción de Esfuerzo)**: Escala 1-10.
-    *   **Zonas de Dolor**: Selectores específicos (Sin dolor, Molestia, Dolor incapacitante...).
-    *   **Evolución Semanal**: Estado de energía y recuperación (Agotado, Energico...).
-    *   **Comentarios**: Texto libre para detalles cualitativos.
-
-2.  **Procesamiento Inteligente**:
-    *   La aplicación construye un **prompt clínico** con estos datos y los envía a Gemini.
-    *   La IA analiza la correlación entre la carga (RPE) y la sintomatología (Dolor/Fatiga).
-
-3.  **Resultado para el Fisioterapeuta**:
-    *   **Resumen Ejecutivo**: Un párrafo conciso que sintetiza el estado del paciente sin tener que leer todos los logs.
-    *   **Análisis de Tendencias**: Detecta si el paciente está sobreentrenado o infraentrenado.
-    *   **Sugerencia de Progresión**: Recomienda explícitamente aplicar el principio de sobrecarga progresiva, descarga o mantenimiento para la siguiente sesión.
-
-> **Objetivo**: Reducir el tiempo de análisis de datos del profesional y mejorar la precisión en la toma de decisiones clínicas.
+Aplicación web premium para fisioterapeutas y pacientes que integra Inteligencia Artificial para el seguimiento clínico, diseño de planes dinámicos y análisis de progresión.
 
 ---
 
-## 🚀 Características Principales
+## 🚀 Nuevas Funcionalidades (v2.0)
 
-### 🩺 Para el Fisioterapeuta (Admin)
-- **Gestión de Pacientes**: Alta, baja y modificación de fichas de pacientes.
-- **Constructor de Planes Dinámico**: Creación de rutinas de ejercicio personalizadas.
-- **Biblioteca de Ejercicios**:
-  - Clasificación por Estímulos (Básico, Auxiliar, Metabólico).
-  - Integración automática de vídeos de YouTube.
-- **Seguimiento**: Visualización del feedback subjetivo (RPE) y comentarios de los pacientes.
+### 🤖 Asistente Clínico IA (Admin)
+- **Chat Contextual**: El fisioterapeuta puede chatear con una IA que tiene acceso a **todo el historial** del paciente (planes pasados, feedback, notas de dolor).
+- **Análisis de Progresión**: Capacidad para detectar patrones de dolor crónico o fatiga acumulada a lo largo de varias semanas.
 
-### 🏃 Para el Paciente
-- **Portal Personalizado**: Acceso seguro sin contraseña compleja (Nombre + Apellidos).
-- **Visualización de Rutinas**:
-  - Tabla interactiva estilo Excel.
-  - Vídeos demostrativos integrados en modal.
-  - Ordenación lógica de ejercicios (Básico -> Auxiliar -> Metabólico).
-- **Historial**: Navegación entre planes anteriores y actuales.
-- **Feedback**: Envío de valoración de dureza y comentarios post-entreno.
+### 📋 Gestión de Planes Inteligente
+- **Duplicador de Planes (Smart Cloning)**: Crea nuevos ciclos de entrenamiento en segundos clonando el plan anterior con un solo clic.
+- **Inactivación Automática**: El sistema garantiza que el paciente solo vea su plan más reciente, archivando automáticamente los anteriores.
+- **Reordenación de Estímulos**: Lógica automática que mantiene los ejercicios organizados por tipo (Básico, Auxiliar, Metabólico) sin esfuerzo manual.
 
-## 🛠️ Requisitos Técnicos
+---
 
-- **Docker Desktop** (para el entorno de desarrollo)
-- **PHP 8.2+** y **Composer** (opcional si usas Docker)
-- **Node.js** y **NPM**
+## 🧠 El Cerebro de la App: Gemini AI
 
-## 📦 Instalación y Despliegue Local
+La plataforma utiliza la API de **Google Gemini** para transformar datos subjetivos en decisiones clínicas:
+1.  **Feedback IA**: Analiza RPE, dolor y evolución tras cada sesión para generar un resumen ejecutivo.
+2.  **Clinical Chat**: Permite preguntas complejas como *"¿Por qué Ana ha reportado dolor en la rodilla en los últimos 3 planes?"*.
 
-El proyecto utiliza **Laravel Sail**, un entorno de desarrollo basado en Docker.
+---
 
-1. **Clonar el repositorio**:
-   ```bash
-   git clone https://github.com/tu-usuario/web-hibrida.git
-   cd web-hibrida
-   ```
+## 📖 Manual de Uso
 
-2. **Copiar configuración de entorno**:
-   ```bash
-   cp .env.example .env
-   ```
+### 🩺 Perfil Fisioterapeuta (Administrador)
+1.  **Gestión de Estímulos**: Define las categorías de trabajo (ej: Fuerza, Movilidad). El orden que asignes aquí se respetará automáticamente en todos los planes.
+2.  **Creación de Planes**:
+    - Ve a la lista de **Pacientes**.
+    - Haz clic en **"Añadir Plan"**.
+    - Si el paciente es antiguo, el sistema te preguntará si quieres **Duplicar el plan anterior** o empezar uno de cero.
+    - Selecciona los ejercicios, asigna series/reps y guarda. El plan anterior se inactivará solo.
+3.  **Seguimiento e IA**:
+    - Desde la ficha del paciente o el detalle del plan, revisa el **Análisis de IA** generado tras el feedback del paciente.
+    - Usa el **Chat IA** para profundizar en el estado del paciente usando lenguaje natural.
 
-3. **Iniciar contenedores (Docker)**:
-   ```bash
-   ./vendor/bin/sail up -d
-   ```
+### 🏃 Perfil Paciente
+1.  **Acceso**: Login rápido con **Nombre + Primer Apellido + Segundo Apellido**. (Password: `password`).
+2.  **Entrenamiento**: Visualiza tu rutina con vídeos integrados. El diseño estilo Excel facilita la lectura de cargas.
+3.  **Feedback**: Al terminar, pulsa **"Enviar Feedback"**. El sistema mostrará un estado de carga mientras la IA analiza tu sesión. Puedes consultar tus planes antiguos en la sección "Historial".
 
-4. **Instalar dependencias y generar clave**:
-   ```bash
-   ./vendor/bin/sail composer install
-   ./vendor/bin/sail artisan key:generate
-   ./vendor/bin/sail npm install && ./vendor/bin/sail npm run build
-   ```
+---
 
-5. **Migrar base de datos y datos de prueba**:
-   ```bash
-   ./vendor/bin/sail artisan migrate:fresh --seed
-   # Opcional: Generar historial de prueba
-   ./vendor/bin/sail artisan db:seed --class=PlanHistorialSeeder
-   ```
+## 🔑 Datos de Prueba (Demo)
 
-6. **¡Listo!** Accede a la aplicación en:
-   - 🔗 [http://localhost](http://localhost)
+### Admin
+- **Email**: `fisio@fisioapp.com` | **Pass**: `password`
 
-## 🔑 Credenciales de Acceso (Demo)
+### Pacientes (Login con Nombre + Apellidos)
+- **Carlos García López**: Evolución estándar (historial de 3 planes).
+- **Ana Martínez Ruiz**: Caso clínico de **dolor de rodilla** (ideal para probar el Chat IA).
+- **Beto Sánchez Gómez**: Caso de cargas insuficientes (RPE bajo).
 
-### Admin (Fisioterapeuta)
-- **Email**: `fisio@fisioapp.com`
-- **Contraseña**: `password`
+---
 
-### Paciente (Demo)
-- **Nombre**: `Carlos`
-- **Primer Apellido**: `García`
-- **Segundo Apellido**: `López`
+## 🛠️ Instalación Rápida (Sail)
 
-## 🎨 Estructura del Proyecto
+```bash
+# 1. Preparar entorno
+cp .env.example .env
+./vendor/bin/sail up -d
+./vendor/bin/sail composer install
+./vendor/bin/sail npm install && ./vendor/bin/sail npm run build
 
-- `app/Models`: Modelos Eloquent (`User`, `Plan`, `Ejercicio`, `Estimulo`, `Feedback`).
-- `app/Http/Controllers/Admin`: Controladores para la gestión del fisio.
-- `app/Http/Controllers/Paciente`: Controladores para la vista del paciente.
-- `resources/views`: Plantillas Blade con diseño responsive y "glassmorphism".
-- `database/seeders`: Datos iniciales para pruebas rápidas.
-
-## ☁️ Despliegue en Producción (AWS/VPS)
-
-Para desplegar en un servidor de producción:
-1. Configurar un servidor con Docker y Docker Compose.
-2. Clonar el repositorio y configurar `.env` con las credenciales de producción.
-3. Ejecutar los comandos de Docker Compose para levantar los servicios.
-4. Configurar un proxy inverso (Nginx) para apuntar al puerto del contenedor.
+# 2. Base de datos e IA
+./vendor/bin/sail artisan migrate:fresh --seed
+# Clave API requerida en .env: GEMINI_API_KEY=tu_clave
+```
 
 ---
