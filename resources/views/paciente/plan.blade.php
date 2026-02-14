@@ -97,7 +97,7 @@
             </div>
         @endif
 
-        <form method="POST" action="{{ route('paciente.plan.feedback', $plan) }}">
+        <form method="POST" action="{{ route('paciente.plan.feedback', $plan) }}" id="feedbackForm">
             @csrf
 
             <div class="form-group">
@@ -150,7 +150,7 @@
                     placeholder="Cuéntale a tu fisio cómo te has sentido...">{{ $plan->feedback->comentario ?? '' }}</textarea>
             </div>
 
-            <button type="submit"
+            <button type="submit" id="submitBtn"
                 class="btn btn-success">{{ $plan->feedback ? 'Actualizar Feedback' : 'Enviar Feedback' }}</button>
         </form>
     </div>
@@ -190,6 +190,19 @@
                 if (frame) frame.src = '';
                 if (modal) modal.classList.remove('active');
             }
+
+            document.addEventListener('DOMContentLoaded', function () {
+                const feedbackForm = document.getElementById('feedbackForm');
+                if (feedbackForm) {
+                    feedbackForm.addEventListener('submit', function () {
+                        const btn = document.getElementById('submitBtn');
+                        btn.disabled = true;
+                        btn.innerHTML = '⏳ Procesando feedback con IA...';
+                        btn.style.opacity = '0.7';
+                        btn.style.cursor = 'wait';
+                    });
+                }
+            });
 
             document.addEventListener('keydown', function (e) {
                 if (e.key === 'Escape') closeVideo();
