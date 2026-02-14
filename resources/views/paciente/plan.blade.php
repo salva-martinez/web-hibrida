@@ -197,7 +197,7 @@
                     feedbackForm.addEventListener('submit', function () {
                         const btn = document.getElementById('submitBtn');
                         btn.disabled = true;
-                        btn.innerHTML = '⏳ Procesando feedback con IA...';
+                        btn.innerHTML = '⏳ Procesando feedback con IA, por favor espere...';
                         btn.style.opacity = '0.7';
                         btn.style.cursor = 'wait';
                     });

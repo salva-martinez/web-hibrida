@@ -12,12 +12,22 @@ use App\Http\Controllers\Paciente\DashboardController as PacienteDashboard;
 use App\Http\Controllers\Paciente\PlanController as PacientePlanController;
 
 // Landing -> Login
-Route::get('/', fn() => redirect()->route('login'));
+use Illuminate\Support\Facades\Auth;
+
+// Landing -> Login or Dashboard
+Route::get('/', function() {
+    if (Auth::check()) {
+        return Auth::user()->role === 'fisio' 
+            ? redirect()->route('admin.dashboard')
+            : redirect()->route('paciente.dashboard');
+    }
+    return redirect()->route('login');
+});
 
 // Auth
-Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
-Route::post('/login', [LoginController::class, 'login']);
-Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login')->middleware('guest');
+Route::post('/login', [LoginController::class, 'login'])->middleware('guest');
+Route::post('/logout', [LoginController::class, 'logout'])->name('logout')->middleware('auth');
 
 // Admin (Fisio)
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:fisio'])->group(function () {

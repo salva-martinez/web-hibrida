@@ -7,7 +7,7 @@
             <h1>Nuevo Plan de Ejercicios</h1>
             <p class="subtitle">Paciente: {{ $paciente->nombre_completo }}</p>
         </div>
-        <a href="{{ route('admin.pacientes.show', $paciente) }}" class="btn btn-secondary">← Volver</a>
+        <a href="{{ route('admin.pacientes.index') }}" class="btn btn-secondary">← Volver</a>
     </div>
 
     <div class="card" style="max-width: 800px; margin: 2rem auto;">

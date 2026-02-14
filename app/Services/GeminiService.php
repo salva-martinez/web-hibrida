@@ -37,7 +37,9 @@ class GeminiService
         try {
             $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
-            ])->timeout(30)->post("{$this->baseUrl}?key={$this->apiKey}", [
+            ])->retry(3, 2000) // 3 retries, 2 seconds apart
+              ->timeout(60)     // Increased timeout
+              ->post("{$this->baseUrl}?key={$this->apiKey}", [
                 'contents' => [
                     [
                         'parts' => [
@@ -49,7 +51,7 @@ class GeminiService
 
             if ($response->successful()) {
                 $text = $response->json()['candidates'][0]['content']['parts'][0]['text'] ?? null;
-                Log::info('GeminiService: API Response received', ['text_preview' => substr($text, 0, 50) . '...']);
+                Log::info('GeminiService: API Response received', ['text_preview' => substr($text ?? '', 0, 50) . '...']);
                 return $text;
             } else {
                 Log::error('GeminiService: API Error', ['status' => $response->status(), 'body' => $response->body()]);
@@ -88,13 +90,15 @@ class GeminiService
 
         $prompt = "Actúa como un asistente clínico experto en fisioterapia. Tienes acceso al historial completo del paciente arriba.\n" .
             "El fisioterapeuta te pregunta: \"{$mensajeFisio}\"\n\n" .
-            "Responde de forma concisa, profesional y basada ERICTAMENTE en los datos del historial proporcionado. " .
+            "Responde de forma concisa, profesional y basada en los datos del historial proporcionado y tu conocimiento como fisioterapeuta. " .
             "Si detectas tendencias (dolor creciente, estancamiento, etc.) menciónalas.";
 
         try {
             $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
-            ])->timeout(30)->post("{$this->baseUrl}?key={$this->apiKey}", [
+            ])->retry(3, 2000)
+              ->timeout(60)
+              ->post("{$this->baseUrl}?key={$this->apiKey}", [
                 'contents' => [
                     [
                         'parts' => [
