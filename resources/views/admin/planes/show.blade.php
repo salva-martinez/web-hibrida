@@ -139,4 +139,100 @@
             </div>
         </div>
     @endif
+
+
+    {{-- AI Clinical Assistant Chat --}}
+    <div class="card" style="margin-top: 1.5rem">
+        <div class="card-header" style="background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); color: white;">
+            <h3 style="margin: 0; display: flex; align-items: center; gap: 0.5rem; font-size: 1.1rem;">
+                <span>🤖</span> Asistente Clínico IA (Historial Completo)
+            </h3>
+        </div>
+        <div class="card-body">
+            <div id="chat-messages"
+                style="height: 300px; overflow-y: auto; border: 1px solid #e5e7eb; border-radius: 8px; padding: 1rem; background: #f9fafb; margin-bottom: 1rem; display: flex; flex-direction: column; gap: 0.8rem;">
+                <div class="message ai"
+                    style="align-self: flex-start; background: white; color: #333; padding: 0.8rem 1rem; border-radius: 8px 8px 8px 0; border: 1px solid #e5e7eb; max-width: 80%; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+                    Hola. Tengo acceso a todo el historial de ejercicios y feedback de
+                    <strong>{{ $plan->paciente->nombre_completo }}</strong>. ¿En qué puedo ayudarte hoy?
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 0.5rem;">
+                <input type="text" id="chat-input" class="form-control"
+                    placeholder="Ej: ¿Cómo ha evolucionado su dolor de rodilla este mes?" style="flex: 1;">
+                <button type="button" id="chat-send" class="btn btn-primary"
+                    style="display: flex; align-items: center; gap: 0.5rem;">
+                    Enviar <span>➤</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const chatInput = document.getElementById('chat-input');
+            const chatSendStr = document.getElementById('chat-send');
+            const chatMessages = document.getElementById('chat-messages');
+            const patientId = {{ $plan->paciente->id }};
+
+            function appendMessage(text, sender) {
+                const div = document.createElement('div');
+                div.className = `message ${sender}`;
+                div.style.cssText = sender === 'user'
+                    ? 'align-self: flex-end; background: #4f46e5; color: white; padding: 0.8rem 1rem; border-radius: 8px 8px 0 8px; max-width: 80%; box-shadow: 0 1px 2px rgba(0,0,0,0.1);'
+                    : 'align-self: flex-start; background: white; color: #1f2937; padding: 0.8rem 1rem; border-radius: 8px 8px 8px 0; border: 1px solid #e5e7eb; max-width: 80%; box-shadow: 0 1px 2px rgba(0,0,0,0.05);';
+                div.innerText = text;
+                chatMessages.appendChild(div);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+
+            async function sendMessage() {
+                const message = chatInput.value.trim();
+                if (!message) return;
+
+                // Add user message
+                appendMessage(message, 'user');
+                chatInput.value = '';
+                chatInput.disabled = true;
+                chatSendStr.disabled = true;
+                chatSendStr.innerHTML = 'Pensando...';
+
+                try {
+                    const response = await fetch("{{ route('admin.chat.send') }}", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': "{{ csrf_token() }}"
+                        },
+                        body: JSON.stringify({
+                            message: message,
+                            patient_id: patientId
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        appendMessage(data.response, 'ai');
+                    } else {
+                        appendMessage('Error: ' + (data.error || 'No se pudo conectar con la IA'), 'ai');
+                    }
+                } catch (error) {
+                    appendMessage('Error de conexión.', 'ai');
+                    console.error(error);
+                } finally {
+                    chatInput.disabled = false;
+                    chatSendStr.disabled = false;
+                    chatSendStr.innerHTML = 'Enviar <span>➤</span>';
+                    chatInput.focus();
+                }
+            }
+
+            chatSendStr.addEventListener('click', sendMessage);
+            chatInput.addEventListener('keypress', function (e) {
+                if (e.key === 'Enter') sendMessage();
+            });
+        });
+    </script>
 @endsection
