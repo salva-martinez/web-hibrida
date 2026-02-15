@@ -11,17 +11,8 @@ use App\Http\Controllers\Admin\ChatController;
 use App\Http\Controllers\Paciente\DashboardController as PacienteDashboard;
 use App\Http\Controllers\Paciente\PlanController as PacientePlanController;
 
-// Landing -> Login
-use Illuminate\Support\Facades\Auth;
-
-// Landing -> Login or Dashboard
-Route::get('/', function() {
-    if (Auth::check()) {
-        return Auth::user()->role === 'fisio' 
-            ? redirect()->route('admin.dashboard')
-            : redirect()->route('paciente.dashboard');
-    }
-    return redirect()->route('login');
+Route::get('/', function () {
+    return view('auth.login');
 });
 
 // Auth

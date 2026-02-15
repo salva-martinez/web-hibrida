@@ -12,6 +12,7 @@
         rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('styles')
+    <link rel="icon" type="image/webp" href="{{ asset('storage/fisio.webp') }}">
 </head>
 
 <body>
