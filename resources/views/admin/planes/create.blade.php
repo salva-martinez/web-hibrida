@@ -96,7 +96,7 @@
                             <input type="number" name="ejercicios[{{ $i }}][intensidad]" class="form-control"
                                 value="{{ $pe->intensidad }}" min="0" max="10" placeholder="7" required>
                             <input type="number" name="ejercicios[{{ $i }}][kg]" class="form-control" value="{{ $pe->kg }}" min="0"
-                                step="0.5" placeholder="—">
+                                step="any" placeholder="—">
                             <input type="text" name="ejercicios[{{ $i }}][descanso]" class="form-control"
                                 value="{{ $pe->descanso }}" placeholder="2-3'">
                             <button type="button" class="btn-remove" onclick="removeRow(this)">✕</button>
@@ -137,7 +137,7 @@
                     <input type="number" name="ejercicios[${idx}][series]" class="form-control" value="2" min="1" placeholder="3" required>
                     <input type="text" name="ejercicios[${idx}][repeticiones]" class="form-control" value="10" placeholder="10" required>
                     <input type="number" name="ejercicios[${idx}][intensidad]" class="form-control" value="7" min="0" max="10" placeholder="7" required>
-                    <input type="number" name="ejercicios[${idx}][kg]" class="form-control" min="0" step="0.5" placeholder="—">
+                    <input type="number" name="ejercicios[${idx}][kg]" class="form-control" min="0" step="any" placeholder="—">
                     <input type="text" name="ejercicios[${idx}][descanso]" class="form-control" placeholder="2-3'">
                     <button type="button" class="btn-remove" onclick="removeRow(this)">✕</button>
                 `;

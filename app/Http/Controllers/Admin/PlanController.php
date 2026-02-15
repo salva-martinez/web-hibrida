@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Models\Ejercicio;
 use App\Models\Estimulo;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class PlanController extends Controller
 {
@@ -50,10 +51,10 @@ class PlanController extends Controller
             'ejercicios' => 'required|array|min:1',
             'ejercicios.*.ejercicio_id' => 'required|exists:ejercicios,id',
             'ejercicios.*.series' => 'required|integer|min:1',
-            'ejercicios.*.repeticiones' => 'required|string',
-            'ejercicios.*.intensidad' => 'required|integer|min:0|max:10',
-            'ejercicios.*.kg' => 'nullable|numeric|min:0',
-            'ejercicios.*.descanso' => 'nullable|string',
+            'ejercicios.*.repeticiones' => 'required|numeric|min:1',
+            'ejercicios.*.intensidad' => 'required|integer|min:1|max:10',
+            'ejercicios.*.kg' => 'nullable|numeric|min:1',
+            'ejercicios.*.descanso' => 'nullable|string|max:6',
         ]);
 
         // Auto-inactivate previous active plans for this patient if the new one is active
@@ -65,7 +66,7 @@ class PlanController extends Controller
 
         $plan = Plan::create([
             'paciente_id' => $validated['paciente_id'],
-            'fisio_id' => auth()->id(),
+            'fisio_id' => Auth::id(),
             'titulo' => $validated['titulo'],
             'fecha' => $validated['fecha'],
             'activo' => true,

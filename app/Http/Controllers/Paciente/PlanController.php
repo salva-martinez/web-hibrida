@@ -7,13 +7,14 @@ use App\Models\Plan;
 use App\Models\Feedback;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 
 class PlanController extends Controller
 {
     public function show(Plan $plan)
     {
         // Ensure patient can only view their own plans
-        if ($plan->paciente_id !== auth()->id()) {
+        if ($plan->paciente_id !== Auth::id()) {
             abort(403);
         }
 
@@ -21,7 +22,7 @@ class PlanController extends Controller
         $ejerciciosPorEstimulo = $plan->ejerciciosPorEstimulo();
 
         // Navigation: previous and next plans
-        $user = auth()->user();
+        $user = Auth::user();
         $planAnterior = Plan::where('paciente_id', $user->id)
             ->where('fecha', '<', $plan->fecha)
             ->orderBy('fecha', 'desc')
@@ -37,7 +38,7 @@ class PlanController extends Controller
 
     public function storeFeedback(Request $request, Plan $plan, \App\Services\GeminiService $geminiService)
     {
-        if ($plan->paciente_id !== auth()->id()) {
+        if ($plan->paciente_id !== Auth::id()) {
             abort(403);
         }
 
