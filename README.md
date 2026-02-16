@@ -146,4 +146,4 @@ Quiero que hagas los test necesarios para comprobar que funciona bien las nuevas
 
 ```
 
-![qr](./screenshots/Captura%20desde%202026-02-16%2019-38-07.png)
+![qr](./screenshots/Captura%20desde%202026-02-16%2019-43-51.png)
