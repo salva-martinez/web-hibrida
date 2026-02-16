@@ -145,3 +145,5 @@ te voy a pedir una serie de arreglos y correcciones para implementar y pulir mas
 Quiero que hagas los test necesarios para comprobar que funciona bien las nuevas implementaciones y si encuentras un error o bug vuelvas a realicar los tests hasta encontrar su error
 
 ```
+
+![qr](./screenshots/Captura%20desde%202026-02-16%2019-38-07.png)
