@@ -53,7 +53,7 @@ class PlanController extends Controller
             'ejercicios.*.series' => 'required|integer|min:1',
             'ejercicios.*.repeticiones' => 'required|numeric|min:1',
             'ejercicios.*.intensidad' => 'required|integer|min:1|max:10',
-            'ejercicios.*.kg' => 'nullable|numeric|min:1',
+            'ejercicios.*.kg' => 'nullable|numeric|min:1|max:350',
             'ejercicios.*.descanso' => 'nullable|string|max:20',
         ]);
 
