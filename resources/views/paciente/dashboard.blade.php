@@ -45,7 +45,7 @@
                                         @if($plan->activo)
                                             <span class="badge badge-success">Activo</span>
                                         @else
-                                            <span class="badge badge-warning">Anterior</span>
+                                            <span class="badge badge-warning">Inactivo</span>
                                         @endif
                                     </td>
                                     <td>

@@ -54,7 +54,7 @@ class PlanController extends Controller
             'ejercicios.*.repeticiones' => 'required|numeric|min:1',
             'ejercicios.*.intensidad' => 'required|integer|min:1|max:10',
             'ejercicios.*.kg' => 'nullable|numeric|min:1',
-            'ejercicios.*.descanso' => 'nullable|string|max:6',
+            'ejercicios.*.descanso' => 'nullable|string|max:20',
         ]);
 
         // Auto-inactivate previous active plans for this patient if the new one is active
