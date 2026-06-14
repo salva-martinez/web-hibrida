@@ -1,0 +1,16 @@
+# Reglas de Proyecto - Web Híbrida
+
+Siempre debes seguir las siguientes pautas de documentación de la arquitectura y la memoria viva del proyecto:
+
+1. **Memoria Viva:**
+   Antes de empezar a trabajar en un nuevo requerimiento, debes revisar el archivo `.cursor/docs/memory_docs.md` para entender el estado actual del proyecto, la arquitectura, y las funcionalidades existentes.
+
+2. **Actualización de Documentación:**
+   Cada vez que realices un cambio significativo en el código (por ejemplo, añadir un nuevo modelo, cambiar una ruta principal, modificar lógica de la base de datos, o implementar una nueva funcionalidad importante), **DEBES actualizar `.cursor/docs/memory_docs.md` y `.cursor/docs/roadmap.md`** reflejando los cambios.
+   - Si creas nuevas migraciones, actualiza `.cursor/docs/database.md`.
+
+3. **Reglas Específicas:**
+   Revisa los archivos en `.cursor/rules/` para reglas específicas de codificación:
+   - `backend.mdc`: Estándares de PHP y Laravel.
+   - `frontend.mdc`: Uso de TailwindCSS v4 y Blade.
+   - `architecture.mdc`: Detalles del dominio (Pacientes, Fisios, Planes, etc).

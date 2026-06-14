@@ -18,8 +18,7 @@ class PlanController extends Controller
             abort(403);
         }
 
-        $plan->load(['planEjercicios.ejercicio.estimulo', 'feedback']);
-        $ejerciciosPorEstimulo = $plan->ejerciciosPorEstimulo();
+        $plan->load(['planDias.planEjercicios.ejercicio.estimulo', 'planDias.feedback']);
 
         // Navigation: previous and next plans
         $user = Auth::user();
@@ -33,12 +32,13 @@ class PlanController extends Controller
             ->orderBy('fecha', 'asc')
             ->first();
 
-        return view('paciente.plan', compact('plan', 'ejerciciosPorEstimulo', 'planAnterior', 'planSiguiente'));
+        return view('paciente.plan', compact('plan', 'planAnterior', 'planSiguiente'));
     }
 
-    public function storeFeedback(Request $request, Plan $plan, \App\Services\GeminiService $geminiService)
+    public function storeFeedback(Request $request, \App\Models\PlanDia $planDia, \App\Services\GeminiService $geminiService)
     {
-        if ($plan->paciente_id !== Auth::id()) {
+        // Ensure the plan belongs to the auth user
+        if ($planDia->plan->paciente_id !== Auth::id()) {
             abort(403);
         }
 
@@ -50,7 +50,7 @@ class PlanController extends Controller
         ]);
 
         // AI Analysis
-        Log::info('PlanController: Starting AI analysis for plan ' . $plan->id);
+        Log::info('PlanController: Starting AI analysis for PlanDia ' . $planDia->id);
         $analisis = $geminiService->analyzeFeedback(
             $validated['dureza'],
             $validated['dolor'] ?? null,
@@ -60,14 +60,14 @@ class PlanController extends Controller
         Log::info('PlanController: AI Analysis result: ' . ($analisis ? 'Success' : 'Failed/Null'));
 
         Feedback::updateOrCreate(
-            ['plan_id' => $plan->id],
+            ['plan_dia_id' => $planDia->id],
             [
                 ...$validated,
                 'analisis_ia' => $analisis
             ]
         );
 
-        return redirect()->route('paciente.plan.show', $plan)
-            ->with('success', '¡Feedback enviado correctamente! La IA está analizando tus resultados.');
+        return redirect()->route('paciente.plan.show', $planDia->plan_id)
+            ->with('success', '¡Feedback del Día ' . $planDia->numero_dia . ' enviado correctamente! La IA lo ha analizado.');
     }
 }

@@ -61,8 +61,8 @@
                         <tbody>
                             @foreach($ultimosFeedbacks as $fb)
                                 <tr>
-                                    <td>{{ $fb->plan->paciente->nombre_completo ?? '—' }}</td>
-                                    <td>{{ $fb->plan->titulo }}</td>
+                                    <td>{{ $fb->planDia->plan->paciente->nombre_completo ?? '—' }}</td>
+                                    <td>{{ $fb->planDia->plan->titulo }} (Día {{ $fb->planDia->numero_dia }})</td>
                                     <td><span
                                             class="badge badge-{{ $fb->dureza > 7 ? 'danger' : ($fb->dureza > 4 ? 'warning' : 'success') }}">{{ $fb->dureza }}/10</span>
                                     </td>

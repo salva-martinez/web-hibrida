@@ -74,16 +74,23 @@ class GeminiService
 
         foreach ($historialPlanes as $plan) {
             $contexto .= "--- PLAN: {$plan->titulo} ({$plan->fecha->format('d/m/Y')}) ---\n";
-            if ($plan->feedback) {
-                $contexto .= "RPE: {$plan->feedback->dureza}/10\n";
-                $contexto .= "Dolor: " . ($plan->feedback->dolor ?: 'Ninguno') . "\n";
-                $contexto .= "Evolución: " . ($plan->feedback->evolucion ?: 'No registrada') . "\n";
-                $contexto .= "Comentarios: " . ($plan->feedback->comentario ?: 'Sin comentarios') . "\n";
-                if ($plan->feedback->analisis_ia) {
-                    $contexto .= "Resumen IA previo: {$plan->feedback->analisis_ia}\n";
+            $hasAnyFeedback = false;
+            foreach ($plan->planDias as $dia) {
+                if ($dia->feedback) {
+                    $hasAnyFeedback = true;
+                    $contexto .= "Día {$dia->numero_dia} - RPE: {$dia->feedback->dureza}/10, ";
+                    $contexto .= "Dolor: " . ($dia->feedback->dolor ?: 'Ninguno') . ", ";
+                    $contexto .= "Evolución: " . ($dia->feedback->evolucion ?: 'No registrada') . "\n";
+                    if ($dia->feedback->comentario) {
+                        $contexto .= "Comentarios Día {$dia->numero_dia}: {$dia->feedback->comentario}\n";
+                    }
+                    if ($dia->feedback->analisis_ia) {
+                        $contexto .= "Resumen IA previo Día {$dia->numero_dia}: {$dia->feedback->analisis_ia}\n";
+                    }
                 }
-            } else {
-                $contexto .= "Sin feedback registrado.\n";
+            }
+            if (!$hasAnyFeedback) {
+                $contexto .= "Sin feedback registrado para este plan.\n";
             }
             $contexto .= "\n";
         }

@@ -1,0 +1,60 @@
+---
+description: Registro y seguimiento de errores y bugs conocidos en el proyecto.
+globs: *.php, *.blade.php
+---
+
+# Registro de Bugs y Soluciones
+
+Este documento sirve como "memoria de errores" para registrar bugs complejos o recurrentes, sus causas raíz y las soluciones implementadas. El objetivo es evitar regresiones y proporcionar contexto rápido a la IA o a otros desarrolladores.
+
+## Bug: Call to undefined relationship [plan] on model [App\Models\Feedback]
+
+**Fecha:** 14 de Junio de 2026
+**Componente:** Backend (Modelos Eloquent / Controladores Admin)
+**Gravedad:** Media (Rompe vistas y endpoints que dependan de esta relación)
+
+### Descripción
+Tras realizar la migración arquitectónica hacia el "Planificador Semanal Dinámico" (introducción de la entidad `PlanDia`), la aplicación lanzaba el siguiente error:
+`Call to undefined relationship [plan] on model [App\Models\Feedback]`
+
+### Causa Raíz
+En la arquitectura original, `Feedback` pertenecía directamente a `Plan`. Tras la refactorización, `Feedback` pasó a pertenecer a `PlanDia` (`plan_dia_id`), por lo que se eliminó el método `plan()` del modelo `Feedback` y se sustituyó por `planDia()`.
+Sin embargo, quedaron controladores y vistas que seguían intentando cargar ("Eager Loading") o acceder a la relación antigua:
+1. `DashboardController`: Cargaba `$ultimosFeedbacks = Feedback::with('plan.paciente')`.
+2. `dashboard.blade.php`: Accedía a `$fb->plan->paciente` y `$fb->plan->titulo`.
+3. `ChatController` y `GeminiService`: Intentaban cargar `$plan->feedback` o iterar sobre él en lugar de acceder a `$plan->planDias->feedback`.
+
+### Solución Implementada
+1. **Controladores:** Se actualizó el "Eager Loading" para reflejar la nueva cadena relacional.
+   - Antes: `Feedback::with('plan.paciente')`
+   - Ahora: `Feedback::with('planDia.plan.paciente')`
+   - En ChatController: `->with(['planDias.feedback', ...])`
+2. **Vistas (`dashboard.blade.php`):** Se actualizó el acceso a las propiedades.
+   - Antes: `{{ $fb->plan->paciente->nombre_completo }}`
+   - Ahora: `{{ $fb->planDia->plan->paciente->nombre_completo }}`
+3. **Servicios (`GeminiService.php`):** Se adaptó la lógica de iteración para recorrer los días (`$plan->planDias`) y buscar el feedback dentro de cada día.
+
+### Prevención y Reglas Futuras
+- **Siempre que se modifique una relación en un Modelo Eloquent**, se debe hacer una búsqueda global (grep) del nombre de la relación antigua (`->relacion`, `with('relacion')`) en toda la carpeta `app/Http/Controllers`, `app/Services` y `resources/views`.
+- **Eager Loading Estricto:** Evitar acceder a propiedades dinámicas sin haberlas cargado explícitamente en el `with()`, para detectar estos errores más rápido y evitar problemas de rendimiento (N+1 queries).
+
+---
+
+## Bug: Header y Footer se agrupan en la parte inferior (Layout roto)
+
+**Fecha:** 14 de Junio de 2026
+**Componente:** Frontend (Blade / Layout)
+**Gravedad:** Media (Afecta visualmente a la navegación)
+
+### Descripción
+Al acceder a la vista de creación o edición de un plan (`create.blade.php`), la barra de navegación (navbar) y el footer aparecían juntos en la parte inferior de la pantalla, rompiendo por completo el diseño de la página.
+
+### Causa Raíz
+Durante la implementación del selector dinámico de días con pestañas (Vanilla JS), se modificó la sección `@push('scripts')` de la plantilla Blade pero se borró accidentalmente el cierre de la misma (`@endpush`). 
+Debido a la ausencia de `@endpush`, Blade asumió que el final de la sección `@section('content')` y otros elementos posteriores (como la etiqueta de cierre del layout) debían incluirse dentro del bloque `scripts`. Esto provocó que el DOM HTML estuviera malformado, el contenedor `main-content` no se cerrara adecuadamente, y la barra de navegación que debía estar arriba (pero que forma parte del `layouts.app`) se moviera de forma caótica al no poder estructurar el Flexbox correctamente.
+
+### Solución Implementada
+Se restauró la etiqueta `@endpush` justo antes del `@endsection` final en `resources/views/admin/planes/create.blade.php`.
+
+### Prevención y Reglas Futuras
+- **Al editar bloques en Blade (`@push`, `@section`, `@if`, `@foreach`)**, siempre asegurarse de emparejarlos con su correspondiente cierre (`@endpush`, `@endsection`, etc.). Una etiqueta no cerrada puede romper por completo el layout padre.

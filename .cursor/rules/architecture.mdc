@@ -1,0 +1,14 @@
+---
+description: Arquitectura de Dominio y Contexto del Negocio
+globs: ["app/Models/**/*.php"]
+---
+# Dominio de Negocio (Arquitectura)
+
+- **Perfiles:**
+  - `Fisio (Admin)`: Crea pacientes, define estímulos, crea ejercicios, arma planes y los asigna. Revisa el feedback y usa el chat.
+  - `Paciente`: Accede de manera simple para ver sus planes activos y proporcionar feedback sobre sus ejercicios.
+- **Jerarquía Médica:**
+  - Los **Estímulos** son los fundamentos de la rehabilitación.
+  - Los **Ejercicios** son la materialización de los estímulos.
+  - Los **Planes** agrupan ejercicios para el paciente de forma personalizada.
+- **IA:** La tabla `feedback` incluye campos para ser consumidos/escritos por servicios de IA. El código que interactúe con la IA debe estar fuertemente tipado e idealmente encapsulado en `app/Services/AIService.php` (o similar).

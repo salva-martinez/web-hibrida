@@ -31,24 +31,8 @@ class Plan extends Model
         return $this->belongsTo(User::class, 'fisio_id');
     }
 
-    public function planEjercicios()
+    public function planDias()
     {
-        return $this->hasMany(PlanEjercicio::class)->orderBy('orden');
-    }
-
-    public function feedback()
-    {
-        return $this->hasOne(Feedback::class);
-    }
-
-    /**
-     * Get plan exercises grouped by estímulo.
-     */
-    public function ejerciciosPorEstimulo()
-    {
-        return $this->planEjercicios
-            ->loadMissing('ejercicio.estimulo')
-            ->sortBy(fn($pe) => $pe->ejercicio->estimulo->orden)
-            ->groupBy(fn($pe) => $pe->ejercicio->estimulo->nombre);
+        return $this->hasMany(PlanDia::class)->orderBy('numero_dia');
     }
 }

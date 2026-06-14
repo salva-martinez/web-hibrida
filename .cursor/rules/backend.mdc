@@ -1,0 +1,14 @@
+---
+description: Reglas de desarrollo para el backend en PHP y Laravel.
+globs: ["app/**/*.php", "routes/**/*.php", "database/**/*.php"]
+---
+# Reglas de Backend (PHP / Laravel)
+
+- **Versión PHP:** 8.2+. Usa tipado fuerte en propiedades, argumentos y retornos (`string`, `int`, `?Model`, etc.).
+- **Laravel 12:** Usa las características modernas de Laravel 12.
+- **Controladores delgados:** La lógica de negocio pesada debe ir a clases dentro de `app/Services/`.
+- **Rutas:** Mantener el archivo `routes/web.php` ordenado por namespaces y middlewares de roles (`admin`, `paciente`).
+- **Nombres:**
+  - Clases en `StudlyCaps`.
+  - Métodos y variables en `camelCase`.
+  - Archivos de migraciones estándar.

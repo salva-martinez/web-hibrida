@@ -1,0 +1,11 @@
+---
+description: Reglas de diseño y desarrollo frontend usando Blade y Tailwind.
+globs: ["resources/views/**/*.blade.php", "resources/css/**/*.css", "resources/js/**/*.js"]
+---
+# Reglas de Frontend (Tailwind CSS v4 & Blade)
+
+- **Framework CSS:** Utilizamos Tailwind CSS v4.
+- **Vistas Modulares:** Utiliza componentes de Blade (`<x-component>`) y directivas (`@extends`, `@section`) alojados en `resources/views/layouts/`.
+- **Separación de roles en la UI:** Asegúrate de que las vistas de `admin` mantengan coherencia visual distinta (o clara jerarquía) respecto a las de `paciente`.
+- **Responsividad:** El diseño debe ser prioritariamente mobile-first usando las clases responsivas estándar de Tailwind (`sm:`, `md:`, `lg:`).
+- **JavaScript:** Si se requiere interactividad ligera, puede usarse Vanilla JS directamente o a través de assets gestionados por Vite.

@@ -25,7 +25,7 @@ class ChatController extends Controller
 
         // Recuperar historial completo
         $historial = $paciente->planesComoPaciente()
-            ->with(['feedback', 'planEjercicios.ejercicio'])
+            ->with(['planDias.feedback', 'planDias.planEjercicios.ejercicio'])
             ->orderBy('fecha', 'asc') // Orden cronológico para la IA
             ->get();
 

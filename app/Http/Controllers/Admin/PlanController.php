@@ -15,7 +15,7 @@ class PlanController extends Controller
 {
     public function index()
     {
-        $planes = Plan::with(['paciente', 'feedback'])->latest('fecha')->get();
+        $planes = Plan::with(['paciente', 'planDias.feedback'])->latest('fecha')->get();
         return view('admin.planes.index', compact('planes'));
     }
 
@@ -36,54 +36,32 @@ class PlanController extends Controller
 
         $clonedPlan = null;
         if ($request->has('clone_id')) {
-            $clonedPlan = Plan::with('planEjercicios')->find($request->clone_id);
+            $clonedPlan = Plan::with('planDias.planEjercicios')->find($request->clone_id);
         }
 
         return view('admin.planes.create', compact('pacientes', 'estimulos', 'clonedPlan'));
     }
 
-    public function store(Request $request)
+    public function store(Request $request, \App\Services\PlanService $planService)
     {
         $validated = $request->validate([
             'paciente_id' => 'required|exists:users,id',
             'titulo' => 'required|string|max:255',
             'fecha' => 'required|date',
-            'ejercicios' => 'required|array|min:1',
-            'ejercicios.*.ejercicio_id' => 'required|exists:ejercicios,id',
-            'ejercicios.*.series' => 'required|integer|min:1|max:350',
-            'ejercicios.*.repeticiones' => 'required|numeric|min:1|max:350',
-            'ejercicios.*.intensidad' => 'required|integer|min:1|max:10',
-            'ejercicios.*.kg' => 'nullable|numeric|min:1|max:350',
-            'ejercicios.*.descanso' => 'nullable|string|max:20',
+            'dias' => 'required|array|min:1',
+            'dias.*.notas_fisio' => 'nullable|string',
+            'dias.*.ejercicios' => 'required|array|min:1',
+            'dias.*.ejercicios.*.ejercicio_id' => 'required|exists:ejercicios,id',
+            'dias.*.ejercicios.*.series' => 'required|integer|min:1|max:350',
+            'dias.*.ejercicios.*.repeticiones' => 'required|numeric|min:1|max:350',
+            'dias.*.ejercicios.*.intensidad' => 'required|integer|min:1|max:10',
+            'dias.*.ejercicios.*.kg' => 'nullable|numeric|min:1|max:350',
+            'dias.*.ejercicios.*.descanso' => 'nullable|string|max:20',
         ]);
 
-        // Auto-inactivate previous active plans for this patient if the new one is active
-        if (request()->boolean('activo', true)) { // Default to true if not present, though 'activo' isn't in validate it's set in create
-             Plan::where('paciente_id', $validated['paciente_id'])
-                ->where('activo', true)
-                ->update(['activo' => false]);
-        }
+        $validated['activo'] = request()->boolean('activo', true);
 
-        $plan = Plan::create([
-            'paciente_id' => $validated['paciente_id'],
-            'fisio_id' => Auth::id(),
-            'titulo' => $validated['titulo'],
-            'fecha' => $validated['fecha'],
-            'activo' => true,
-        ]);
-
-        foreach ($validated['ejercicios'] as $index => $ej) {
-            PlanEjercicio::create([
-                'plan_id' => $plan->id,
-                'ejercicio_id' => $ej['ejercicio_id'],
-                'series' => $ej['series'],
-                'repeticiones' => $ej['repeticiones'],
-                'intensidad' => $ej['intensidad'],
-                'kg' => $ej['kg'] ?? null,
-                'descanso' => $ej['descanso'] ?? null,
-                'orden' => $index,
-            ]);
-        }
+        $planService->createPlan($validated);
 
         return redirect()->route('admin.planes.index')
             ->with('success', 'Plan creado correctamente.');
@@ -91,56 +69,39 @@ class PlanController extends Controller
 
     public function show(Plan $plan)
     {
-        $plan->load(['paciente', 'fisio', 'planEjercicios.ejercicio.estimulo', 'feedback']);
-        $ejerciciosPorEstimulo = $plan->ejerciciosPorEstimulo();
-        return view('admin.planes.show', compact('plan', 'ejerciciosPorEstimulo'));
+        $plan->load(['paciente', 'fisio', 'planDias.planEjercicios.ejercicio.estimulo', 'planDias.feedback']);
+        return view('admin.planes.show', compact('plan'));
     }
 
     public function edit(Plan $plan)
     {
-        $plan->load('planEjercicios.ejercicio');
+        $plan->load('planDias.planEjercicios.ejercicio');
         $pacientes = User::pacientes()->orderBy('nombre')->get();
         $estimulos = Estimulo::with('ejercicios')->orderBy('orden')->get();
         return view('admin.planes.edit', compact('plan', 'pacientes', 'estimulos'));
     }
 
-    public function update(Request $request, Plan $plan)
+    public function update(Request $request, Plan $plan, \App\Services\PlanService $planService)
     {
         $validated = $request->validate([
             'paciente_id' => 'required|exists:users,id',
             'titulo' => 'required|string|max:255',
             'fecha' => 'required|date',
             'activo' => 'boolean',
-            'ejercicios' => 'required|array|min:1',
-            'ejercicios.*.ejercicio_id' => 'required|exists:ejercicios,id',
-            'ejercicios.*.series' => 'required|integer|min:1',
-            'ejercicios.*.repeticiones' => 'required|string',
-            'ejercicios.*.intensidad' => 'required|integer|min:0|max:10',
-            'ejercicios.*.kg' => 'nullable|numeric|min:0',
-            'ejercicios.*.descanso' => 'nullable|string',
+            'dias' => 'required|array|min:1',
+            'dias.*.notas_fisio' => 'nullable|string',
+            'dias.*.ejercicios' => 'required|array|min:1',
+            'dias.*.ejercicios.*.ejercicio_id' => 'required|exists:ejercicios,id',
+            'dias.*.ejercicios.*.series' => 'required|integer|min:1',
+            'dias.*.ejercicios.*.repeticiones' => 'required|string',
+            'dias.*.ejercicios.*.intensidad' => 'required|integer|min:0|max:10',
+            'dias.*.ejercicios.*.kg' => 'nullable|numeric|min:0',
+            'dias.*.ejercicios.*.descanso' => 'nullable|string',
         ]);
 
-        $plan->update([
-            'paciente_id' => $validated['paciente_id'],
-            'titulo' => $validated['titulo'],
-            'fecha' => $validated['fecha'],
-            'activo' => $request->boolean('activo'),
-        ]);
+        $validated['activo'] = $request->boolean('activo');
 
-        // Replace all exercises
-        $plan->planEjercicios()->delete();
-        foreach ($validated['ejercicios'] as $index => $ej) {
-            PlanEjercicio::create([
-                'plan_id' => $plan->id,
-                'ejercicio_id' => $ej['ejercicio_id'],
-                'series' => $ej['series'],
-                'repeticiones' => $ej['repeticiones'],
-                'intensidad' => $ej['intensidad'],
-                'kg' => $ej['kg'] ?? null,
-                'descanso' => $ej['descanso'] ?? null,
-                'orden' => $index,
-            ]);
-        }
+        $planService->updatePlan($plan, $validated);
 
         return redirect()->route('admin.planes.index')
             ->with('success', 'Plan actualizado correctamente.');

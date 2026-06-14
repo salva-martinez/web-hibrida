@@ -17,7 +17,7 @@ class DashboardController extends Controller
             'ejercicios' => Ejercicio::count(),
         ];
 
-        $ultimosFeedbacks = \App\Models\Feedback::with('plan.paciente')
+        $ultimosFeedbacks = \App\Models\Feedback::with('planDia.plan.paciente')
             ->latest()
             ->take(5)
             ->get();

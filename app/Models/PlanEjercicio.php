@@ -12,7 +12,7 @@ class PlanEjercicio extends Model
     protected $table = 'plan_ejercicios';
 
     protected $fillable = [
-        'plan_id', 'ejercicio_id', 'series',
+        'plan_dia_id', 'ejercicio_id', 'series',
         'repeticiones', 'intensidad', 'kg', 'descanso', 'orden',
     ];
 
@@ -23,9 +23,9 @@ class PlanEjercicio extends Model
         ];
     }
 
-    public function plan()
+    public function planDia()
     {
-        return $this->belongsTo(Plan::class);
+        return $this->belongsTo(PlanDia::class);
     }
 
     public function ejercicio()
