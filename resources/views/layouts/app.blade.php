@@ -38,6 +38,8 @@
                             class="nav-link {{ request()->routeIs('admin.ejercicios.*') ? 'active' : '' }}">Ejercicios</a>
                         <a href="{{ route('admin.planes.index') }}"
                             class="nav-link {{ request()->routeIs('admin.planes.*') ? 'active' : '' }}">Planes</a>
+                        <a href="{{ route('admin.invitaciones.index') }}"
+                            class="nav-link {{ request()->routeIs('admin.invitaciones.*') ? 'active' : '' }}">Invitar Fisio</a>
                     @endif
                 </div>
 
