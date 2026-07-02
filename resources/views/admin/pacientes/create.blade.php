@@ -32,6 +32,12 @@
                     </div>
                 </div>
                 <div class="form-group">
+                    <label for="fecha_nacimiento">Fecha de Nacimiento *</label>
+                    <input type="date" name="fecha_nacimiento" id="fecha_nacimiento" class="form-control"
+                        value="{{ old('fecha_nacimiento') }}" required>
+                    <small>Se usará junto al nombre como verificación de identidad al iniciar sesión.</small>
+                </div>
+                <div class="form-group">
                     <label for="email">Email (opcional)</label>
                     <input type="email" name="email" id="email" class="form-control" value="{{ old('email') }}"
                         placeholder="email@ejemplo.com">

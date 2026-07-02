@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class PacienteController extends Controller
 {
@@ -36,12 +37,13 @@ class PacienteController extends Controller
             'nombre' => 'required|string|max:255',
             'apellido1' => 'required|string|max:255',
             'apellido2' => 'required|string|max:255',
+            'fecha_nacimiento' => 'required|date',
             'email' => 'nullable|email|unique:users,email',
         ]);
 
         User::create([
             ...$validated,
-            'password' => bcrypt('password'), // Default password
+            'password' => bcrypt(Str::random(32)), // Not used for login, patients authenticate via name + fecha_nacimiento
             'role' => 'paciente',
         ]);
 
@@ -51,7 +53,7 @@ class PacienteController extends Controller
 
     public function show(User $paciente)
     {
-        $paciente->load(['planesComoPaciente.feedback', 'planesComoPaciente.planEjercicios.ejercicio.estimulo']);
+        $paciente->load(['planesComoPaciente.planDias.feedback', 'planesComoPaciente.planDias.planEjercicios.ejercicio.estimulo']);
         return view('admin.pacientes.show', compact('paciente'));
     }
 
@@ -66,6 +68,7 @@ class PacienteController extends Controller
             'nombre' => 'required|string|max:255',
             'apellido1' => 'required|string|max:255',
             'apellido2' => 'required|string|max:255',
+            'fecha_nacimiento' => 'required|date',
             'email' => 'nullable|email|unique:users,email,' . $paciente->id,
         ]);
 

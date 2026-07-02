@@ -50,15 +50,20 @@ class PlanService
     public function updatePlan(Plan $plan, array $data): Plan
     {
         return DB::transaction(function () use ($plan, $data) {
+            // Auto-inactivate other active plans for this patient if this one becomes active
+            if ($data['activo']) {
+                Plan::where('paciente_id', $data['paciente_id'])
+                    ->where('id', '!=', $plan->id)
+                    ->where('activo', true)
+                    ->update(['activo' => false]);
+            }
+
             $plan->update([
                 'paciente_id' => $data['paciente_id'],
                 'titulo' => $data['titulo'],
                 'fecha' => $data['fecha'],
                 'activo' => $data['activo'],
             ]);
-
-            // To simplify, we delete existing planDias and recreate them
-            $plan->planDias()->delete(); // This cascades to plan_ejercicios
 
             $this->syncDiasAndEjercicios($plan, $data['dias']);
 
@@ -74,17 +79,24 @@ class PlanService
      */
     private function syncDiasAndEjercicios(Plan $plan, array $dias): void
     {
+        $numerosDiasEnviados = [];
+
         foreach ($dias as $numeroDia => $diaData) {
             // Only create the day if it has exercises
             if (!isset($diaData['ejercicios']) || empty($diaData['ejercicios'])) {
                 continue;
             }
 
-            $planDia = PlanDia::create([
-                'plan_id' => $plan->id,
-                'numero_dia' => $numeroDia,
-                'notas_fisio' => $diaData['notas_fisio'] ?? null,
-            ]);
+            $numerosDiasEnviados[] = $numeroDia;
+
+            // Reuse the existing PlanDia (and its feedback) if this day already existed
+            $planDia = PlanDia::updateOrCreate(
+                ['plan_id' => $plan->id, 'numero_dia' => $numeroDia],
+                ['notas_fisio' => $diaData['notas_fisio'] ?? null]
+            );
+
+            // Exercises carry no feedback themselves, safe to replace
+            $planDia->planEjercicios()->delete();
 
             foreach ($diaData['ejercicios'] as $index => $ej) {
                 PlanEjercicio::create([
@@ -99,5 +111,8 @@ class PlanService
                 ]);
             }
         }
+
+        // Remove days that are no longer part of the plan (cascades their feedback too)
+        $plan->planDias()->whereNotIn('numero_dia', $numerosDiasEnviados)->delete();
     }
 }

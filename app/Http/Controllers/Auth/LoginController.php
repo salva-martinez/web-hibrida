@@ -44,16 +44,18 @@ class LoginController extends Controller
             'nombre' => 'required|string',
             'apellido1' => 'required|string',
             'apellido2' => 'required|string',
+            'fecha_nacimiento' => 'required|date',
         ]);
 
         $user = User::where('nombre', $request->nombre)
             ->where('apellido1', $request->apellido1)
             ->where('apellido2', $request->apellido2)
+            ->where('fecha_nacimiento', $request->fecha_nacimiento)
             ->where('role', 'paciente')
             ->first();
 
         if ($user) {
-            Auth::login($user, true);
+            Auth::login($user);
             $request->session()->regenerate();
             return redirect()->intended('/paciente/dashboard');
         }

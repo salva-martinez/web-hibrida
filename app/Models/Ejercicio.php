@@ -50,6 +50,6 @@ class Ejercicio extends Model
             return "https://www.youtube.com/embed/{$matches[1]}";
         }
 
-        return $url;
+        return null;
     }
 }

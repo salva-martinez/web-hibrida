@@ -8,6 +8,7 @@ use App\Models\Ejercicio;
 use App\Models\Plan;
 use App\Models\PlanEjercicio;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 class DatabaseSeeder extends Seeder
 {
@@ -25,10 +26,10 @@ class DatabaseSeeder extends Seeder
 
         // 2. Pacientes de ejemplo
         $pacientes = [
-            ['nombre' => 'Carlos', 'apellido1' => 'García', 'apellido2' => 'López'],
-            ['nombre' => 'Ana', 'apellido1' => 'Martínez', 'apellido2' => 'Ruiz'],
-            ['nombre' => 'Beto', 'apellido1' => 'Sánchez', 'apellido2' => 'Gómez'],
-            ['nombre' => 'David', 'apellido1' => 'Fernández', 'apellido2' => 'Díaz'],
+            ['nombre' => 'Carlos', 'apellido1' => 'García', 'apellido2' => 'López', 'fecha_nacimiento' => '1985-03-14'],
+            ['nombre' => 'Ana', 'apellido1' => 'Martínez', 'apellido2' => 'Ruiz', 'fecha_nacimiento' => '1990-07-22'],
+            ['nombre' => 'Beto', 'apellido1' => 'Sánchez', 'apellido2' => 'Gómez', 'fecha_nacimiento' => '1978-11-05'],
+            ['nombre' => 'David', 'apellido1' => 'Fernández', 'apellido2' => 'Díaz', 'fecha_nacimiento' => '1995-01-30'],
         ];
 
         foreach ($pacientes as $p) {
@@ -36,7 +37,8 @@ class DatabaseSeeder extends Seeder
                 'nombre' => $p['nombre'],
                 'apellido1' => $p['apellido1'],
                 'apellido2' => $p['apellido2'],
-                'password' => bcrypt('password'),
+                'fecha_nacimiento' => $p['fecha_nacimiento'],
+                'password' => bcrypt(Str::random(32)),
                 'role' => 'paciente',
             ]);
         }

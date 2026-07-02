@@ -51,21 +51,26 @@
                                         @endif
                                     </td>
                                     <td>
-                                        @if($plan->feedback)
-                                            <span
-                                                class="badge badge-{{ $plan->feedback->dureza > 7 ? 'danger' : ($plan->feedback->dureza > 4 ? 'warning' : 'success') }}">
-                                                Dureza: {{ $plan->feedback->dureza }}/10
-                                            </span>
-                                            @if($plan->feedback->comentario)
-                                                <style="color: var(--text-secondary)">
-                                                    {{ Str::limit($plan->feedback->comentario, 40) }}</small>
-                                            @endif
-                                                @if($plan->feedback->analisis_ia)
-                                                    <br><span class="badge badge-info" title="Análisis IA disponible">IA ✨</span>
-                                                @endif
+                                        @php $diasConFeedback = $plan->planDias->filter->feedback; @endphp
+                                        @if($diasConFeedback->isEmpty())
+                                            <span style="color: var(--text-muted)">—</span>
                                         @else
-                                                <span style="color: var(--text-muted)">—</span>
-                                            @endif
+                                            @foreach($diasConFeedback as $dia)
+                                                <div style="margin-bottom: 4px">
+                                                    <span
+                                                        class="badge badge-{{ $dia->feedback->dureza > 7 ? 'danger' : ($dia->feedback->dureza > 4 ? 'warning' : 'success') }}">
+                                                        Día {{ $dia->numero_dia }} — Dureza: {{ $dia->feedback->dureza }}/10
+                                                    </span>
+                                                    @if($dia->feedback->comentario)
+                                                        <br><small style="color: var(--text-secondary)">
+                                                            {{ Str::limit($dia->feedback->comentario, 40) }}</small>
+                                                    @endif
+                                                    @if($dia->feedback->analisis_ia)
+                                                        <br><span class="badge badge-info" title="Análisis IA disponible">IA ✨</span>
+                                                    @endif
+                                                </div>
+                                            @endforeach
+                                        @endif
                                     </td>
                                     <td>
                                         <a href="{{ route('admin.planes.show', $plan) }}" class="btn btn-sm btn-secondary">Ver

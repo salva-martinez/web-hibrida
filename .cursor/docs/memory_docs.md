@@ -25,3 +25,152 @@ Aplicación web diseñada para la gestión clínica en el área de fisioterapia.
 
 ## Notas Importantes
 - *Siempre consultar este documento antes de generar nuevas funcionalidades estructurales.*
+
+---
+
+## Auditoría de Código — 2 de Julio de 2026
+
+Auditoría completa realizada sobre todo el codebase. Se identificaron 10 hallazgos.
+
+**Actualización 2 de Julio de 2026:** Los 10 hallazgos han sido corregidos (ver detalle de cada uno más abajo). Cambios destacados:
+- Ruta de feedback corregida (`{planDia}`) y `updatePlan` reescrito para no borrar/recrear `PlanDia` (preserva feedback), desactivando otros planes activos al guardar.
+- Login de pacientes ahora exige `fecha_nacimiento` como segundo factor (nueva columna en `users`, migración `2026_07_02_174252_add_fecha_nacimiento_to_users_table`). Los pacientes ya existentes en la BD de desarrollo se re-poblaron con su fecha; un paciente creado manualmente (`Alex Martinez Teran`, id 6) quedó sin fecha y no podrá iniciar sesión hasta que se edite su ficha desde el panel admin.
+- Contraseña de pacientes generada con `Str::random(32)` en vez de `'password'` hardcoded (ya no se usa para login).
+- Eager loading y vista de `admin/pacientes/show` adaptados a `planDias.feedback`; HTML malformado corregido.
+- Rate limiting (`throttle:10,1`) añadido a los endpoints que llaman a Gemini.
+- Prompt de Gemini delimita el comentario del paciente para mitigar prompt injection.
+- `embed_url` devuelve `null` para vídeos no-YouTube.
+
+### 🔴 CRÍTICO-1 — El envío de feedback siempre falla con error 500
+
+**Archivos:** `routes/web.php:40` + `app/Http/Controllers/Paciente/PlanController.php:38`
+
+La ruta define el parámetro `{plan}` pero el controlador espera `\App\Models\PlanDia $planDia`. Laravel no puede hacer implicit route model binding porque los nombres no coinciden. El contenedor IoC resuelve `$planDia` como una instancia vacía de PlanDia (con `id = null`). Al acceder a `$planDia->plan->paciente_id` en la línea 41, la relación devuelve `null` y PHP lanza un fatal error.
+
+**Estado:** ✅ CORREGIDO  
+**Fix:** Cambiar la ruta de `{plan}` a `{planDia}` en `routes/web.php:40`.
+
+---
+
+### 🔴 CRÍTICO-2 — Login de pacientes sin contraseña (autenticación solo por nombre)
+
+**Archivo:** `app/Http/Controllers/Auth/LoginController.php:49-58`
+
+Los pacientes no necesitan ningún secreto para autenticarse. Cualquier persona que conozca el nombre completo de un paciente puede acceder a su cuenta y ver sus planes, historial y datos clínicos. El `Auth::login($user, true)` crea además una sesión permanente.
+
+**Estado:** ✅ CORREGIDO  
+**Fix:** Añadir un PIN numérico, fecha de nacimiento, o cualquier secreto compartido como segundo factor de verificación de identidad.
+
+---
+
+### 🟠 ALTO-1 — Editar un plan elimina todo el historial de feedback del paciente
+
+**Archivo:** `app/Services/PlanService.php:61`
+
+`$plan->planDias()->delete()` en `updatePlan` cascada a la tabla `feedback` (definido como `ON DELETE CASCADE` en la migración `2026_06_14`). Cualquier edición menor del plan (título, fecha, ejercicio) destruye permanentemente todo el feedback clínico registrado por el paciente.
+
+**Estado:** ✅ CORREGIDO  
+**Fix:** Actualizar/parchear los `PlanDia` existentes en lugar de borrar y recrear. Solo eliminar los días que ya no estén presentes en el nuevo listado.
+
+---
+
+### 🟡 MEDIO-1 — `updatePlan` no desactiva otros planes al activar uno existente
+
+**Archivo:** `app/Services/PlanService.php:50-67`
+
+`createPlan` desactiva correctamente los demás planes activos del paciente antes de crear uno nuevo (línea 23-27), pero `updatePlan` no tiene esta lógica. Si el fisio edita un plan y lo marca como activo, el paciente puede terminar con múltiples planes activos simultáneamente.
+
+**Estado:** ✅ CORREGIDO  
+**Fix:** Añadir la misma lógica de desactivación al inicio de `updatePlan`, condicionada a `$data['activo'] === true`.
+
+---
+
+### 🟡 MEDIO-2 — Relaciones obsoletas tras el refactor a `plan_dias` (feedback invisible en admin)
+
+**Archivo:** `app/Http/Controllers/Admin/PacienteController.php:54`
+
+Tras la migración del 14 de junio, `PacienteController::show` carga relaciones que ya no existen directamente en el modelo `Plan`:
+- `planesComoPaciente.feedback` — `Plan` no tiene `hasOne(Feedback)`.
+- `planesComoPaciente.planEjercicios` — `Plan` no tiene `hasMany(PlanEjercicio)`.
+
+La columna "Feedback" en `admin/pacientes/show.blade.php` siempre aparece vacía aunque el paciente haya registrado feedback.
+
+**Estado:** ✅ CORREGIDO  
+**Fix:** Cambiar el eager load a `planesComoPaciente.planDias.feedback` y adaptar la vista para iterar `$plan->planDias`.
+
+---
+
+### 🟡 MEDIO-3 — HTML malformado en la vista de detalle de paciente
+
+**Archivo:** `resources/views/admin/pacientes/show.blade.php:60-61`
+
+```blade
+<style="color: var(--text-secondary)">   ← Falta el nombre de la etiqueta
+    {{ Str::limit($plan->feedback->comentario, 40) }}</small>  ← Cierre sin apertura
+```
+
+El navegador ignora la etiqueta malformada y el texto del comentario se renderiza sin estilos. El `</small>` huérfano puede romper el layout.
+
+**Estado:** ✅ CORREGIDO  
+**Fix:** Reemplazar con `<small style="color: var(--text-secondary)">`.
+
+---
+
+### 🟡 MEDIO-4 — Sin rate limiting en endpoints que consumen la API de Gemini
+
+**Archivo:** `routes/web.php:33,40`
+
+Los endpoints `POST /admin/chat/send` y `POST /paciente/plan/{plan}/feedback` llaman a la API de Gemini sin ningún control de velocidad. Un usuario autenticado puede enviar cientos de peticiones por segundo, agotando la cuota o el presupuesto de la API.
+
+**Estado:** ✅ CORREGIDO  
+**Fix:** Añadir `->middleware('throttle:10,1')` (10 req/min) a ambas rutas en `routes/web.php`.
+
+---
+
+### 🟢 BAJO-1 — Prompt injection vía comentario del paciente
+
+**Archivo:** `app/Services/GeminiService.php:31-35`
+
+El campo `$comentario` del paciente se interpola directamente en el prompt clínico sin delimitadores ni saneamiento. Un paciente podría escribir instrucciones adversariales en el comentario para manipular el análisis clínico que la IA genera para el fisioterapeuta.
+
+**Estado:** ✅ CORREGIDO  
+**Fix:** Delimitar el contenido del usuario con marcadores explícitos (ej: `[INICIO_COMENTARIO]...[FIN_COMENTARIO]`) e indicar en el prompt del sistema que no se deben seguir instrucciones dentro de ese bloque.
+
+---
+
+### 🟢 BAJO-2 — `embed_url` devuelve URLs arbitrarias para vídeos no-YouTube
+
+**Archivo:** `app/Models/Ejercicio.php:53`
+
+Si `video_url` no coincide con ningún patrón de YouTube, `getEmbedUrlAttribute()` devuelve la URL original sin modificar (línea 53). Esta URL acaba cargada en un `<iframe>` en la vista del paciente, pudiendo mostrar contenido inesperado.
+
+**Estado:** ✅ CORREGIDO  
+**Fix:** Devolver `null` si la URL no es YouTube, en lugar de retornar la URL original.
+
+---
+
+### 🟢 BAJO-3 — Contraseña por defecto hardcoded para todos los pacientes
+
+**Archivo:** `app/Http/Controllers/Admin/PacienteController.php:44`
+
+Todos los pacientes se crean con `bcrypt('password')`. Si en el futuro se añade autenticación por contraseña, todos los usuarios existentes tendrían la misma contraseña conocida públicamente.
+
+**Estado:** ✅ CORREGIDO  
+**Fix:** Generar un token aleatorio con `Str::random(12)` o dejar el campo `null` hasta implementar el flujo de activación de cuenta.
+
+---
+
+### Tabla Resumen
+
+| # | Severidad | Descripción | Archivo principal | Estado |
+|---|-----------|-------------|-------------------|--------|
+| 1 | 🔴 Crítico | Feedback siempre crashea (route mismatch `{plan}` vs `$planDia`) | `Paciente/PlanController.php:38` | ✅ Corregido |
+| 2 | 🔴 Crítico | Login paciente sin contraseña (solo nombre completo) | `Auth/LoginController.php:49` | ✅ Corregido |
+| 3 | 🟠 Alto | Editar plan borra todo el feedback vía CASCADE | `PlanService.php:61` | ✅ Corregido |
+| 4 | 🟡 Medio | `updatePlan` no desactiva otros planes activos | `PlanService.php:50` | ✅ Corregido |
+| 5 | 🟡 Medio | Relaciones obsoletas post-refactor, feedback invisible en admin | `PacienteController.php:54` | ✅ Corregido |
+| 6 | 🟡 Medio | HTML malformado (`<style=...>` sin nombre de etiqueta) | `show.blade.php:60` | ✅ Corregido |
+| 7 | 🟡 Medio | Sin rate limiting en endpoints de Gemini AI | `routes/web.php:33,40` | ✅ Corregido |
+| 8 | 🟢 Bajo | Prompt injection vía campo comentario del paciente | `GeminiService.php:31` | ✅ Corregido |
+| 9 | 🟢 Bajo | `embed_url` devuelve URLs arbitrarias (no YouTube) | `Ejercicio.php:53` | ✅ Corregido |
+| 10 | 🟢 Bajo | Contraseña por defecto `'password'` hardcoded | `PacienteController.php:44` | ✅ Corregido |

@@ -30,12 +30,12 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:fisio'])->grou
     Route::resource('planes', PlanController::class)->parameters([
         'planes' => 'plan'
     ]);
-    Route::post('/chat/send', [ChatController::class, 'sendMessage'])->name('chat.send');
+    Route::post('/chat/send', [ChatController::class, 'sendMessage'])->name('chat.send')->middleware('throttle:10,1');
 });
 
 // Paciente
 Route::prefix('paciente')->name('paciente.')->middleware(['auth', 'role:paciente'])->group(function () {
     Route::get('/dashboard', [PacienteDashboard::class, 'index'])->name('dashboard');
     Route::get('/plan/{plan}', [PacientePlanController::class, 'show'])->name('plan.show');
-    Route::post('/plan/{plan}/feedback', [PacientePlanController::class, 'storeFeedback'])->name('plan.feedback');
+    Route::post('/plan/{planDia}/feedback', [PacientePlanController::class, 'storeFeedback'])->name('plan.feedback')->middleware('throttle:10,1');
 });

@@ -58,6 +58,12 @@
                         value="{{ old('apellido2') }}" required>
                 </div>
 
+                <div class="form-group">
+                    <label for="fecha_nacimiento">Fecha de Nacimiento</label>
+                    <input type="date" name="fecha_nacimiento" id="fecha_nacimiento" class="form-control"
+                        value="{{ old('fecha_nacimiento') }}" required>
+                </div>
+
                 <button type="submit" class="btn btn-primary">Acceder a mi plan</button>
             </form>
         </div>
