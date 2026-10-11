@@ -8,6 +8,7 @@ use App\Models\Plan;
 use App\Models\Ejercicio;
 use App\Models\PlanEjercicio;
 use App\Models\Feedback;
+use App\Models\PlanDia;
 use Carbon\Carbon;
 
 class PlanHistorialSeeder extends Seeder
@@ -27,7 +28,7 @@ class PlanHistorialSeeder extends Seeder
 
         foreach ($pacientes as $paciente) {
             $this->command->info("Generando planes para: {$paciente->nombre_completo}");
-            
+
             // Limpiar planes anteriores
             Plan::where('paciente_id', $paciente->id)->delete();
 
@@ -55,14 +56,26 @@ class PlanHistorialSeeder extends Seeder
         // Plan 1 (-2 meses)
         $p1 = $this->createPlan($paciente, $fisio, 'Fase 1: Adaptación', -60, false);
         $this->addEjercicios($p1, $ejercicios, 3, 2, '12-15', 5);
-        $this->createFeedback($p1, 7, 'Sin dolor', 'Normal', 'Todo bien, agujetas normales.', 
-            "El paciente inicia con buena adaptación. RPE 7/10 adecuado para fase 1. Sin dolor reportado. \nRecomendación: Mantener volumen, empezar a subir intensidad.");
+        $this->createFeedback(
+            $p1,
+            7,
+            'Sin dolor',
+            'Normal',
+            'Todo bien, agujetas normales.',
+            "El paciente inicia con buena adaptación. RPE 7/10 adecuado para fase 1. Sin dolor reportado. \nRecomendación: Mantener volumen, empezar a subir intensidad."
+        );
 
         // Plan 2 (-1 mes)
         $p2 = $this->createPlan($paciente, $fisio, 'Fase 2: Fuerza Base', -30, false);
         $this->addEjercicios($p2, $ejercicios, 4, 3, '10-12', 7);
-        $this->createFeedback($p2, 8, 'Molestia ligera', 'Bien', 'Un poco de molestia en rodilla al acabar, pero se pasa rápido.', 
-            "Aumento de intensidad bien tolerado (RPE 8). La molestia ligera en rodilla es esperable por el aumento de carga. \nRecomendación: Monitorizar rodilla, asegurar descanso entre series.");
+        $this->createFeedback(
+            $p2,
+            8,
+            'Molestia ligera',
+            'Bien',
+            'Un poco de molestia en rodilla al acabar, pero se pasa rápido.',
+            "Aumento de intensidad bien tolerado (RPE 8). La molestia ligera en rodilla es esperable por el aumento de carga. \nRecomendación: Monitorizar rodilla, asegurar descanso entre series."
+        );
 
         // Plan 3 (Actual)
         $p3 = $this->createPlan($paciente, $fisio, 'Fase 3: Hipertrofia', 0, true);
@@ -75,35 +88,91 @@ class PlanHistorialSeeder extends Seeder
         // Plan 1 (-3 semanas)
         $p1 = $this->createPlan($paciente, $fisio, 'Inicio Rehabilitación', -21, false);
         $this->addEjercicios($p1, $ejercicios, 3, 2, '15', 4);
-        $this->createFeedback($p1, 9, 'Dolor moderado', 'Cansado', 'Me duele bastante al hacer las sentadillas.', 
-            "ALERTA: Paciente reporta dolor moderado y RPE alto (9/10) para una carga inicial. \nRecomendación: BAJAR carga inmediatamente. Revisar técnica de sentadilla o sustituir por ejercicio isométrico.");
+        $this->createFeedback(
+            $p1,
+            9,
+            'Dolor moderado',
+            'Cansado',
+            'Me duele bastante al hacer las sentadillas.',
+            "ALERTA: Paciente reporta dolor moderado y RPE alto (9/10) para una carga inicial. \nRecomendación: BAJAR carga inmediatamente. Revisar técnica de sentadilla o sustituir por ejercicio isométrico."
+        );
 
         // Plan 2 (Actual) - Plan modificado por dolor
         $p2 = $this->createPlan($paciente, $fisio, 'Ajuste: Carga Baja', 0, true);
-        $this->addEjercicios($p2, $ejercicios, 3, 2, '10', 3); 
+        $this->addEjercicios($p2, $ejercicios, 3, 2, '10', 3);
         // Sin feedback
     }
 
     private function crearHistorialBeto($paciente, $fisio, $ejercicios)
     {
         // Plan 1 (-1 mes)
-        $p1 = $this->createPlan($paciente, $fisio, 'Fuerza General', -30, false);
-        $this->addEjercicios($p1, $ejercicios, 4, 3, '10', 6);
-        $this->createFeedback($p1, 5, 'Sin dolor', 'Normal', 'Muy fácil, no me canso.', 
-            "Paciente reporta RPE 5/10 (muy bajo). La carga es insuficiente para generar adaptaciones. \nRecomendación: Aumentar peso o repeticiones significativamente.");
-        
+        $p1 = $this->createPlan(
+            $paciente,
+            $fisio,
+            'Fuerza General',
+            -30,
+            false
+        );
+
+        $this->addEjercicios(
+            $p1,
+            $ejercicios,
+            4,
+            3,
+            '10',
+            6
+        );
+
+        $this->createFeedback(
+            $p1,
+            5,
+            'Sin dolor',
+            'Normal',
+            'Muy fácil, no me canso.',
+            "Paciente reporta RPE 5/10 (muy bajo). La carga es insuficiente para generar adaptaciones.\nRecomendación: Aumentar peso o repeticiones significativamente."
+        );
+
         // Plan 2 (Actual)
-        $p2 = $this->createPlan($paciente, $fisio, 'Fuerza General II', 0, true);
-        $this->addEjercicios($p2, $ejercicios, 4, 3, '10', 8);
+        $p2 = $this->createPlan(
+            $paciente,
+            $fisio,
+            'Fuerza General II',
+            0,
+            true
+        );
+
+        $this->addEjercicios(
+            $p2,
+            $ejercicios,
+            4,
+            3,
+            '10',
+            8
+        );
     }
-    
+
     private function crearHistorialGenerico($paciente, $fisio, $ejercicios)
     {
-        $p1 = $this->createPlan($paciente, $fisio, 'Plan General', 0, true);
-        $this->addEjercicios($p1, $ejercicios, 3, 3, '12', 6);
+        $p1 = $this->createPlan(
+            $paciente,
+            $fisio,
+            'Plan General',
+            0,
+            true
+        );
+
+        $this->addEjercicios(
+            $p1,
+            $ejercicios,
+            3,
+            3,
+            '12',
+            6
+        );
     }
 
     // Helpers
+
     private function createPlan($paciente, $fisio, $titulo, $daysOffset, $activo)
     {
         return Plan::create([
@@ -117,11 +186,20 @@ class PlanHistorialSeeder extends Seeder
 
     private function addEjercicios($plan, $ejercicios, $count, $series, $reps, $intensidad)
     {
+        // Crear el día del plan
+        $planDia = PlanDia::create([
+            'plan_id' => $plan->id,
+            'numero_dia' => 1,
+            'notas_fisio' => null,
+        ]);
+
         $selected = $ejercicios->shuffle()->take($count);
+
         $orden = 1;
+
         foreach ($selected as $ej) {
             PlanEjercicio::create([
-                'plan_id' => $plan->id,
+                'plan_dia_id' => $planDia->id,
                 'ejercicio_id' => $ej->id,
                 'series' => $series,
                 'repeticiones' => $reps,
@@ -132,16 +210,30 @@ class PlanHistorialSeeder extends Seeder
         }
     }
 
-    private function createFeedback($plan, $dureza, $dolor, $evolucion, $comentario, $analisis)
-    {
-        Feedback::create([
+    private function createFeedback(
+        $plan,
+        $dureza,
+        $dolor,
+        $evolucion,
+        $comentario,
+        $analisis
+    ) {
+
+        // Crear el día del plan
+        $planDia = PlanDia::create([
             'plan_id' => $plan->id,
+            'numero_dia' => 1,
+            'notas_fisio' => null,
+        ]);
+
+        Feedback::create([
+            'plan_dia_id' => $planDia->id,
             'dureza' => $dureza,
             'dolor' => $dolor,
             'evolucion' => $evolucion,
             'comentario' => $comentario,
             'analisis_ia' => $analisis,
-            'created_at' => $plan->fecha->copy()->addDays(5) // Feedback enviado 5 días después del plan
+            'created_at' => $plan->fecha->copy()->addDays(5),
         ]);
     }
 }
