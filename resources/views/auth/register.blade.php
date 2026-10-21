@@ -40,6 +40,9 @@
                     <label for="email">Email profesional</label>
                     <input type="email" name="email" id="email" class="form-control" placeholder="tu@clinica.com"
                         value="{{ old('email') }}" required>
+                    @error('email')
+                        <span class="field-error">{{ $message }}</span>
+                    @enderror
                     <small style="color: var(--text-muted);">Recibirás aquí el enlace para activar la cuenta.</small>
                 </div>
 
@@ -47,12 +50,18 @@
                     <label for="password">Contraseña</label>
                     <input type="password" name="password" id="password" class="form-control" placeholder="Mínimo 8 caracteres"
                         required>
+                    @error('password')
+                        <span class="field-error">{{ $message }}</span>
+                    @enderror
                 </div>
 
                 <div class="form-group">
                     <label for="password_confirmation">Repite la contraseña</label>
                     <input type="password" name="password_confirmation" id="password_confirmation" class="form-control"
                         placeholder="••••••••" required>
+                    @error('password_confirmation')
+                        <span class="field-error">{{ $message }}</span>
+                    @enderror
                 </div>
 
                 <button type="submit" class="btn btn-primary" style="width:100%">Crear mi cuenta</button>

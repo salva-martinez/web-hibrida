@@ -32,12 +32,18 @@
                     <label for="email">Email</label>
                     <input type="email" name="email" id="email" class="form-control" placeholder="fisio@fisioapp.com"
                         value="{{ old('email') }}" required>
+                    @error('email')
+                        <span class="field-error">{{ $message }}</span>
+                    @enderror
                 </div>
 
                 <div class="form-group">
                     <label for="password">Contraseña</label>
                     <input type="password" name="password" id="password" class="form-control" placeholder="••••••••"
                         required>
+                    @error('password')
+                        <span class="field-error">{{ $message }}</span>
+                    @enderror
                 </div>
 
                 <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
@@ -58,6 +64,9 @@
                     <label for="nombre">Nombre</label>
                     <input type="text" name="nombre" id="nombre" class="form-control" placeholder="Tu nombre"
                         value="{{ old('nombre') }}" required>
+                    @error('nombre')
+                        <span class="field-error">{{ $message }}</span>
+                    @enderror
                 </div>
 
                 <div class="form-group">

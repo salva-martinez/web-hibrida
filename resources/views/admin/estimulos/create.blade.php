@@ -20,16 +20,25 @@
                     <input type="text" name="nombre" id="nombre" class="form-control"
                         value="{{ old('nombre', $estimulo->nombre ?? '') }}" placeholder="Ej: 1. Básico Estructural-Neural"
                         required>
+                    @error('nombre')
+                        <span class="field-error">{{ $message }}</span>
+                    @enderror
                 </div>
                 <div class="form-group">
                     <label for="descripcion">Descripción</label>
                     <textarea name="descripcion" id="descripcion" class="form-control" rows="3"
                         placeholder="Descripción del grupo de estímulo...">{{ old('descripcion', $estimulo->descripcion ?? '') }}</textarea>
+                    @error('descripcion')
+                        <span class="field-error">{{ $message }}</span>
+                    @enderror
                 </div>
                 <div class="form-group">
                     <label for="orden">Orden</label>
                     <input type="number" name="orden" id="orden" class="form-control"
                         value="{{ old('orden', $estimulo->orden ?? 0) }}" min="0" style="max-width: 120px">
+                    @error('orden')
+                        <span class="field-error">{{ $message }}</span>
+                    @enderror
                 </div>
             </div>
             <div class="card-footer">

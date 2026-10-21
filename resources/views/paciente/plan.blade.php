@@ -143,6 +143,9 @@
                             <option value="Dolor intenso" {{ ($dia->feedback->dolor ?? '') == 'Dolor intenso' ? 'selected' : '' }}>Dolor intenso</option>
                             <option value="Incapacitante" {{ ($dia->feedback->dolor ?? '') == 'Incapacitante' ? 'selected' : '' }}>Incapacitante</option>
                         </select>
+                        @error('dolor')
+                            <span class="field-error">{{ $message }}</span>
+                        @enderror
                     </div>
 
                     <div class="form-group">
@@ -154,12 +157,18 @@
                             <option value="Cansado" {{ ($dia->feedback->evolucion ?? '') == 'Cansado' ? 'selected' : '' }}>Cansado</option>
                             <option value="Agotado" {{ ($dia->feedback->evolucion ?? '') == 'Agotado' ? 'selected' : '' }}>Agotado</option>
                         </select>
+                        @error('evolucion')
+                            <span class="field-error">{{ $message }}</span>
+                        @enderror
                     </div>
 
                     <div class="form-group">
                         <label for="comentario-{{ $dia->numero_dia }}">¿Algún comentario adicional?</label>
                         <textarea name="comentario" id="comentario-{{ $dia->numero_dia }}" class="form-control" rows="3"
                             placeholder="Cuéntale a tu fisio cómo te has sentido...">{{ $dia->feedback->comentario ?? '' }}</textarea>
+                        @error('comentario')
+                            <span class="field-error">{{ $message }}</span>
+                        @enderror
                     </div>
 
                     <button type="submit" class="btn btn-success submitBtn">{{ $dia->feedback ? 'Actualizar Feedback' : 'Enviar Feedback del Día' }}</button>

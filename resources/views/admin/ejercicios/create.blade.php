@@ -19,6 +19,9 @@
                     <label for="nombre">Nombre del Ejercicio *</label>
                     <input type="text" name="nombre" id="nombre" class="form-control"
                         value="{{ old('nombre', $ejercicio->nombre ?? '') }}" placeholder="Ej: Press banca barra" required>
+                    @error('nombre')
+                        <span class="field-error">{{ $message }}</span>
+                    @enderror
                 </div>
                 <div class="form-group">
                     <label for="estimulo_id">Estímulo *</label>
@@ -30,18 +33,27 @@
                             </option>
                         @endforeach
                     </select>
+                    @error('estimulo_id')
+                        <span class="field-error">{{ $message }}</span>
+                    @enderror
                 </div>
                 <div class="form-group">
                     <label for="video_url">URL del Vídeo (YouTube)</label>
                     <input type="url" name="video_url" id="video_url" class="form-control"
                         value="{{ old('video_url', $ejercicio->video_url ?? '') }}"
                         placeholder="https://www.youtube.com/watch?v=...">
+                    @error('video_url')
+                        <span class="field-error">{{ $message }}</span>
+                    @enderror
                     <small style="color: var(--text-muted)">Pega el enlace de YouTube del vídeo del ejercicio</small>
                 </div>
                 <div class="form-group">
                     <label for="descripcion">Descripción</label>
                     <textarea name="descripcion" id="descripcion" class="form-control" rows="3"
                         placeholder="Notas sobre la técnica del ejercicio...">{{ old('descripcion', $ejercicio->descripcion ?? '') }}</textarea>
+                    @error('descripcion')
+                        <span class="field-error">{{ $message }}</span>
+                    @enderror
                 </div>
 
                 @if(isset($ejercicio) && $ejercicio->tieneVideo())
