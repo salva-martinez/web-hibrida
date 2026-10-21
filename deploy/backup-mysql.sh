@@ -29,6 +29,10 @@ DB_ROOT_PASSWORD="${DB_ROOT_PASSWORD:-}"
 
 log() { printf '[backup] %s\n' "$*"; }
 
+# El cron no tiene a nadie delante: si algo falla, tiene que quedar escrito
+# en el log con un mensaje claro, no solo un código de salida.
+trap 'log "ERROR: el backup ha fallado (línea $LINENO, código $?). Revisa el log."' ERR
+
 mkdir -p "$BACKUP_DIR"
 chmod 700 "$BACKUP_DIR"
 
