@@ -13,6 +13,19 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // La aplicación se sirve detrás de nginx (reverse proxy). Sin confiar en
+        // los proxies, Laravel cree que la petición es HTTP y genere URLs con
+        // http:// (el enlace de verificación de email y las cookies seguras
+        // fallarían). Se confían solo las redes privadas y el loopback: el
+        // bridge de Docker y el propio nginx local.
+        $middleware->trustProxies(at: [
+            '127.0.0.1',
+            '::1',
+            '10.0.0.0/8',
+            '172.16.0.0/12',
+            '192.168.0.0/16',
+        ]);
+
         $middleware->alias([
             'role' => \App\Http\Middleware\CheckRole::class,
         ]);

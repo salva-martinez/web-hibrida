@@ -15,7 +15,7 @@ set -euo pipefail
 # ---------------------------------------------------------------------------
 APP_DIR="${APP_DIR:-/var/www/fisioapp}"
 BRANCH="${BRANCH:-main}"
-HEALTH_PORT="${HEALTH_PORT:-8080}"
+HEALTH_PORT="${HEALTH_PORT:-18081}"
 KEEP_RELEASES="${KEEP_RELEASES:-5}"
 # SKIP_GIT=1 reejecuta el despliegue sin tocar el código (útil para recuperar
 # un despliegue a medias sin volver a hacer pull).

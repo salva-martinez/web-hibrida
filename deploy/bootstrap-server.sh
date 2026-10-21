@@ -22,7 +22,7 @@ set -euo pipefail
 
 APP_DIR="${APP_DIR:-/var/www/fisioapp}"
 SUBDOMAIN="${SUBDOMAIN:-fisio.salvamartinez.es}"
-APP_PORT="${APP_PORT:-8080}"
+APP_PORT="${APP_PORT:-18081}"
 DEPLOY_USER="${DEPLOY_USER:-deploy}"
 ACME_EMAIL="${ACME_EMAIL:-}"
 

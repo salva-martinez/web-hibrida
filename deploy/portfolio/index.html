@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salvamartinez — Proyectos</title>
+    <meta name="description" content="Portafolio de Salvamartinez: proyectos de desarrollo web.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0ea5e9;
+            --primary-dark: #0284c7;
+            --secondary: #10b981;
+            --bg-primary: #0f172a;
+            --bg-card: #1e293b;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --border: #334155;
+            --radius: 12px;
+            --radius-lg: 16px;
+            --shadow-lg: 0 10px 40px rgba(0, 0, 0, .35);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Halos de fondo */
+        body::before,
+        body::after {
+            content: '';
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: .18;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        body::before {
+            width: 480px;
+            height: 480px;
+            background: var(--primary);
+            top: -160px;
+            left: -120px;
+        }
+
+        body::after {
+            width: 420px;
+            height: 420px;
+            background: var(--secondary);
+            bottom: -180px;
+            right: -100px;
+        }
+
+        .wrap {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 960px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .brand {
+            display: inline-flex;
+            align-items: center;
+            gap: .6rem;
+            font-size: .95rem;
+            font-weight: 600;
+            letter-spacing: .02em;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            margin-bottom: 1.25rem;
+        }
+
+        .brand span {
+            font-size: 1.4rem;
+        }
+
+        h1 {
+            font-size: clamp(2rem, 5vw, 3rem);
+            font-weight: 800;
+            letter-spacing: -.02em;
+            line-height: 1.1;
+            margin-bottom: .75rem;
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #38bdf8, #34d399);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .lead {
+            color: var(--text-secondary);
+            font-size: 1.05rem;
+            max-width: 560px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .card {
+            display: block;
+            background: rgba(30, 41, 59, .72);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 1.75rem;
+            text-decoration: none;
+            color: inherit;
+            transition: all .25s cubic-bezier(.4, 0, .2, 1);
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            border-color: var(--primary);
+            box-shadow: var(--shadow-lg), 0 0 0 1px var(--primary);
+        }
+
+        .card:focus-visible {
+            outline: 2px solid var(--primary);
+            outline-offset: 3px;
+        }
+
+        .icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            display: grid;
+            place-items: center;
+            font-size: 1.6rem;
+            margin-bottom: 1.1rem;
+            background: rgba(14, 165, 233, .14);
+            border: 1px solid rgba(14, 165, 233, .3);
+        }
+
+        .card:nth-child(2) .icon {
+            background: rgba(16, 185, 129, .14);
+            border-color: rgba(16, 185, 129, .3);
+        }
+
+        .card h2 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: .5rem;
+        }
+
+        .card p {
+            color: var(--text-secondary);
+            font-size: .93rem;
+            line-height: 1.6;
+            margin-bottom: 1.25rem;
+        }
+
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: .4rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .tag {
+            font-size: .74rem;
+            font-weight: 500;
+            padding: .25rem .6rem;
+            border-radius: 999px;
+            background: rgba(148, 163, 184, .12);
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+        }
+
+        .cta {
+            display: inline-flex;
+            align-items: center;
+            gap: .4rem;
+            font-size: .9rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .card:hover .cta {
+            gap: .65rem;
+        }
+
+        .cta::after {
+            content: '→';
+            transition: transform .25s;
+        }
+
+        .card:hover .cta::after {
+            transform: translateX(3px);
+        }
+
+        footer {
+            margin-top: 3rem;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: .85rem;
+        }
+
+        footer a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-bottom: 1px solid var(--border);
+        }
+
+        @media (max-width: 640px) {
+            body {
+                padding: 2rem 1rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrap">
+        <header>
+            <div class="brand"><span>💻</span> Salvamartinez</div>
+            <h1>Proyectos <span class="gradient-text">web</span></h1>
+            <p class="lead">Aplicación de gestión clínica de rehabilitación con inteligencia
+                artificial.</p>
+        </header>
+
+        <main class="grid">
+            <a class="card" href="https://fisio.salvamartinez.es">
+                <div class="icon">💪</div>
+                <h2>FisioApp</h2>
+                <p>Gestión clínica de pautas de rehabilitación con inteligencia artificial:
+                    planes semanales, feedback del paciente y análisis de progresión.</p>
+                <div class="tags">
+                    <span class="tag">Laravel 12</span>
+                    <span class="tag">PHP 8.5</span>
+                    <span class="tag">Blade</span>
+                    <span class="tag">Tailwind</span>
+                    <span class="tag">Gemini AI</span>
+                    <span class="tag">Docker</span>
+                </div>
+                <span class="cta">Abrir la aplicación</span>
+            </a>
+        </main>
+
+        <footer>
+            <p>Hecho con <a href="https://laravel.com">Laravel</a> · <span id="year"></span></p>
+        </footer>
+    </div>
+
+    <script>
+        document.getElementById('year').textContent = new Date().getFullYear();
+    </script>
+</body>
+
+</html>
