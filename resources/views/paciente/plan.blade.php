@@ -30,7 +30,7 @@
     <div class="tabs-container" style="display: flex; gap: 0.5rem; overflow-x: auto; margin-bottom: 1rem; border-bottom: 2px solid #e5e7eb; padding-bottom: 0.5rem;">
         @foreach($plan->planDias as $index => $dia)
             <button class="btn btn-sm {{ $index === 0 ? 'btn-primary' : 'btn-outline-primary' }}" 
-                    onclick="switchDayTab({{ $dia->numero_dia }})" 
+                    data-day-tab="{{ $dia->numero_dia }}" 
                     id="tab-btn-{{ $dia->numero_dia }}">
                 Día {{ $dia->numero_dia }}
             </button>
@@ -82,7 +82,8 @@
                                         <td class="ejercicio-nombre">
                                             @if($pe->ejercicio->tieneVideo())
                                                 <a href="javascript:void(0)" class="video-link"
-                                                    onclick="openVideo({{ Js::from($pe->ejercicio->embed_url) }}, {{ Js::from($pe->ejercicio->nombre) }})">
+                                                    data-video-url="{{ $pe->ejercicio->embed_url }}"
+                                                    data-video-title="{{ $pe->ejercicio->nombre }}">
                                                     <span>▶️</span> {{ $pe->ejercicio->nombre }}
                                                 </a>
                                             @else
@@ -168,11 +169,11 @@
     @endforeach
 
     {{-- Video Modal --}}
-    <div class="video-modal-overlay" id="videoModal" onclick="closeVideo(event)">
+    <div class="video-modal-overlay" id="videoModal">
         <div class="video-modal">
             <div class="video-modal-header">
                 <h3 id="videoTitle">Vídeo del ejercicio</h3>
-                <button class="video-modal-close" onclick="closeVideo()">✕</button>
+                <button class="video-modal-close" type="button" data-video-close>✕</button>
             </div>
             <div class="video-modal-body">
                 <iframe id="videoFrame" src="" title="Vídeo del ejercicio"
@@ -182,65 +183,5 @@
     </div>
 
     @push('scripts')
-        <script>
-            function openVideo(url, title) {
-                if (!url) return;
-                var frame = document.getElementById('videoFrame');
-                var titleEl = document.getElementById('videoTitle');
-                var modal = document.getElementById('videoModal');
-
-                if (frame) frame.src = url;
-                if (titleEl) titleEl.textContent = title;
-                if (modal) modal.classList.add('active');
-            }
-
-            function closeVideo(event) {
-                if (event && event.target !== event.currentTarget) return;
-
-                var frame = document.getElementById('videoFrame');
-                var modal = document.getElementById('videoModal');
-
-                if (frame) frame.src = '';
-                if (modal) modal.classList.remove('active');
-            }
-
-            function switchDayTab(dayNum) {
-                // Hide all contents and deactivate all buttons
-                document.querySelectorAll('[id^="day-content-"]').forEach(el => el.style.display = 'none');
-                document.querySelectorAll('[id^="tab-btn-"]').forEach(btn => {
-                    btn.classList.remove('btn-primary');
-                    btn.classList.add('btn-outline-primary');
-                });
-
-                // Show selected content and activate button
-                const content = document.getElementById(`day-content-${dayNum}`);
-                const btn = document.getElementById(`tab-btn-${dayNum}`);
-                
-                if (content) content.style.display = 'block';
-                if (btn) {
-                    btn.classList.remove('btn-outline-primary');
-                    btn.classList.add('btn-primary');
-                }
-            }
-
-            document.addEventListener('DOMContentLoaded', function () {
-                const feedbackForms = document.querySelectorAll('.feedbackForm');
-                feedbackForms.forEach(form => {
-                    form.addEventListener('submit', function (e) {
-                        const btn = form.querySelector('.submitBtn');
-                        if (btn) {
-                            btn.disabled = true;
-                            btn.innerHTML = '⏳ Procesando feedback con IA...';
-                            btn.style.opacity = '0.7';
-                            btn.style.cursor = 'wait';
-                        }
-                    });
-                });
-            });
-
-            document.addEventListener('keydown', function (e) {
-                if (e.key === 'Escape') closeVideo();
-            });
-        </script>
     @endpush
 @endsection

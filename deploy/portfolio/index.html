@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Salvamartinez — Proyectos</title>
-    <meta name="description" content="Portafolio de Salvamartinez: proyectos de desarrollo web.">
+    <meta name="description" content="Portafolio de Salvamartinez: aplicaciones web de gestión clínica y de reservas.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -14,10 +14,12 @@
             --primary: #0ea5e9;
             --primary-dark: #0284c7;
             --secondary: #10b981;
+            --accent: #f59e0b;
             --bg-primary: #0f172a;
             --bg-card: #1e293b;
             --text-primary: #f1f5f9;
             --text-secondary: #94a3b8;
+            --text-muted: #64748b;
             --border: #334155;
             --radius: 12px;
             --radius-lg: 16px;
@@ -165,7 +167,7 @@
             border: 1px solid rgba(14, 165, 233, .3);
         }
 
-        .card:nth-child(2) .icon {
+        .card--green .icon {
             background: rgba(16, 185, 129, .14);
             border-color: rgba(16, 185, 129, .3);
         }
@@ -209,6 +211,10 @@
             color: var(--primary);
         }
 
+        .card--green .cta {
+            color: var(--secondary);
+        }
+
         .card:hover .cta {
             gap: .65rem;
         }
@@ -248,8 +254,8 @@
         <header>
             <div class="brand"><span>💻</span> Salvamartinez</div>
             <h1>Proyectos <span class="gradient-text">web</span></h1>
-            <p class="lead">Aplicación de gestión clínica de rehabilitación con inteligencia
-                artificial.</p>
+            <p class="lead">Aplicaciones de gestión clínica y de reservas, desarrolladas con
+                PHP, Laravel, JavaScript y Docker.</p>
         </header>
 
         <main class="grid">
@@ -262,8 +268,22 @@
                     <span class="tag">Laravel 12</span>
                     <span class="tag">PHP 8.5</span>
                     <span class="tag">Blade</span>
-                    <span class="tag">Tailwind</span>
                     <span class="tag">Gemini AI</span>
+                    <span class="tag">Docker</span>
+                </div>
+                <span class="cta">Abrir la aplicación</span>
+            </a>
+
+            <a class="card card--green" href="https://reservas.salvamartinez.es">
+                <div class="icon">📅</div>
+                <h2>Reservas</h2>
+                <p>API REST y panel de gestión de reservas de alojamientos: huéspedes,
+                    fechas de entrada y salida, estados e importes.</p>
+                <div class="tags">
+                    <span class="tag">PHP</span>
+                    <span class="tag">Twig</span>
+                    <span class="tag">API REST</span>
+                    <span class="tag">MySQL</span>
                     <span class="tag">Docker</span>
                 </div>
                 <span class="cta">Abrir la aplicación</span>

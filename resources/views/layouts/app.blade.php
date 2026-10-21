@@ -12,7 +12,11 @@
         rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('styles')
-    <link rel="icon" type="image/webp" href="{{ asset('storage/fisio.webp') }}">
+    {{-- El favicon vive en public/ (versionado por git): antes estaba en
+         storage/app/public/, que está ignorado y por eso daba 404 en producción. --}}
+    <link rel="icon" type="image/webp" href="{{ asset('fisio.webp') }}">
+    <link rel="alternate icon" type="image/png" href="{{ asset('favicon-32.png') }}">
+    <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
 </head>
 
 <body>

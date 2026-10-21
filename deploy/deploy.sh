@@ -143,14 +143,21 @@ dc -u root laravel.test chown -R "${WWWUSER_VAL}:${WWWGROUP_VAL}" \
 dc -u root laravel.test chmod -R ug+rwX \
     /var/www/html/bootstrap/cache /var/www/html/storage /var/www/html/node_modules /var/www/html/public/build > /dev/null
 
-# El enlace simbólico de los ficheros públicos (vídeos, imágenes).
-dc -u root laravel.test sh -c '
-    rm -f /var/www/html/public/storage
-    ln -s /var/www/html/storage/app/public /var/www/html/public/storage
-' > /dev/null 2>&1 || true
+# ---------------------------------------------------------------------------
+# 8. Portfolio del dominio raíz
+#
+# El dominio principal sirve una landing estática con los proyectos. Vive
+# fuera del bind mount (en /var/www/portfolio), así que se copia desde el host.
+# ---------------------------------------------------------------------------
+if [ -f deploy/portfolio/index.html ]; then
+    log "Publicando el portfolio…"
+    mkdir -p /var/www/portfolio
+    install -m 644 deploy/portfolio/index.html /var/www/portfolio/index.html
+    chown www-data:www-data /var/www/portfolio/index.html 2>/dev/null || true
+fi
 
 # ---------------------------------------------------------------------------
-# 8. Worker de la cola
+# 9. Worker de la cola
 # ---------------------------------------------------------------------------
 # El análisis de IA del feedback se genera en segundo plano: si el worker no
 # está vivo, el feedback se guarda pero el análisis nunca aparece.
@@ -163,7 +170,7 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# 9. Comprobación de salud
+# 10. Comprobación de salud
 # ---------------------------------------------------------------------------
 log "Comprobando salud de la aplicación…"
 HEALTHY=0
@@ -182,7 +189,7 @@ if [ "$HEALTHY" -ne 1 ]; then
 fi
 
 # ---------------------------------------------------------------------------
-# 10. Limpieza
+# 11. Limpieza
 # ---------------------------------------------------------------------------
 log "Limpiando imágenes Docker sin uso…"
 docker image prune -f --filter "until=168h" > /dev/null 2>&1 || true

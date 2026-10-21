@@ -15,11 +15,11 @@
                 $pestanaActiva = old('login_type', 'fisio');
             @endphp
 
-            <div class="login-tabs">
+            <div class="login-tabs" id="login-tabs">
                 <button type="button" class="login-tab {{ $pestanaActiva === 'fisio' ? 'active' : '' }}"
-                    onclick="switchTab(this, 'fisio')">🩺 Fisioterapeuta</button>
+                    data-login-tab="fisio">🩺 Fisioterapeuta</button>
                 <button type="button" class="login-tab {{ $pestanaActiva === 'paciente' ? 'active' : '' }}"
-                    onclick="switchTab(this, 'paciente')">🏃 Paciente</button>
+                    data-login-tab="paciente">🏃 Paciente</button>
             </div>
 
             {{-- Fisio Login --}}
@@ -84,14 +84,5 @@
     </div>
 
     @push('scripts')
-        <script>
-            function switchTab(button, type) {
-                document.querySelectorAll('.login-tab').forEach(t => t.classList.remove('active'));
-                document.querySelectorAll('.login-form').forEach(f => f.classList.remove('active'));
-
-                button.classList.add('active');
-                document.getElementById('form-' + type).classList.add('active');
-            }
-        </script>
     @endpush
 @endsection

@@ -119,7 +119,8 @@ class EditorPlanesTest extends TestCase
             ->get(route('admin.planes.edit', $plan))
             ->assertOk()
             ->assertSee('feedback registrado', false)
-            ->assertSee('DIAS_CON_FEEDBACK = 1', false);
+            // El módulo JS necesita saberlo para pedir confirmación al reducir.
+            ->assertSee('"diasConFeedback":1', false);
     }
 
     public function test_un_plan_sin_feedback_no_muestra_el_aviso(): void
@@ -130,7 +131,7 @@ class EditorPlanesTest extends TestCase
         $this->actingAs($this->fisio)
             ->get(route('admin.planes.edit', $plan))
             ->assertOk()
-            ->assertSee('DIAS_CON_FEEDBACK = 0', false)
+            ->assertSee('"diasConFeedback":0', false)
             ->assertDontSee('feedback registrado', false);
     }
 }
