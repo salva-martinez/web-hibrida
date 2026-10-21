@@ -55,6 +55,31 @@ systemctl enable --now docker
 log "Docker: $(docker --version)"
 
 # ---------------------------------------------------------------------------
+# 1.b PHP en el host
+#
+# La aplicación NO usa el PHP del host (corre en un contenedor); aquí solo
+# está para Composer y para los scripts de consola. Se instala desde
+# packages.sury.org, el repositorio que recomienda php.net para Ubuntu: el
+# PPA de Launchpad va con retraso en los parches de seguridad y se cae con
+# errores 503.
+# ---------------------------------------------------------------------------
+log "Instalando PHP (packages.sury.org)…"
+apt-get update -qq
+if ! [ -f /etc/apt/sources.list.d/php-sury.list ]; then
+    curl -fsSLo /tmp/debsuryorg-archive-keyring.deb \
+        https://packages.sury.org/debsuryorg-archive-keyring.deb
+    dpkg -i /tmp/debsuryorg-archive-keyring.deb >/dev/null
+    rm -f /tmp/debsuryorg-archive-keyring.deb
+    echo "deb [signed-by=/usr/share/keyrings/debsuryorg-archive-keyring.gpg] https://packages.sury.org/php noble main" \
+        > /etc/apt/sources.list.d/php-sury.list
+    apt-get update -qq
+fi
+apt-get install -y -qq php8.5-cli php8.5-common php8.5-bcmath php8.5-curl \
+    php8.5-mbstring php8.5-mysql php8.5-readline php8.5-xml php8.5-zip
+update-alternatives --set php /usr/bin/php8.5
+log "PHP: $(php -r 'echo PHP_VERSION;')"
+
+# ---------------------------------------------------------------------------
 # 2. Usuario de despliegue y directorio de la aplicación
 # ---------------------------------------------------------------------------
 log "Configurando el usuario '$DEPLOY_USER'…"
