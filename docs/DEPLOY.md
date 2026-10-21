@@ -210,7 +210,30 @@ Conviene añadirlo a un cron diario.
 
 ---
 
-## 6. Pendientes para producción
+## 6. Páginas de error
+
+Cada proyecto sirve **sus propias** páginas de error, desde el disco:
+
+| Proyecto | Origen | Ubicación |
+|---|---|---|
+| FisioApp | Vistas Blade `resources/views/errors/` → HTML estático | `public/errors/*.html` |
+| Portfolio | HTML estático versionado | `/var/www/portfolio/errors/` |
+| Reservas | HTML estático versionado | `/opt/reservas/public/errors/` |
+
+El comando `php artisan errors:publicar` genera las de FisioApp desde el Blade,
+así que no hay dos versiones del mismo diseño que mantener.
+
+nginx las sirve con `proxy_intercept_errors` + `error_page`, que es una
+**redirección interna**: el visitante nunca sale de su subdominio. Si FisioApp
+está caída o en mantenimiento, ve la página de FisioApp en
+`fisio.salvamartinez.es`, nunca la del dominio principal.
+
+Los vhosts se aplican con `deploy/aplicar-vhosts.sh` (idempotente, valida con
+`nginx -t` y restaura los anteriores si algo falla).
+
+---
+
+## 7. Pendientes para producción
 
 - [ ] **Correo real**: `MAIL_MAILER` debe ser un SMTP de verdad. Sin él, el
       registro de fisioterapeutas no se puede activar (el enlace solo se escribe
