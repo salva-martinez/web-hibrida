@@ -25,7 +25,7 @@ La configuración está **hecha y probada**: `mail:probar` envía correctamente.
 | `MAIL_USERNAME` | `bf58c2001@smtp-brevo.com` (el identificador de cuenta que da Brevo, **no** tu email) |
 | `MAIL_PASSWORD` | la SMTP key (⚠️ solo se muestra una vez al generarla) |
 | `MAIL_SCHEME` | `null` |
-| `MAIL_FROM_ADDRESS` | `no-reply@salvamartinez.es` |
+| `MAIL_FROM_ADDRESS` | `salva@salvamartinez.es` |
 | `MAIL_FROM_NAME` | `FisioApp` |
 
 > ⚠️ `MAIL_SCHEME` **no es `tls`**. Laravel 12 solo acepta `smtp`, `smtps` o
