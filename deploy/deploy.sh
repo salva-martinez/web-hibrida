@@ -3,7 +3,7 @@
 # Script de despliegue de FisioApp en el servidor de producción.
 #
 # Se ejecuta EN el servidor, desde el propio repositorio:
-#     cd /var/www/fisioapp && ./deploy/deploy.sh
+#     cd /var/www/web-hibrida && ./deploy/deploy.sh
 #
 # Es idempotente: se puede volver a ejecutar sin efectos secundarios.
 # La primera vez hay que ejecutar antes deploy/bootstrap-server.sh.
@@ -13,7 +13,7 @@ set -euo pipefail
 # ---------------------------------------------------------------------------
 # Configuración (sobrescribible por entorno)
 # ---------------------------------------------------------------------------
-APP_DIR="${APP_DIR:-/var/www/fisioapp}"
+APP_DIR="${APP_DIR:-/var/www/web-hibrida}"
 BRANCH="${BRANCH:-main}"
 HEALTH_PORT="${HEALTH_PORT:-18081}"
 KEEP_RELEASES="${KEEP_RELEASES:-5}"

@@ -38,7 +38,7 @@ jobs:
               -o StrictHostKeyChecking=yes \
               -o BatchMode=yes \
               "${DEPLOY_USER}@${DEPLOY_HOST}" \
-              "cd /var/www/fisioapp && ./deploy/deploy.sh"
+              "cd /var/www/web-hibrida && ./deploy/deploy.sh"
 
       - name: Comprobar la aplicación
         env:

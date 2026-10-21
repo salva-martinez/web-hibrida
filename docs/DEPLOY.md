@@ -35,7 +35,7 @@ con un certificado de Let's Encrypt. Por eso:
 
 ```bash
 # En el VPS, con el repositorio ya clonado:
-cd /var/www/fisioapp
+cd /var/www/web-hibrida
 git pull
 sudo ./deploy/bootstrap-server.sh
 ```
@@ -47,7 +47,7 @@ Variables que acepta (por entorno):
 
 | Variable | Por defecto | Para qué |
 |---|---|---|
-| `APP_DIR` | `/var/www/fisioapp` | Dónde vive la aplicación |
+| `APP_DIR` | `/var/www/web-hibrida` | Dónde vive la aplicación |
 | `SUBDOMAIN` | `fisio.salvamartinez.es` | Dominio de la app |
 | `APP_PORT` | `8080` | Puerto interno que publica Sail |
 | `DEPLOY_USER` | `deploy` | Usuario de despliegue |
@@ -77,7 +77,7 @@ sudo certbot --nginx -d fisio.salvamartinez.es
 ## 2. Configurar la aplicación en el servidor
 
 ```bash
-cd /var/www/fisioapp
+cd /var/www/web-hibrida
 cp .env.production.example .env
 ```
 
@@ -155,7 +155,7 @@ producción → Run workflow**.
 curl -I https://fisio.salvamartinez.es/up
 
 # En el VPS
-cd /var/www/fisioapp
+cd /var/www/web-hibrida
 ./vendor/bin/sail ps                      # contenedores
 ./vendor/bin/sail logs -f laravel.test    # log de la app
 sudo supervisorctl status                 # worker de la cola
@@ -169,7 +169,7 @@ sudo tail -f /var/log/fisioapp/worker.log # log del worker
 sudo journalctl -u fisioapp -n 100 --no-pager
 
 # Revertir al commit anterior
-cd /var/www/fisioapp
+cd /var/www/web-hibrida
 git log --oneline -5
 git reset --hard <commit-anterior>
 ./deploy/deploy.sh
@@ -190,7 +190,7 @@ sudo supervisorctl restart fisioapp-worker
 MySQL corre en un volumen Docker (`sail-mysql`). Para respaldos:
 
 ```bash
-cd /var/www/fisioapp
+cd /var/www/web-hibrida
 ./vendor/bin/sail exec mysql mysqldump -usail -ppassword fisioterapia \
     | gzip > /var/backups/fisioapp-$(date +%F).sql.gz
 ```
