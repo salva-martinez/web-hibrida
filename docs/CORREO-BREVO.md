@@ -32,6 +32,26 @@ La configuración está **hecha y probada**: `mail:probar` envía correctamente.
 > `null` (que negocia STARTTLS automáticamente). Con `tls` falla con
 > `UnsupportedSchemeException`.
 
+### Rotar la SMTP key
+
+Brevo permite generar varias SMTP keys y revocar las antiguas. Rotarla es
+trivial:
+
+1. En Brevo: ⚙️ → *SMTP & API* → *Generar una nueva clave SMTP*.
+2. En el servidor, cambiar **solo** la línea `MAIL_PASSWORD` del `.env`:
+
+   ```bash
+   cd /var/www/web-hibrida
+   sed -i "s|^MAIL_PASSWORD=.*|MAIL_PASSWORD=<la clave nueva>|" .env
+   docker compose exec -T laravel.test php artisan config:clear
+   docker compose exec -T laravel.test php artisan mail:probar
+   ```
+
+3. Revocar la clave vieja desde el panel de Brevo.
+
+> La clave **no** está en el repositorio (ni debe estarlo): vive solo en el
+> `.env` del servidor y en el de tu máquina.
+
 ---
 
 ## Los registros DNS
@@ -115,3 +135,27 @@ equivocada, DKIM pendiente o un `MAIL_SCHEME` inválido.
 3. Registrar un fisio nuevo en `https://fisio.salvamartinez.es/register` y
    comprobar que recibe el enlace de verificación.
 4. Al pulsar el enlace, la cuenta queda activada y puede entrar al panel.
+
+### El enlace de verificación funciona sin sesión
+
+Esto es importante, porque **la mayoría de la gente abre el email en el móvil**,
+donde no tiene sesión iniciada en el navegador. Por eso el enlace firmado
+verifica la cuenta y, solo si no hay nadie dentro, además inicia sesión.
+
+Para comprobarlo sin depender del email (es decir, para no tener que esperar a
+que llegue):
+
+```bash
+# En el servidor: generar el enlace firmado del usuario recién creado
+docker compose exec -T laravel.test php artisan tinker --execute="
+\$u = App\Models\User::where('email', 'tu@email.com')->first();
+echo Illuminate\Support\Facades\URL::temporarySignedRoute(
+    'verification.verify', now()->addHours(2),
+    ['id' => \$u->id, 'hash' => sha1(\$u->email)]
+);"
+
+# Y abrirlo con curl, SIN ninguna cookie: debe redirigir al panel y activar la cuenta
+curl -s -o /dev/null -w "%{http_code} → %{redirect_url}\n" "<el enlace>"
+```
+
+Lo esperado es `302 → https://fisio.salvamartinez.es/admin/dashboard`.

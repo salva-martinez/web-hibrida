@@ -235,10 +235,10 @@ Los vhosts se aplican con `deploy/aplicar-vhosts.sh` (idempotente, valida con
 
 ## 7. Pendientes para producción
 
-- [ ] **Correo real**: `MAIL_MAILER` debe ser un SMTP de verdad. Sin él, el
-      registro de fisioterapeutas no se puede activar (el enlace solo se escribe
-      en el log).
-- [ ] **Backup automático** de MySQL (cron + rotación).
+- [x] **Correo real**: `MAIL_MAILER` es `smtp` (Brevo). El registro de
+      fisioterapeutas activa la cuenta con el enlace del email, incluso sin
+      sesión iniciada. Ver [CORREO-BREVO.md](CORREO-BREVO.md).
+- [x] **Backup automático** de MySQL (cron diario + rotación).
 - [ ] **Monitorización**: aviso si el worker de la cola se cae.
 - [ ] **Migración de datos existentes**: la migración `2026_10_21_090200` asigna
       todo al primer fisio. Si hay varios profesionales con datos, hay que
