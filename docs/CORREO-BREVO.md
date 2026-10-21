@@ -8,121 +8,105 @@ Brevo (antes Sendinblue) es el proveedor de correo saliente que usa FisioApp.
   transaccionales). Para FisioApp sobra de largo: cada fisio nuevo recibe un
   único email.
 - **Sin tarjeta de crédito** y sin caducidad.
+- Los correos del plan gratuito llevan la pegatina **"Sent with Brevo"**. Para
+  quitarla hay que contratar el add-on de branding.
 
 ---
 
-## 1. Crear la cuenta y autenticar el dominio
+## Estado actual (ya configurado y funcionando)
 
-### 1.1. La cuenta de Brevo
+La configuración está **hecha y probada**: `mail:probar` envía correctamente.
 
-Registrate en Brevo con el email donde quieras recibir la confirmacion:
+| Variable | Valor |
+|---|---|
+| `MAIL_MAILER` | `smtp` |
+| `MAIL_HOST` | `smtp-relay.brevo.com` |
+| `MAIL_PORT` | `587` |
+| `MAIL_USERNAME` | `bf58c2001@smtp-brevo.com` (el identificador de cuenta que da Brevo, **no** tu email) |
+| `MAIL_PASSWORD` | la SMTP key (⚠️ solo se muestra una vez al generarla) |
+| `MAIL_SCHEME` | `null` |
+| `MAIL_FROM_ADDRESS` | `no-reply@salvamartinez.es` |
+| `MAIL_FROM_NAME` | `FisioApp` |
 
-- **`salvamartinez.es`** -> llega a tu buzon de IONOS (webmail de IONOS). Es la
-  opcion ideal: el login SMTP sera ese mismo email.
-- **Tu email personal** -> llega ahi. El remitente de FisioApp seguira siendo
-  `no-reply@salvamartinez.es` gracias a la autenticacion de dominio.
+> ⚠️ `MAIL_SCHEME` **no es `tls`**. Laravel 12 solo acepta `smtp`, `smtps` o
+> `null` (que negocia STARTTLS automáticamente). Con `tls` falla con
+> `UnsupportedSchemeException`.
 
-### 1.2. Autenticar el dominio como remitente
+---
 
-En Brevo: **Transmitir -> remitentes -> remitentes de dominio** (o "Domain
-authentication").
+## Los registros DNS
 
-Anade `salvamartinez.es`. Brevo te dara dos registros DNS para crear en IONOS:
+Brevo pide estos registros. **Los cuatro ya están propagados** en
+`salvamartinez.es`:
 
-| Tipo | Nombre | Valor |
-|---|---|---|
-| `CNAME` | `brevo._domainkey` | el valor que te de Brevo (suele ser un CNAME a `brevo._domainkey.brevo.com`) |
-| `TXT` | `selector._domainkey` | la clave DKIM que te muestre Brevo |
+| Tipo | Nombre | Valor | Estado |
+|---|---|---|---|
+| CNAME | `brevo1._domainkey` | `b1.salvamartinez-es.dkim.brevo.com` | ✅ |
+| CNAME | `brevo2._domainkey` | `b2.salvamartinez-es.dkim.brevo.com` | ✅ |
+| CNAME | `em` | `em-salvamartinez-es.brand.brevosend.com` | ✅ (branding) |
+| CNAME | `r.em` | `em-salvamartinez-es.r.brand.brevosend.com` | ✅ (branding) |
+| CNAME | `img.em` | `em-salvamartinez-es.img.brand.brevosend.com` | ✅ (branding) |
 
-Los **CNAME son lo mas comodo en IONOS** (no hay que soporta el valor con
-comillas).
+### El SPF: **no se toca**
 
-### 1.3. Actualizar el SPF (no te lo saltes)
+Brevo **no pide registro SPF** en su flujo de autenticación de dominio: el DKIM
+va alineado al dominio (`brevo1._domainkey` sobre `salvamartinez.es`), y eso
+hace que el mensaje **cumpla DMARC aunque el SPF no mentione a Brevo**.
 
-**Solo se permite un registro SPF por dominio**, asi que hay que **combinar** el
-de Brevo con el que ya tienes, **no anadir un segundo registro**.
-
-El SPF actual de `salvamartinez.es` es:
+El SPF actual se queda como está:
 
 ```
 v=spf1 include:_spf-eu.ionos.com ~all
 ```
 
-Brevo no esta autorizado -> los correos de verificacion **fallarian la
-validacion SPF** y Gmail u Outlook los tirarian a spam (o los rechazarian
-directamente).
+> Añadir `include:spf.brevo.com` a mano es opcional y tiene un riesgo: si el
+> include no es el correcto, se rompe el SPF de IONOS y dejarían de llegar los
+> correos del buzón. Con el DKIM alineado, el envío funciona sin tocarlo.
 
-**Debe quedar asi** (usa el `include` exacto que te de Brevo):
+### El DMARC: hay que borrar un duplicado
 
-```
-v=spf1 include:_spf-eu.ionos.com include:spf.brevo.com ~all
-```
+Ahora mismo `_dmarc.salvamartinez.es` tiene **dos registros a la vez**:
 
-> Si el panel de IONOS te deja tener varios registros TXT, **borra el SPF
-> antiguo** y deja solo el combinado. Dos registros SPF invalidan la comprobacion
-> y el correo cae en spam.
+| Tipo | Valor | Quién lo puso |
+|---|---|---|
+| CNAME | `dmarc.ionos.es` | IONOS (gestionado por el hosting) |
+| TXT | `v=DMARC1; p=none;` | manual |
 
-### 1.4. Verificar el remitente
+Con dos registros, algunos validadores toman uno y otros otro → el resultado es
+inconsistente. Por eso Brevo muestra el aviso en rojo.
 
-Si Brevo te pide verificar `no-reply@salvamartinez.es` por email, el mensaje
-llega al **webmail de IONOS** (tu panel -> *Correo electronico* -> *Webmail*).
-Ahi pinchas el enlace de confirmacion.
+**Solución: borrar el TXT manual** y dejar solo el CNAME de IONOS.
 
-> Autenticar el dominio es mejor que verificar un email suelto: no depende de
-> que alguien pulse un correo de confirmacion y mejora la entregabilidad (SPF +
-> DKIM propios del dominio).
+- El DMARC de IONOS es `p=none` (solo monitoriza, no rechaza nada) ✅
+- El DKIM de Brevo cumple el DMARC igualmente ✅
+- Los correos de verificación llegan igual ✅
 
-## 2. Generar la SMTP key
+El aviso de Brevo sobre el `rua` es **cosmético**: solo afecta a los informes
+de DMARC, no al envío.
 
-En Brevo: **Configuración (⚙) → SMTP & API → Generar una nueva clave SMTP**.
+---
 
-> ⚠️ La contraseña SMTP es la **SMTP key**, **no** la API key ni la contraseña de
-> tu cuenta de Brevo. Es el error más habitual.
-
-Copia la clave: solo se muestra una vez.
-
-## 3. Configurar el servidor
-
-En `/var/www/web-hibrida/.env`:
+## Cómo comprobar que funciona
 
 ```bash
-MAIL_MAILER=smtp
-MAIL_HOST=smtp-relay.brevo.com
-MAIL_PORT=587
-MAIL_USERNAME=tu-login-de-brevo
-MAIL_PASSWORD=la-smtp-key
-MAIL_SCHEME=tls
-MAIL_FROM_ADDRESS="no-reply@salvamartinez.es"
-MAIL_FROM_NAME="FisioApp"
-```
+cd /var/www/web-hibrida
 
-Después:
+# Ver la configuración detectada (sin enviar nada)
+./vendor/bin/sail artisan mail:probar --mostrar
 
-```bash
-./vendor/bin/sail artisan config:clear
-```
-
-## 4. Comprobar que funciona
-
-```bash
+# Enviar un email de prueba de verdad
 ./vendor/bin/sail artisan mail:probar
 ```
 
-Muestra la configuración detectada y envía un email de prueba. Si algo falla,
-dice por qué (remitente sin verificar, SMTP key equivocada, DKIM pendiente…).
-
-Para ver solo la configuración, sin enviar nada:
-
-```bash
-./vendor/bin/sail artisan mail:probar --mostrar
-```
+Si algo falla, el comando indica la causa: remitente sin verificar, SMTP key
+equivocada, DKIM pendiente o un `MAIL_SCHEME` inválido.
 
 ---
 
 ## Comprobación final
 
 1. `mail:probar` dice "✅ Enviado".
-2. El email llega (revisa también spam).
+2. El email llega al buzón de IONOS (revisa también spam).
 3. Registrar un fisio nuevo en `https://fisio.salvamartinez.es/register` y
    comprobar que recibe el enlace de verificación.
 4. Al pulsar el enlace, la cuenta queda activada y puede entrar al panel.

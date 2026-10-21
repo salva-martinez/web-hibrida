@@ -76,6 +76,8 @@ class ProbarCorreo extends Command
             $this->line('    · El remitente no está verificado en el proveedor.');
             $this->line('    · La contraseña SMTP es la "SMTP key", no la API key.');
             $this->line('    · El dominio no está autenticado (DKIM/SPF) en el DNS.');
+            $this->line('    · MAIL_SCHEME: usa "null" con el puerto 587 (TLS negociado),');
+            $this->line('      "smtps" con el 465 (TLS implícito) y "smtp" sin cifrado.');
             $this->line('');
 
             Log::error('Prueba de correo fallida', ['error' => $e->getMessage()]);
