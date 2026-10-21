@@ -9,58 +9,47 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 
     <link rel="icon" type="image/png" href="/favicon.png">
-    <link rel="alternate icon" type="image/png" href="/favicon-32.png">
-    <link rel="shortcut icon" href="/favicon.ico">
-
     <style>
-        /* ==========================================================
-           Salva Martínez Juan
-           Editorial técnico: serif para el texto, monoespaciada
-           para los datos. Tinta, pergamino, sangre y oro viejo.
-           ========================================================== */
+        /* ============================================================
+           SALVA MARTÍNEZ JUAN — PORTFOLIO
+           Registro gótico-victoriano (tinta, pergamino, sangre y oro
+           viejo) montado sobre una ciudad Blade Runner: hologramas
+           fríos, ámbar de sodio, lluvia de neón y tubo catódico.
+
+           El contenido sigue siendo editorial: la estética vive en
+           el marco, nunca en la legibilidad.
+           ============================================================ */
         :root {
-            color-scheme: light dark;
+            color-scheme: dark;
 
-            --ink: #12100e;
-            --parchment: #efe8d8;
-            --parchment-dim: #d8cfba;
-            --blood: #8a1c14;
-            --blood-bright: #a8281d;
-            --gold: #8f7434;
-            --gold-bright: #b3944c;
+            /* Base gótica */
+            --void: #07080b;
+            --void-2: #0c0e13;
+            --ivory: #e9e2d2;
+            --ivory-dim: #a1988a;
+            --gold: #b3944c;
+            --gold-bright: #d3b573;
+            --blood: #b8342a;
 
-            --rule: color-mix(in srgb, var(--gold) 34%, transparent);
-            --rule-faint: color-mix(in srgb, var(--gold) 15%, transparent);
+            /* Capa Blade Runner */
+            --holo: #4fd8e8;
+            --amber: #ff9d4d;
 
-            --text: var(--ink);
-            --text-dim: #5a5443;
-            --bg: var(--parchment);
-            --bg-alt: color-mix(in srgb, var(--parchment) 90%, var(--gold));
-            --hover: color-mix(in srgb, var(--parchment) 94%, var(--gold));
-        }
+            --rule: color-mix(in srgb, var(--gold) 30%, transparent);
+            --rule-faint: color-mix(in srgb, var(--gold) 13%, transparent);
+            --grid-line: rgba(79, 216, 232, .045);
+            --scan: rgba(0, 0, 0, .22);
+            --halo: color-mix(in srgb, var(--holo) 42%, transparent);
+            --bloom: color-mix(in srgb, var(--holo) 18%, transparent);
 
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --ink: #0a0908;
-                --parchment: #e8e1d1;
-                --parchment-dim: #b5ac97;
-                --blood: #a8281d;
-                --blood-bright: #c2372a;
-                --gold: #b3944c;
-                --gold-bright: #d0b269;
-
-                --rule: color-mix(in srgb, var(--gold) 38%, transparent);
-                --rule-faint: color-mix(in srgb, var(--gold) 17%, transparent);
-
-                --text: var(--parchment);
-                --text-dim: #9c9481;
-                --bg: var(--ink);
-                --bg-alt: #131110;
-                --hover: #171513;
-            }
+            --text: var(--ivory);
+            --text-dim: var(--ivory-dim);
+            --bg: var(--void);
+            --bg-alt: var(--void-2);
+            --hover: #11141a;
         }
 
         *, *::before, *::after { box-sizing: border-box; }
@@ -75,42 +64,98 @@
             font-size: 1.125rem;
             line-height: 1.65;
             -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
         }
 
-        /* Grano de papel, muy sutil: da textura sin parecerEffecto */
+        /* ---------- Fondo: grano, retícula y haces de luz ---------- */
         body::before {
             content: '';
             position: fixed;
             inset: 0;
             z-index: 0;
             pointer-events: none;
-            opacity: .3;
-            mix-blend-mode: multiply;
+            opacity: .055;
+            mix-blend-mode: screen;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.16'/%3E%3C/svg%3E");
         }
 
-        @media (prefers-color-scheme: dark) {
-            body::before { mix-blend-mode: screen; opacity: .12; }
+        body::after {
+            content: '';
+            position: fixed;
+            inset: -15% -10%;
+            z-index: 0;
+            pointer-events: none;
+            background:
+                radial-gradient(55% 42% at 80% -12%, color-mix(in srgb, var(--holo) 13%, transparent), transparent 70%),
+                radial-gradient(45% 38% at 8% 2%, color-mix(in srgb, var(--amber) 8%, transparent), transparent 70%),
+                repeating-linear-gradient(to right, var(--grid-line) 0 1px, transparent 1px 72px),
+                repeating-linear-gradient(to bottom, var(--grid-line) 0 1px, transparent 1px 72px);
+            -webkit-mask-image: radial-gradient(125% 90% at 50% 0%, #000 12%, transparent 82%);
+            mask-image: radial-gradient(125% 90% at 50% 0%, #000 12%, transparent 82%);
+        }
+
+        /* Lluvia de neón: la ciudad, no el Matrix */
+        .rain {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            opacity: .1;
+            background-image:
+                repeating-linear-gradient(to right, transparent 0 7px, var(--holo) 7px 8px, transparent 8px 23px),
+                repeating-linear-gradient(to right, transparent 0 16px, color-mix(in srgb, var(--holo) 55%, transparent) 16px 17px, transparent 17px 47px);
+            background-size: 100% 360px;
+            animation: rain 9s linear infinite;
+            -webkit-mask-image: linear-gradient(to bottom, transparent, #000 28%, #000 58%, transparent);
+            mask-image: linear-gradient(to bottom, transparent, #000 28%, #000 58%, transparent);
+        }
+
+        @keyframes rain {
+            from { background-position: 0 0, 0 0; }
+            to   { background-position: 0 360px, 0 360px; }
+        }
+
+        /* Tubo catódico: líneas de barrido y viñeta */
+        .scanlines {
+            position: fixed;
+            inset: 0;
+            z-index: 50;
+            pointer-events: none;
+            background-image:
+                repeating-linear-gradient(to bottom, var(--scan) 0 1px, transparent 1px 3px),
+                radial-gradient(125% 95% at 50% 32%, transparent 48%, rgba(0, 0, 0, .5) 100%);
         }
 
         .wrap { position: relative; z-index: 1; }
 
         /* ---------- Tipografía ---------- */
-        h1, h2, h3 {
+        h1, h2, h3 { margin: 0; line-height: 1.1; }
+
+        /* El nombre conserva el serif: es lo humano en un mundo frío. */
+        h1 {
             font-family: 'Cormorant Garamond', 'EB Garamond', serif;
-            font-weight: 600;
-            line-height: 1.1;
-            letter-spacing: -.005em;
-            margin: 0;
+            font-size: clamp(2.35rem, 8.6vw, 6rem);
+            font-weight: 500;
+            letter-spacing: -.02em;
         }
 
-        h1 { font-size: clamp(2.9rem, 9vw, 6rem); font-weight: 500; letter-spacing: -.02em; }
+        /* Todo lo demás pasa a registro técnico. */
+        h2, h3 {
+            font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
 
-        h2 { font-size: clamp(1.9rem, 4.5vw, 3rem); }
+        h2 {
+            font-size: clamp(1.15rem, 2.6vw, 1.65rem);
+            letter-spacing: .16em;
+        }
 
-        h3 { font-size: 1.45rem; font-weight: 600; }
+        h3 {
+            font-size: 1rem;
+            letter-spacing: .14em;
+        }
 
-        /* Las etiquetas y los datos van en monoespaciada: el registro técnico */
         .mono {
             font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
             font-size: .7rem;
@@ -131,7 +176,8 @@
             border-bottom: 1px solid var(--rule);
             position: sticky;
             top: 0;
-            background: var(--bg);
+            background: color-mix(in srgb, var(--bg) 88%, transparent);
+            backdrop-filter: blur(8px);
             z-index: 10;
         }
 
@@ -161,6 +207,7 @@
         }
 
         nav a {
+            position: relative;
             text-decoration: none;
             font-family: 'JetBrains Mono', monospace;
             font-size: .68rem;
@@ -170,68 +217,230 @@
             transition: color .2s;
         }
 
-        nav a:hover { color: var(--blood); }
+        nav a::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -5px;
+            width: 100%;
+            height: 1px;
+            background: var(--holo);
+            box-shadow: 0 0 8px var(--halo);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform .25s;
+        }
+
+        nav a:hover::after { transform: scaleX(1); }
+        nav a:hover { color: var(--holo); }
 
         /* ---------- Secciones ---------- */
         section {
+            position: relative;
             max-width: 64rem;
             margin: 0 auto;
             padding: 5rem 1.5rem;
             border-bottom: 1px solid var(--rule-faint);
         }
 
+        /* Divisor ornamental entre secciones */
+        section + section::before {
+            content: '◆';
+            position: absolute;
+            top: -.55rem;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 0 .75rem;
+            background: var(--bg);
+            color: var(--gold);
+            font-size: .72rem;
+            line-height: 1;
+        }
+
         .section-head {
             display: flex;
-            align-items: baseline;
+            align-items: center;
             gap: 1.2rem;
             margin-bottom: 2.75rem;
         }
 
-        .numeral {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: .78rem;
-            letter-spacing: .2em;
-            color: var(--gold);
-            border-bottom: 1px solid var(--rule);
-            padding-bottom: .2rem;
+        .section-head h2 { flex: none; }
+
+        /* Filete Victorian que se pierde a la derecha */
+        .section-head::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(to right, var(--rule), transparent);
         }
 
-        .section-head h2 { flex: 1; }
+        .numeral {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: .72rem;
+            letter-spacing: .2em;
+            color: var(--holo);
+            border: 1px solid color-mix(in srgb, var(--holo) 40%, transparent);
+            padding: .25rem .55rem;
+            text-shadow: 0 0 12px var(--halo);
+        }
+
+        /* ---------- Brackets de HUD ---------- */
+        .hud { position: relative; }
+
+        .hud::before,
+        .hud::after {
+            content: '';
+            position: absolute;
+            width: 13px;
+            height: 13px;
+            border: 1px solid var(--holo);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .25s;
+        }
+
+        .hud::before { top: -1px; left: -1px; border-right: 0; border-bottom: 0; }
+        .hud::after  { bottom: -1px; right: -1px; border-left: 0; border-top: 0; }
+
+        .hud:hover::before,
+        .hud:hover::after,
+        .hud:focus-within::before,
+        .hud:focus-within::after { opacity: .9; }
 
         /* ---------- Héroe ---------- */
         .hero {
+            position: relative;
+            overflow: hidden;
             padding-top: 6.5rem;
             padding-bottom: 4.5rem;
+        }
+
+        /* Barrido de radar: la luz que recorre la escena */
+        .hero::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 0;
+            height: 160px;
+            pointer-events: none;
+            background: linear-gradient(to bottom, transparent, color-mix(in srgb, var(--holo) 10%, transparent), transparent);
+            animation: radar 11s linear infinite;
+        }
+
+        @keyframes radar {
+            from { transform: translateY(-170px); }
+            to   { transform: translateY(70vh); }
         }
 
         .hero .mark {
             font-family: 'JetBrains Mono', monospace;
             font-size: 1rem;
-            color: var(--gold);
+            color: var(--holo);
             display: block;
             margin-bottom: 1.4rem;
+            text-shadow: 0 0 20px var(--halo);
+            animation: spin 22s linear infinite;
         }
 
-        .hero h1 { margin-bottom: .5rem; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .status {
+            display: inline-flex;
+            align-items: center;
+            gap: .6rem;
+            margin: 0 0 1.5rem;
+            color: var(--text-dim);
+            letter-spacing: .18em;
+        }
+
+        .status .dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--amber);
+            box-shadow: 0 0 12px var(--amber);
+            animation: pulse 2.6s ease-in-out infinite;
+        }
+
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .2; } }
+
+        .hero h1 {
+            position: relative;
+            margin-bottom: .5rem;
+            background: linear-gradient(180deg, var(--ivory) 52%, color-mix(in srgb, var(--holo) 30%, var(--ivory)) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 46px var(--halo), 0 0 90px var(--bloom);
+        }
+
+        @supports not ((-webkit-background-clip: text) or (background-clip: text)) {
+            .hero h1 { color: var(--ivory); }
+        }
+
+        /* Glitch de una sola pasada: la señal se desincroniza */
+        .hero h1::before,
+        .hero h1::after {
+            content: attr(data-text);
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background: none;
+            -webkit-text-fill-color: currentColor;
+        }
+
+        .hero h1::before {
+            color: var(--holo);
+            animation: glitch 1.3s steps(2, end) .45s 1 both;
+        }
+
+        .hero h1::after {
+            color: var(--blood);
+            animation: glitch2 1.3s steps(2, end) .45s 1 both;
+        }
+
+        @keyframes glitch {
+            0%   { opacity: 0; clip-path: inset(0 0 100% 0); transform: translate(0); }
+            8%   { opacity: .8; clip-path: inset(14% 0 66% 0); transform: translate(-3px, 1px); }
+            16%  { opacity: 0; clip-path: inset(0 0 100% 0); transform: translate(0); }
+            24%  { opacity: .8; clip-path: inset(58% 0 22% 0); transform: translate(3px, -1px); }
+            32%  { opacity: 0; clip-path: inset(0 0 100% 0); transform: translate(0); }
+            40%  { opacity: .65; clip-path: inset(34% 0 48% 0); transform: translate(-2px, 0); }
+            48%, 100% { opacity: 0; clip-path: inset(0 0 100% 0); transform: translate(0); }
+        }
+
+        @keyframes glitch2 {
+            0%   { opacity: 0; clip-path: inset(0 0 100% 0); transform: translate(0); }
+            10%  { opacity: .7; clip-path: inset(46% 0 34% 0); transform: translate(3px, 0); }
+            18%  { opacity: 0; clip-path: inset(0 0 100% 0); transform: translate(0); }
+            26%  { opacity: .7; clip-path: inset(20% 0 62% 0); transform: translate(-2px, 1px); }
+            34%  { opacity: 0; clip-path: inset(0 0 100% 0); transform: translate(0); }
+            42%  { opacity: .55; clip-path: inset(62% 0 18% 0); transform: translate(2px, 0); }
+            50%, 100% { opacity: 0; clip-path: inset(0 0 100% 0); transform: translate(0); }
+        }
 
         .hero .role {
             font-family: 'JetBrains Mono', monospace;
             font-size: .72rem;
             letter-spacing: .22em;
             text-transform: uppercase;
-            color: var(--blood);
+            color: var(--gold);
             margin-bottom: 2.25rem;
         }
 
         .hero p { margin: 0 0 1.1rem; }
 
-        /* Barra de stack: el registro técnico */
+        /* ---------- Panel de stack: terminal ---------- */
         .stack {
+            position: relative;
+            overflow: hidden;
             margin-top: 2.5rem;
-            padding: .8rem 1rem;
+            padding: .85rem 1rem;
             border: 1px solid var(--rule-faint);
-            border-left: 2px solid var(--gold);
-            background: color-mix(in srgb, var(--bg-alt) 55%, transparent);
+            border-left: 2px solid var(--holo);
+            background: color-mix(in srgb, var(--bg-alt) 70%, transparent);
+            box-shadow: 0 0 34px -18px var(--halo);
             display: flex;
             flex-wrap: wrap;
             gap: .35rem 1.1rem;
@@ -239,7 +448,27 @@
             max-width: 34rem;
         }
 
+        .stack::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            opacity: .35;
+            background: linear-gradient(to bottom, transparent 46%, color-mix(in srgb, var(--holo) 22%, transparent) 50%, transparent 54%);
+            background-size: 100% 220%;
+            animation: scan 8s linear infinite;
+        }
+
+        @keyframes scan {
+            from { background-position: 0 -120%; }
+            to   { background-position: 0 220%; }
+        }
+
         .stack span { color: var(--gold); }
+        .stack .prompt { color: var(--amber); }
+        .stack .caret { color: var(--amber); animation: blink 1.1s steps(1) infinite; }
+
+        @keyframes blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
 
         /* ---------- Listas ---------- */
         .ledger { list-style: none; margin: 0; padding: 0; }
@@ -260,28 +489,36 @@
             letter-spacing: .12em;
             text-transform: uppercase;
             color: var(--gold);
-            padding-top: .4rem;
+            padding-top: .35rem;
         }
 
-        .ledger h3 { margin-bottom: .35rem; }
+        .ledger h3 { margin-bottom: .45rem; color: var(--ivory); }
 
         .ledger p { margin: 0; color: var(--text-dim); max-width: 60ch; }
 
         .tags {
-            margin-top: .85rem;
+            margin-top: .9rem;
             display: flex;
             flex-wrap: wrap;
             gap: .4rem;
         }
 
         .tag {
+            position: relative;
             font-family: 'JetBrains Mono', monospace;
             font-size: .66rem;
             letter-spacing: .04em;
             text-transform: none;
             color: var(--text-dim);
             border: 1px solid var(--rule-faint);
-            padding: .15rem .5rem;
+            padding: .18rem .5rem;
+            clip-path: polygon(0 0, calc(100% - 7px) 0, 100% 7px, 100% 100%, 0 100%);
+            transition: color .2s, border-color .2s;
+        }
+
+        .tag:hover {
+            color: var(--holo);
+            border-color: color-mix(in srgb, var(--holo) 55%, transparent);
         }
 
         .soon {
@@ -289,11 +526,12 @@
             font-size: .62rem;
             letter-spacing: .1em;
             text-transform: uppercase;
-            color: var(--blood);
-            border: 1px solid var(--blood);
-            padding: .18rem .45rem;
+            color: var(--amber);
+            border: 1px solid color-mix(in srgb, var(--amber) 55%, transparent);
+            padding: .2rem .45rem;
             margin-left: .5rem;
             vertical-align: middle;
+            text-shadow: 0 0 12px color-mix(in srgb, var(--amber) 40%, transparent);
         }
 
         .entry {
@@ -301,9 +539,9 @@
             display: block;
         }
 
-        .entry:hover .ledger-title { color: var(--blood); }
+        .entry:hover .ledger-title { color: var(--holo); text-shadow: 0 0 22px var(--halo); }
 
-        .ledger-title { transition: color .2s; }
+        .ledger-title { transition: color .2s, text-shadow .2s; }
 
         /* ---------- Contacto ---------- */
         .contacts { border-top: 1px solid var(--rule-faint); }
@@ -321,8 +559,8 @@
 
         .contact:hover {
             padding-left: .7rem;
-            color: var(--blood);
-            background: color-mix(in srgb, var(--hover) 60%, transparent);
+            color: var(--holo);
+            background: color-mix(in srgb, var(--hover) 65%, transparent);
         }
 
         .contact .label {
@@ -339,7 +577,10 @@
             color: var(--gold);
             font-family: 'JetBrains Mono', monospace;
             font-size: .8rem;
+            transition: color .25s;
         }
+
+        .contact:hover .arrow { color: var(--holo); }
 
         /* ---------- Pie ---------- */
         footer {
@@ -355,6 +596,9 @@
 
         footer .mono { text-transform: none; letter-spacing: .06em; }
 
+        .readout { color: var(--gold); }
+        .readout .tick { color: var(--holo); }
+
         /* ---------- Adaptación ---------- */
         @media (max-width: 640px) {
             section { padding: 3.5rem 1.25rem; }
@@ -368,12 +612,15 @@
 
         @media (prefers-reduced-motion: reduce) {
             html { scroll-behavior: auto; }
-            * { transition: none !important; }
+            * { transition: none !important; animation: none !important; }
+            .rain, .scanlines { display: none; }
         }
     </style>
 </head>
 
 <body>
+    <div class="rain" aria-hidden="true"></div>
+
     <div class="wrap">
 
         <header class="top">
@@ -391,11 +638,14 @@
             <!-- ================= HÉROE ================= -->
             <section class="hero" id="inicio">
                 <span class="mark">◆</span>
-                <h1>Salva Martínez Juan</h1>
+
+                <p class="status mono"><span class="dot" aria-hidden="true"></span>Sistema en línea · operador web</p>
+
+                <h1 data-text="Salva Martínez Juan">Salva Martínez Juan</h1>
                 <p class="role">Licenciado en Desarrollo de Aplicaciones Web</p>
 
-
                 <div class="stack mono">
+                    <span class="prompt">&gt;</span>
                     <span>laravel</span>
                     <span>php</span>
                     <span>mysql</span>
@@ -403,6 +653,7 @@
                     <span>tailwind</span>
                     <span>docker</span>
                     <span>automatización</span>
+                    <span class="caret">█</span>
                 </div>
 
             </section>
@@ -419,7 +670,7 @@
                     <li>
                         <span class="key">2026</span>
                         <div>
-                            <a class="entry" href="https://fisio.salvamartinez.es">
+                            <a class="entry hud" href="https://fisio.salvamartinez.es">
                                 <h3 class="ledger-title">FisioApp</h3>
                                 <p>
                                     Gestión clínica de rehabilitación con inteligencia artificial:
@@ -440,7 +691,7 @@
                     <li>
                         <span class="key">2026</span>
                         <div>
-                            <a class="entry" href="https://reservas.salvamartinez.es">
+                            <a class="entry hud" href="https://reservas.salvamartinez.es">
                                 <h3 class="ledger-title">Reservas</h3>
                                 <p>
                                     API REST y panel de gestión de reservas de alojamientos:
@@ -480,25 +731,25 @@
                 </div>
 
                 <div class="contacts">
-                    <a class="contact" href="mailto:salvamartienzjuan98@gmail.com">
+                    <a class="contact hud" href="mailto:salvamartienzjuan98@gmail.com">
                         <span class="label">Email</span>
                         <span class="value">salvamartienzjuan98@gmail.com</span>
                         <span class="arrow">→</span>
                     </a>
 
-                    <a class="contact" href="https://www.linkedin.com/in/salva-mart%C3%ADnez-juan-031a4b258/" target="_blank" rel="noopener noreferrer">
+                    <a class="contact hud" href="https://www.linkedin.com/in/salva-mart%C3%ADnez-juan-031a4b258/" target="_blank" rel="noopener noreferrer">
                         <span class="label">LinkedIn</span>
                         <span class="value">/in/salva-martinez-juan</span>
                         <span class="arrow">→</span>
                     </a>
 
-                    <a class="contact" href="https://wa.me/34675670712" target="_blank" rel="noopener noreferrer">
+                    <a class="contact hud" href="https://wa.me/34675670712" target="_blank" rel="noopener noreferrer">
                         <span class="label">WhatsApp</span>
                         <span class="value">+34 675 670 712</span>
                         <span class="arrow">→</span>
                     </a>
 
-                    <a class="contact" href="https://github.com/salva-martinez" target="_blank" rel="noopener noreferrer">
+                    <a class="contact hud" href="https://github.com/salva-martinez" target="_blank" rel="noopener noreferrer">
                         <span class="label">GitHub</span>
                         <span class="value">@salva-martinez</span>
                         <span class="arrow">→</span>
@@ -510,13 +761,33 @@
 
         <footer>
             <span class="mono">Salva Martínez Juan</span>
-            <span class="mono">&copy; <span id="year"></span> &middot; Laravel, PHP y MySQL</span>
+            <span class="mono readout"><span class="tick" id="reloj">--:--:--</span> UTC &middot; Laravel, PHP y MySQL</span>
+            <span class="mono">&copy; <span id="year"></span></span>
         </footer>
 
     </div>
 
+    <div class="scanlines" aria-hidden="true"></div>
+
     <script>
         document.getElementById('year').textContent = new Date().getFullYear();
+
+        const reloj = document.getElementById('reloj');
+
+        if (reloj) {
+            const dos = n => String(n).padStart(2, '0');
+
+            const tick = () => {
+                const ahora = new Date();
+                reloj.textContent =
+                    dos(ahora.getUTCHours()) + ':' +
+                    dos(ahora.getUTCMinutes()) + ':' +
+                    dos(ahora.getUTCSeconds());
+            };
+
+            tick();
+            setInterval(tick, 1000);
+        }
     </script>
 </body>
 
