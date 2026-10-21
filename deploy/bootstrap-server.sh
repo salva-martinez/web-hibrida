@@ -102,10 +102,15 @@ sed -e "s#{{SUBDOMAIN}}#$SUBDOMAIN#g" -e "s#{{APP_PORT}}#$APP_PORT#g" \
 ln -sf /etc/nginx/sites-available/fisioapp.conf /etc/nginx/sites-enabled/fisioapp.conf
 
 # nginx ya sirve otro sitio: se comprueba la configuración antes de recargar.
-if nginx -t 2>&1 | grep -q "syntax is ok\|test is successful"; then
+# OJO: no se usa "grep -q" sobre un pipe (SIGPIPE + pipefail hacen que el
+# pipeline devuelva error aunque nginx haya validado bien).
+SALIDA_NGINX="$(nginx -t 2>&1 || true)"
+
+if printf '%s' "$SALIDA_NGINX" | grep -qE "syntax is ok|test is successful"; then
     systemctl reload nginx
     log "nginx recargado (el sitio raíz no se ha tocado)."
 else
+    printf '%s\n' "$SALIDA_NGINX" | tail -5
     rm -f /etc/nginx/sites-enabled/fisioapp.conf
     die "La configuración de nginx no era válida: se ha revertido el vhost."
 fi

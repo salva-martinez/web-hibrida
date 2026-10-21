@@ -116,8 +116,13 @@ PY
 # ---------------------------------------------------------------------------
 # 4. Validación y recarga
 # ---------------------------------------------------------------------------
-if ! nginx -t 2>&1 | grep -qE "syntax is ok|test is successful"; then
-    nginx -t 2>&1 | tail -5
+# OJO: no se usa "grep -q" sobre un pipe. Al encontrar la coincidencia cierra la
+# pipe, nginx recibe SIGPIPE y, con "set -o pipefail", el pipeline devuelve
+# error aunque nginx haya validado la configuración bien.
+SALIDA_NGINX="$(nginx -t 2>&1 || true)"
+
+if ! printf '%s' "$SALIDA_NGINX" | grep -qE "syntax is ok|test is successful"; then
+    printf '%s\n' "$SALIDA_NGINX" | tail -5
     restaurar
 fi
 
