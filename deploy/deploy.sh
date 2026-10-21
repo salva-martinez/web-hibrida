@@ -95,10 +95,28 @@ START_TS=$(date +%s)
 log "Commit desplegado: $(git rev-parse --short HEAD) ($(git log -1 --format=%s))"
 
 # ---------------------------------------------------------------------------
-# 3. Contenedores
+# 3. Imagen y contenedores
+#
+# La imagen se reconstruye en cada despliegue: la capa que instala PHP está
+# detrás de PHP_REFRESH y, al cambiar de valor, Docker la vuelve a ejecutar
+# para traerse el último parche de seguridad publicado. El resto de la
+# imagen (base, composer, node) queda cacheado, así que no cuesta tiempo.
 # ---------------------------------------------------------------------------
+log "Reconstruyendo la imagen (PHP al día)…"
+docker compose build --build-arg "PHP_REFRESH=$(date +%s)" laravel.test
+
 log "Levantando contenedores…"
 docker compose up -d --remove-orphans
+
+# El contenedor debe llevar un PHP con el último parche de seguridad. Si el
+# build no lo garantiza (imagen cacheada de una versión antigua), el
+# despliegue falla aquí y no se publica nada.
+PHP_VERSION="$(dc laravel.test php -r 'echo PHP_VERSION;' | tr -d '\r\n')"
+log "  PHP en el contenedor: ${PHP_VERSION}"
+PHP_MIN_VERSION="8.5.12"
+if [ "$(printf '%s\n%s\n' "$PHP_VERSION" "$PHP_MIN_VERSION" | sort -V | head -1)" != "$PHP_MIN_VERSION" ]; then
+    die "El contenedor corre PHP ${PHP_VERSION} y se exige ${PHP_MIN_VERSION} o superior."
+fi
 
 # ---------------------------------------------------------------------------
 # 4. Usuario efectivo del servidor PHP dentro del contenedor

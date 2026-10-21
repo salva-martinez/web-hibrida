@@ -31,6 +31,52 @@ con un certificado de Let's Encrypt. Por eso:
 
 ---
 
+## 0. Versión de PHP
+
+| Dónde | Versión | Notas |
+|---|---|---|
+| Contenedor `laravel.test` (FisioApp) | **8.5.12** | Se instala desde `packages.sury.org` en el runtime propio de `deploy/sail-8.5/` |
+| Contenedor `web`/`api` (Reservas) | **8.5.12** | Imagen oficial `php:8.5.12-cli-bookworm` |
+| Host (CLI, para Composer y scripts) | **8.5.12** | `update-alternatives --set php /usr/bin/php8.5` |
+| Host `php8.3-fpm` | 8.3.36 | **Desactivado**: solo lo usaba apache2, que está parado. Ningún vhost de nginx hace `fastcgi_pass`. |
+
+El 21/10/2026 PHP publicó **8.5.12** para corregir dos vulnerabilidades de
+ejecución remota de código sin autenticar (CVE-2026-109618 y CVE-2026-109619,
+CVSS v4.0 9.2). El aviso de php.net es explícito: *«no hay mitigaciones
+completas, actualizar es la única opción segura»*.
+
+### Cómo se mantiene al día
+
+El runtime de Sail propio (`deploy/sail-8.5/`) deja la instalación de PHP en
+una capa aparte, detrás de `ARG PHP_REFRESH`. El despliegue lo invalida en
+cada ejecución, así que **cada `push` a `main` se trae el último parche de
+PHP publicado**:
+
+```bash
+docker compose build --build-arg "PHP_REFRESH=$(date +%s)" laravel.test
+```
+
+El `Dockerfile` falla el build si la versión instalada es anterior a la
+mínima exigida, y `deploy.sh` aborta el despliegue si el contenedor no llega
+a esa versión. Detalles en [`deploy/sail-8.5/README.md`](../deploy/sail-8.5/README.md).
+
+### Por qué `packages.sury.org` y no el PPA de Launchpad
+
+El PPA `ondrej/php` (el que usa Sail por defecto) va con retraso y devuelve
+errores 503 con facilidad: cuando salió 8.5.12, el PPA todavía servía 8.5.11.
+`packages.sury.org` es el repositorio que recomienda php.net para Ubuntu y
+publica el parche el mismo día.
+
+### Mitigaciones aplicadas
+
+Además de actualizar, el runtime y la app de Reservas llevan las mitigaciones
+que recomienda php.net (por si acaso): `memory_limit = -1`,
+`session.upload_progress.enabled = 0`, `fatal_error_backtraces = 0` y
+`post_max_size`/`upload_max_filesize` bajos (la aplicación no sube ficheros).
+La frontera de disponibilidad es el límite de memoria del contenedor.
+
+---
+
 ## 1. Preparar el servidor (una sola vez)
 
 ```bash

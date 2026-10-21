@@ -1,10 +1,14 @@
 services:
     laravel.test:
+        # Runtime propio en vez del de Sail: usa packages.sury.org (que publica
+        # los parches de seguridad de PHP el mismo día) y permite refrescar la
+        # capa de PHP en cada despliegue. Ver deploy/sail-8.5/README.md.
         build:
-            context: './vendor/laravel/sail/runtimes/8.5'
+            context: './deploy/sail-8.5'
             dockerfile: Dockerfile
             args:
                 WWWGROUP: '${WWWGROUP}'
+                PHP_REFRESH: '${PHP_REFRESH:-1}'
         image: 'sail-8.5/app'
         extra_hosts:
             - 'host.docker.internal:host-gateway'
