@@ -42,6 +42,18 @@ async function consultar(elemento) {
             return true;
         }
 
+        // La IA no ha podido generar el informe (cuota agotada, clave
+        // inválida...). Se explica y se deja de preguntar: no va a cambiar
+        // solo y el panel tiene que decirlo.
+        if (datos.estado === 'error') {
+            TextoEstado(elemento, '🤖 IA no disponible', 'badge-danger');
+            elemento.title = datos.mensaje || '';
+            elemento.removeAttribute('data-analisis-url');
+            elemento.dataset.estado = 'error';
+
+            return true;
+        }
+
         return false;
     } catch (error) {
         // Si falla la red se reintenta en el siguiente ciclo.

@@ -10,6 +10,9 @@
 
 @if($feedback->analisis_ia)
     <span class="badge badge-success">🤖 Análisis disponible</span>
+@elseif($feedback->analisis_error)
+    <span class="badge badge-danger"
+        title="{{ app(\App\Services\GeminiService::class)->mensajeDeError($feedback->analisis_error) }}">🤖 IA no disponible</span>
 @else
     <span class="badge badge-warning"
         data-analisis-url="{{ route('admin.feedback.analisis', $feedback->id) }}"

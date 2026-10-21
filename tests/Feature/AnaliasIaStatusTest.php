@@ -101,4 +101,32 @@ class AnaliasIaStatusTest extends TestCase
             file_get_contents(resource_path('js/app.js'))
         );
     }
+
+    public function test_avisa_cuando_la_ia_no_ha_podido_generar_el_informe(): void
+    {
+        $fisio = User::factory()->fisio()->create();
+        $feedback = $this->crearFeedback($fisio);
+        $feedback->update(['analisis_error' => 'cuota']);
+
+        // El endpoint debe explicar el fallo, no dejar el panel en "pendiente".
+        $this->actingAs($fisio)
+            ->getJson(route('admin.feedback.analisis', $feedback))
+            ->assertOk()
+            ->assertJson(['estado' => 'error'])
+            ->assertJsonFragment(['mensaje' => 'Se ha alcanzado la cuota de uso de la IA por hoy. Vuelve a intentarlo mañana.']);
+    }
+
+    public function test_la_ficha_marca_cuando_la_ia_no_ha_podido_generar_el_informe(): void
+    {
+        $fisio = User::factory()->fisio()->create();
+        $feedback = $this->crearFeedback($fisio);
+        $feedback->update(['analisis_error' => 'cuota']);
+
+        $this->actingAs($fisio)
+            ->get(route('admin.planes.show', $feedback->planDia->plan))
+            ->assertOk()
+            ->assertSee('IA no disponible')
+            // Sin informe y sin polling: no tiene sentido seguir preguntando.
+            ->assertDontSee('data-analisis-url', false);
+    }
 }

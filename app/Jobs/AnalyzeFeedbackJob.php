@@ -25,9 +25,7 @@ class AnalyzeFeedbackJob implements ShouldQueue
      */
     public int $backoff = 15;
 
-    public function __construct(public Feedback $feedback)
-    {
-    }
+    public function __construct(public Feedback $feedback) {}
 
     public function handle(GeminiService $geminiService): void
     {
@@ -41,10 +39,32 @@ class AnalyzeFeedbackJob implements ShouldQueue
         // GeminiService swallows API/connection errors and returns null.
         // Throw so the queue retries transient failures; give up after $tries.
         if ($analisis === null) {
-            Log::warning('AnalyzeFeedbackJob: null analysis for Feedback ' . $this->feedback->id);
-            throw new \RuntimeException('Gemini returned no analysis for Feedback ' . $this->feedback->id);
+            $motivo = $geminiService->ultimoMotivo();
+
+            // Si la cuota está agotada o la clave es inválida, reintentar en
+            // bucle no va a servir de nada: se anota el motivo y se abandona.
+            if (in_array($motivo, ['cuota', 'credenciales'], true)) {
+                Log::warning('AnalyzeFeedbackJob: sin análisis para Feedback '.$this->feedback->id, [
+                    'motivo' => $motivo,
+                ]);
+
+                $this->feedback->update([
+                    'analisis_error' => $motivo,
+                ]);
+
+                return;
+            }
+
+            Log::warning('AnalyzeFeedbackJob: null analysis for Feedback '.$this->feedback->id, [
+                'motivo' => $motivo,
+            ]);
+
+            throw new \RuntimeException('Gemini returned no analysis for Feedback '.$this->feedback->id);
         }
 
-        $this->feedback->update(['analisis_ia' => $analisis]);
+        $this->feedback->update([
+            'analisis_ia' => $analisis,
+            'analisis_error' => null,
+        ]);
     }
 }
