@@ -25,57 +25,7 @@
             {{-- Exercise Table (Excel style) --}}
             <div class="card" style="margin-bottom: 1.5rem">
                 <div class="card-body" style="padding: 0; overflow-x: auto;">
-                    <table class="exercise-table">
-                        <thead>
-                            <tr>
-                                <th>Estímulo</th>
-                                <th>Ejercicio</th>
-                                <th>Series</th>
-                                <th>Reps</th>
-                                <th>RPE</th>
-                                <th>KG</th>
-                                <th>Descanso</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($dia->ejerciciosPorEstimulo() as $estimuloNombre => $ejercicios)
-                                @php
-                                    $class = 'estimulo-basico';
-                                    $lower = strtolower($estimuloNombre);
-                                    if (str_contains($lower, 'calentamiento'))
-                                        $class = 'estimulo-calentamiento';
-                                    elseif (str_contains($lower, 'auxiliar'))
-                                        $class = 'estimulo-auxiliar';
-                                    elseif (str_contains($lower, 'metab') || str_contains($lower, 'elíptica'))
-                                        $class = 'estimulo-metabolico';
-                                @endphp
-                                <tr>
-                                    <td class="estimulo-header {{ $class }}" rowspan="{{ $ejercicios->count() + 1 }}">
-                                        {{ $estimuloNombre }}
-                                    </td>
-                                </tr>
-                                @foreach($ejercicios as $pe)
-                                    <tr>
-                                        <td class="ejercicio-nombre">
-                                            @if($pe->ejercicio->tieneVideo())
-                                                <a href="{{ $pe->ejercicio->youtube_url }}" target="_blank" rel="noopener noreferrer" class="video-link"
-                                                    style="text-decoration: none; display: inline-flex; align-items: center; gap: 0.3rem;">
-                                                    <span>▶️</span> {{ $pe->ejercicio->nombre }}
-                                                </a>
-                                            @else
-                                                {{ $pe->ejercicio->nombre }}
-                                            @endif
-                                        </td>
-                                        <td>{{ $pe->series }}</td>
-                                        <td>{{ $pe->repeticiones }}</td>
-                                        <td>{{ $pe->intensidad ?: '—' }}</td>
-                                        <td>{{ $pe->kg ? number_format($pe->kg, 1) : '—' }}</td>
-                                        <td>{{ $pe->descanso ?: '—' }}</td>
-                                    </tr>
-                                @endforeach
-                            @endforeach
-                        </tbody>
-                    </table>
+                    <x-ejercicios-tabla :dia="$dia" />
                 </div>
             </div>
 

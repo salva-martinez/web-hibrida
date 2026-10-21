@@ -48,7 +48,7 @@
                                             <a href="{{ route('admin.ejercicios.edit', $ej) }}"
                                                 class="btn btn-sm btn-primary">Editar</a>
                                             <form action="{{ route('admin.ejercicios.destroy', $ej) }}" method="POST"
-                                                onsubmit="return confirm({{ Js::from('¿Desactivar el ejercicio? Seguirá visible en los planes antiguos donde ya estaba pautado, con su feedback intacto. Podrás restaurarlo desde la Papelera.') }})">
+                                                data-confirmar="{{ Js::from('¿Desactivar el ejercicio? Seguirá visible en los planes antiguos donde ya estaba pautado, con su feedback intacto. Podrás restaurarlo desde la Papelera.') }}">
                                                 @csrf @method('DELETE')
                                                 <button type="submit" class="btn btn-sm btn-danger">Desactivar</button>
                                             </form>

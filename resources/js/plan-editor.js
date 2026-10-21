@@ -16,7 +16,8 @@ export function initPlanEditor() {
         return;
     }
 
-    const datos = JSON.parse(document.getElementById('plan-editor-data').textContent);
+    // Los datos llegan en un atributo data- de la propia vista (sin <script> inline).
+    const datos = JSON.parse(contenedor.dataset.datos || '{}');
     const estimulos = datos.estimulos;
     const diasACargar = datos.dias;
     const diasConFeedback = datos.diasConFeedback;

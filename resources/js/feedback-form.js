@@ -5,6 +5,19 @@
  * segundo plano. Sustituye al JavaScript embebido en la vista.
  */
 export function initFeedbackForms() {
+    // El slider de dureza actualiza su lectura en tiempo real.
+    document.querySelectorAll('[data-dureza-display]').forEach((input) => {
+        const lectura = document.getElementById(input.dataset.durezaDisplay);
+
+        if (!lectura) {
+            return;
+        }
+
+        input.addEventListener('input', () => {
+            lectura.textContent = input.value;
+        });
+    });
+
     document.querySelectorAll('.feedbackForm').forEach((form) => {
         form.addEventListener('submit', function () {
             const btn = form.querySelector('.submitBtn');

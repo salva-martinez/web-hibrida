@@ -61,28 +61,35 @@ class EditorPlanesTest extends TestCase
         ], $overrides);
     }
 
+    /**
+     * Los datos del editor viajan en un atributo data- de la vista.
+     */
+    private function datosDelEditor(string $html): array
+    {
+        preg_match('/data-datos="([^"]*)"/', $html, $coincidencias);
+
+        return json_decode(html_entity_decode($coincidencias[1] ?? '{}'), true) ?: [];
+    }
+
     public function test_si_la_validacion_falla_se_reponen_los_datos_escritos(): void
     {
-        $response = $this->actingAs($this->fisio)
-            ->post(route('admin.planes.store'), $this->payload([]));
-
-        $response->assertSessionHasErrors('dias.1.ejercicios.0.intensidad');
+        $this->actingAs($this->fisio)
+            ->post(route('admin.planes.store'), $this->payload([]))
+            ->assertSessionHasErrors('dias.1.ejercicios.0.intensidad');
 
         // Al volver al formulario, todo lo escrito debe estar ahí.
-        $response = $this->actingAs($this->fisio)
-            ->get(route('admin.planes.create'));
+        $respuesta = $this->actingAs($this->fisio)->get(route('admin.planes.create'));
 
-        $response->assertOk()
+        $respuesta->assertOk()
             ->assertSee('MI TITULO ESCRITO')
-            ->assertSee('MI NOTA PARA EL PACIENTE')
-            // Los datos de los ejercicios viajan al JS en el JSON de recarga.
-            ->assertSee('"repeticiones":"8-10"', false);
+            ->assertSee('MI NOTA PARA EL PACIENTE');
 
-        // "series" llega como número o como texto según venga del formulario.
-        $this->assertMatchesRegularExpression(
-            '/"series":4|"series":"4"/',
-            $response->getContent()
-        );
+        // Y los datos de los ejercicios llegan al módulo JS.
+        $datos = $this->datosDelEditor($respuesta->getContent());
+        $ejercicio = $datos['dias'][1]['plan_ejercicios'][0] ?? [];
+
+        $this->assertSame('8-10', $ejercicio['repeticiones'] ?? null);
+        $this->assertSame(4, (int) ($ejercicio['series'] ?? 0));
     }
 
     public function test_al_reabrir_el_editor_los_dias_vienen_del_plan(): void
@@ -97,11 +104,14 @@ class EditorPlanesTest extends TestCase
             'orden' => 0,
         ]);
 
-        $this->actingAs($this->fisio)
-            ->get(route('admin.planes.edit', $plan))
-            ->assertOk()
-            ->assertSee('NOTAS DEL PLAN')
-            ->assertSee('"repeticiones":"10"', false);
+        $respuesta = $this->actingAs($this->fisio)->get(route('admin.planes.edit', $plan));
+
+        $respuesta->assertOk()->assertSee('NOTAS DEL PLAN');
+
+        $datos = $this->datosDelEditor($respuesta->getContent());
+
+        $this->assertSame('10', $datos['dias'][1]['plan_ejercicios'][0]['repeticiones'] ?? null);
+        $this->assertSame('NOTAS DEL PLAN', $datos['dias'][1]['notas_fisio'] ?? null);
     }
 
     public function test_avisa_si_el_plan_tiene_dias_con_feedback_registrado(): void
@@ -115,12 +125,14 @@ class EditorPlanesTest extends TestCase
             'evolucion' => 'Bien',
         ]);
 
-        $this->actingAs($this->fisio)
-            ->get(route('admin.planes.edit', $plan))
-            ->assertOk()
-            ->assertSee('feedback registrado', false)
-            // El módulo JS necesita saberlo para pedir confirmación al reducir.
-            ->assertSee('"diasConFeedback":1', false);
+        $respuesta = $this->actingAs($this->fisio)->get(route('admin.planes.edit', $plan));
+
+        $respuesta->assertOk()->assertSee('feedback registrado', false);
+
+        // El módulo JS necesita saberlo para pedir confirmación al reducir.
+        $datos = $this->datosDelEditor($respuesta->getContent());
+
+        $this->assertSame(1, $datos['diasConFeedback'] ?? null);
     }
 
     public function test_un_plan_sin_feedback_no_muestra_el_aviso(): void
@@ -128,10 +140,12 @@ class EditorPlanesTest extends TestCase
         $plan = Plan::factory()->paraFisio($this->fisio)->create(['paciente_id' => $this->paciente->id]);
         PlanDia::create(['plan_id' => $plan->id, 'numero_dia' => 1]);
 
-        $this->actingAs($this->fisio)
-            ->get(route('admin.planes.edit', $plan))
-            ->assertOk()
-            ->assertSee('"diasConFeedback":0', false)
-            ->assertDontSee('feedback registrado', false);
+        $respuesta = $this->actingAs($this->fisio)->get(route('admin.planes.edit', $plan));
+
+        $respuesta->assertOk()->assertDontSee('feedback registrado', false);
+
+        $datos = $this->datosDelEditor($respuesta->getContent());
+
+        $this->assertSame(0, $datos['diasConFeedback'] ?? null);
     }
 }

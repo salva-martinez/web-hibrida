@@ -36,7 +36,26 @@ class PlanDia extends Model
     {
         return $this->planEjercicios
             ->loadMissing('ejercicio.estimulo')
-            ->sortBy(fn($pe) => $pe->ejercicio->estimulo->orden)
-            ->groupBy(fn($pe) => $pe->ejercicio->estimulo->nombre);
+            ->sortBy(fn ($pe) => $pe->ejercicio->estimulo->orden)
+            ->groupBy(fn ($pe) => $pe->ejercicio->estimulo->nombre);
+    }
+
+    /**
+     * Clase CSS de la cabecera de un grupo de ejercicios, según el tipo de
+     * estímulo (calentamiento, básico, auxiliar o metabólico).
+     *
+     * Vive en el modelo para que la tabla de ejercicios no la duplique en
+     * cada vista.
+     */
+    public static function claseCssEstimulo(string $nombre): string
+    {
+        $nombre = mb_strtolower($nombre);
+
+        return match (true) {
+            str_contains($nombre, 'calentamiento') => 'estimulo-calentamiento',
+            str_contains($nombre, 'auxiliar') => 'estimulo-auxiliar',
+            str_contains($nombre, 'metab'), str_contains($nombre, 'elíptica') => 'estimulo-metabolico',
+            default => 'estimulo-basico',
+        };
     }
 }

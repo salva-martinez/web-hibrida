@@ -63,26 +63,31 @@ v=spf1 include:_spf-eu.ionos.com ~all
 > include no es el correcto, se rompe el SPF de IONOS y dejarían de llegar los
 > correos del buzón. Con el DKIM alineado, el envío funciona sin tocarlo.
 
-### El DMARC: hay que borrar un duplicado
+### El DMARC: el aviso de Brevo es cosmético
 
-Ahora mismo `_dmarc.salvamartinez.es` tiene **dos registros a la vez**:
+Brevo muestra un aviso rojo en el DMARC porque su valor esperado es
 
-| Tipo | Valor | Quién lo puso |
-|---|---|---|
-| CNAME | `dmarc.ionos.es` | IONOS (gestionado por el hosting) |
-| TXT | `v=DMARC1; p=none;` | manual |
+```
+v=DMARC1; p=none; rua=mailto:rua@dmarc.brevo.com
+```
 
-Con dos registros, algunos validadores toman uno y otros otro → el resultado es
-inconsistente. Por eso Brevo muestra el aviso en rojo.
+y el que hay es el de IONOS (`v=DMARC1; p=none;`, sin la etiqueta `rua`).
 
-**Solución: borrar el TXT manual** y dejar solo el CNAME de IONOS.
+**No hay que cambiar nada.** El registro `_dmarc` es un **CNAME a `dmarc.ionos.es`**, gestionado
+por IONOS. Si consultas por DNS un CNAME, el resolvedor sigue la cadena y
+devuelve el TXT del destino: por eso aparece `v=DMARC1; p=none;` aunque en el
+panel de IONOS solo se ve el CNAME.
 
-- El DMARC de IONOS es `p=none` (solo monitoriza, no rechaza nada) ✅
-- El DKIM de Brevo cumple el DMARC igualmente ✅
-- Los correos de verificación llegan igual ✅
+El aviso no afecta al envío:
 
-El aviso de Brevo sobre el `rua` es **cosmético**: solo afecta a los informes
-de DMARC, no al envío.
+- El DMARC de IONOS es `p=none` → solo monitoriza, no rechaza nada.
+- El DKIM de Brevo **va alineado al dominio** (`brevo1._domainkey` sobre
+  `salvamartinez.es`), así que el mensaje **cumple DMARC** aunque el SPF no
+  mencione a Brevo.
+
+Los correos llegan con normalidad. Si en algún momento quisieras silenciar el
+aviso, habría que pedir a IONOS que añadiera la etiqueta `rua` a su DMARC
+gestionado.
 
 ---
 

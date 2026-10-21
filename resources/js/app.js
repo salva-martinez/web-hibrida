@@ -1,6 +1,7 @@
 import { initBootstrap } from './bootstrap';
 import './ai-status';
 import { initChatIa } from './chat-ia';
+import { initConfirmaciones } from './confirmaciones';
 import { initFeedbackForms } from './feedback-form';
 import { initLoginTabs } from './login-tabs';
 import { initPlanEditor } from './plan-editor';
@@ -15,5 +16,6 @@ document.addEventListener('DOMContentLoaded', () => {
     initChatIa();
     initVideoModal();
     initLoginTabs();
+    initConfirmaciones();
     initFeedbackForms();
 });

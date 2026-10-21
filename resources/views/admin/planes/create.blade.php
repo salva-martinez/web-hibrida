@@ -67,8 +67,6 @@
             'anadirFilaVacia' => ! isset($plan) && ! isset($clonedPlan),
         ];
     @endphp
-    <script type="application/json" id="plan-editor-data">@json($datosEditor)</script>
-
     <div class="page-header">
         <div>
             <h1>{{ isset($plan) ? 'Editar Plan' : (isset($clonedPlan) ? 'Duplicar Plan (Nuevo)' : 'Nuevo Plan de Ejercicios') }}</h1>
@@ -76,8 +74,11 @@
         <a href="{{ route('admin.planes.index') }}" class="btn btn-secondary">← Volver</a>
     </div>
 
+    {{-- Los datos del editor viajan en un atributo data- para no depender de
+         JavaScript embebido en la vista: resources/js/plan-editor.js los lee
+         con JSON.parse. --}}
     <form method="POST" action="{{ isset($plan) ? route('admin.planes.update', $plan) : route('admin.planes.store') }}"
-        id="planForm" data-plan-editor>
+        id="planForm" data-plan-editor data-datos="{{ json_encode($datosEditor) }}">
         @csrf
         @if(isset($plan)) @method('PUT') @endif
 

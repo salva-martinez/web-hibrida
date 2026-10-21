@@ -66,7 +66,7 @@
                                             <a href="{{ route('admin.planes.edit', $plan) }}"
                                                 class="btn btn-sm btn-primary">Editar</a>
                                             <form action="{{ route('admin.planes.destroy', $plan) }}" method="POST"
-                                                onsubmit="return confirm('¿Archivar el plan? El paciente dejará de verlo, pero su feedback clínico se conserva y podrás restaurarlo desde la Papelera.')">
+                                                data-confirmar="{{ Js::from('¿Archivar el plan? El paciente dejará de verlo, pero su feedback clínico se conserva y podrás restaurarlo desde la Papelera.') }}">
                                                 @csrf @method('DELETE')
                                                 <button type="submit" class="btn btn-sm btn-danger">Archivar</button>
                                             </form>
