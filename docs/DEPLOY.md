@@ -128,11 +128,17 @@ En **Settings → Secrets and variables → Actions** del repositorio:
 La clave de despliegue se genera en el servidor:
 
 ```bash
-# En el VPS, como el usuario deploy:
+# En el VPS:
 ssh-keygen -t ed25519 -N "" -C "github-actions-deploy" -f ~/.ssh/github_actions
-cat ~/.ssh/github_actions.pub >> ~/.ssh/authorized_keys
+cat ~/.ssh/github_actions.pub >> ~/.root/.ssh/authorized_keys
 cat ~/.ssh/github_actions          # ← esta clave PRIVADA va a GitHub Secrets
 ```
+
+> ⚠️ **El `WWWUSER`/`WWWGROUP` del `.env` deben coincidir con el usuario real del
+> contenedor** (`uid=1337`, `gid=0` en Sail 8.5). Si no coinciden, la aplicación
+> no puede compilar las vistas y devuelve 500 en todas las peticiones con el
+> error `tempnam(): file created in the system's temporary directory`.
+> `deploy.sh` ya detecta los ids reales del contenedor y los corrige solo.
 
 > La clave **privada** solo debe existir en GitHub Secrets. Si se filtra, quítala
 > de `authorized_keys` y genera otra.

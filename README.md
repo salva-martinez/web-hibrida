@@ -32,9 +32,10 @@ Los fisioterapeutas se registran libremente en `/register` (ya **no hace falta i
 La cuenta nace inactiva: hay que abrir el enlace de verificación que llega por email
 antes de poder entrar al panel.
 
-> En desarrollo el mailer está en modo `log`, así que el enlace aparece en
-> `storage/logs/laravel.log`. En producción hay que configurar `MAIL_MAILER` con un
-> SMTP real (ver `.env.example`).
+> Con `MAIL_MAILER=log` (valor por defecto) el email no se envía: el enlace de
+> verificación queda **registrado en el log** para poder activar la cuenta a mano
+> (`grep "Enlace de verificación" storage/logs/laravel-*.log`). Para producción hay
+> que configurar un SMTP real en `MAIL_MAILER`.
 
 ### Cada fisio es una isla
 Los pacientes, los planes y el catálogo de ejercicios y estímulos de un fisioterapeuta
@@ -120,6 +121,30 @@ cp .env.example .env
 
 La suite cubre el aislamiento entre profesionales, el registro con verificación de
 email, la papelera, el clon de planes y las reglas de negocio de `PlanService`.
+
+---
+
+## 🚀 Despliegue
+
+| | |
+|---|---|
+| **Aplicación** | https://fisio.salvamartinez.es |
+| **Portfolio** | https://salvamartinez.es |
+| **Servidor** | VPS propio (Ubuntu 24.04) con Docker + Sail + nginx + Supervisor |
+| **Automático** | Cada `push` a `main` dispara GitHub Actions, que despliega por SSH |
+
+El despliegue completo (instalar dependencias, compilar assets, migrar, cachear,
+ajustar permisos y comprobar la salud) tarda unos **25 segundos**. La guía
+completa está en [`docs/DEPLOY.md`](docs/DEPLOY.md).
+
+```bash
+# Deploy manual en el servidor
+cd /var/www/web-hibrida && ./deploy/deploy.sh
+
+# Ver el estado
+sudo supervisorctl status          # worker de la cola
+docker compose logs -f laravel.test
+```
 
 ---
 

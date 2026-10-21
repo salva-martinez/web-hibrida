@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\URL;
 
 class VerifyEmailController extends Controller
 {
@@ -57,6 +59,18 @@ class VerifyEmailController extends Controller
         }
 
         $request->user()->sendEmailVerificationNotification();
+
+        // Con MAIL_MAILER=log el email no sale: el enlace se deja en el log.
+        if (config('mail.default') === 'log') {
+            Log::warning('Enlace de verificación (MAIL_MAILER=log, el email no se envía): '.URL::temporarySignedRoute(
+                'verification.verify',
+                now()->addMinutes((int) config('auth.verification.expire', 60)),
+                [
+                    'id' => $request->user()->getKey(),
+                    'hash' => sha1($request->user()->getEmailForVerification()),
+                ]
+            ));
+        }
 
         return back()->with('success', 'Te hemos reenviado el email de verificación.');
     }

@@ -7,6 +7,7 @@ use Illuminate\Auth\Events\Verified;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\URL;
 use Tests\TestCase;
@@ -59,6 +60,29 @@ class RegistroFisioTest extends TestCase
         $this->actingAs($user)
             ->get(route('admin.dashboard'))
             ->assertRedirect(route('verification.notice'));
+    }
+
+    public function test_con_mailer_log_el_enlace_de_verificacion_queda_registrado_en_el_log(): void
+    {
+        Notification::fake();
+        Log::spy();
+
+        config(['mail.default' => 'log']);
+
+        $this->post(route('register'), [
+            'nombre' => 'Nuevo',
+            'apellido1' => 'Fisio',
+            'apellido2' => 'Registrado',
+            'email' => 'nuevo@clinica.com',
+            'password' => 'secreto1234',
+            'password_confirmation' => 'secreto1234',
+        ]);
+
+        // Sin SMTP no hay correo: el enlace tiene que quedar en el log para
+        // poder activar la cuenta a mano.
+        Log::shouldHaveReceived('warning')
+            ->withArgs(fn ($mensaje) => str_contains($mensaje, 'email/verify/'))
+            ->once();
     }
 
     public function test_el_login_se_rechaza_hasta_verificar_el_email(): void

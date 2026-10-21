@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Models\User;
 
 class LoginController extends Controller
 {
@@ -33,7 +33,7 @@ class LoginController extends Controller
                 'role' => 'fisio',
             ], $request->boolean('remember'))) {
                 // La cuenta debe estar activada: sin verificar el email no se entra.
-                if (!Auth::user()->hasVerifiedEmail()) {
+                if (! Auth::user()->hasVerifiedEmail()) {
                     Auth::logout();
                     $request->session()->regenerate();
 
@@ -43,6 +43,7 @@ class LoginController extends Controller
                 }
 
                 $request->session()->regenerate();
+
                 return redirect()->intended('/admin/dashboard');
             }
 
@@ -67,6 +68,7 @@ class LoginController extends Controller
         if ($user) {
             Auth::login($user);
             $request->session()->regenerate();
+
             return redirect()->intended('/paciente/dashboard');
         }
 
@@ -78,6 +80,7 @@ class LoginController extends Controller
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
+
         return redirect('/login');
     }
 }

@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\URL;
 
 class RegisterController extends Controller
 {
@@ -44,14 +46,42 @@ class RegisterController extends Controller
             'fisio_id' => null,
         ]);
 
-        // Se envía el email de verificación. En desarrollo el mailer está en modo
-        // 'log', así que el enlace aparece en storage/logs/laravel.log.
+        // Se envía el email de verificación.
         $user->sendEmailVerificationNotification();
+        $this->registrarEnlaceSiNoHayCorreo($user);
 
         Auth::login($user);
         $request->session()->regenerate();
 
         return redirect()->route('verification.notice')
             ->with('success', '¡Cuenta creada! Revisa tu correo para activarla.');
+    }
+
+    /**
+     * Con el mailer en modo 'log' (que es lo que hay por defecto en desarrollo)
+     * el email no llega a ningún sitio: solo se escribe en el log, y el cuerpo
+     * del mensaje no queda en texto plano. Por eso el enlace de verificación se
+     * registra aparte, para poder activar la cuenta a mano.
+     *
+     * En producción, con un SMTP configurado, esto no hace nada.
+     */
+    private function registrarEnlaceSiNoHayCorreo(User $user): void
+    {
+        if (config('mail.default') !== 'log') {
+            return;
+        }
+
+        Log::warning('Enlace de verificación (MAIL_MAILER=log, el email no se envía): '.$this->enlaceDeVerificacion($user));
+    }
+
+    /**
+     * Enlace firmado de verificación de email.
+     */
+    private function enlaceDeVerificacion(User $user): string
+    {
+        return URL::temporarySignedRoute('verification.verify', now()->addMinutes((int) config('auth.verification.expire', 60)), [
+            'id' => $user->getKey(),
+            'hash' => sha1($user->getEmailForVerification()),
+        ]);
     }
 }
