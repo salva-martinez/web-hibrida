@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Volvemos en un momento — Salvamartinez</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Cormorant+Garamond:wght@300;400;500;600&family=EB+Garamond:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            color-scheme: light dark;
+            --ink: #12100e;
+            --parchment: #efe8d8;
+            --blood: #8a1c14;
+            --gold: #8f7434;
+            --gold-bright: #b3944c;
+            --rule: color-mix(in srgb, var(--gold) 38%, transparent);
+            --rule-faint: color-mix(in srgb, var(--gold) 18%, transparent);
+            --text: var(--ink);
+            --text-dim: #55503f;
+            --bg: var(--parchment);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --ink: #0a0908;
+                --parchment: #e8e1d1;
+                --blood: #a8281d;
+                --gold: #b3944c;
+                --gold-bright: #d0b269;
+                --text: var(--parchment);
+                --text-dim: #9c9481;
+                --bg: var(--ink);
+            }
+        }
+
+        *, *::before, *::after { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            padding: 2.5rem 1.5rem;
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'EB Garamond', Georgia, serif;
+            font-size: 1.125rem;
+            line-height: 1.65;
+            -webkit-font-smoothing: antialiased;
+            position: relative;
+            overflow: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            opacity: .5;
+            mix-blend-mode: multiply;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.22'/%3E%3C/svg%3E");
+        }
+
+        @media (prefers-color-scheme: dark) {
+            body::before { mix-blend-mode: screen; opacity: .18; }
+        }
+
+        .wrap {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 34rem;
+            text-align: center;
+        }
+
+        .ornament {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.6rem;
+            color: var(--gold);
+            display: block;
+            margin-bottom: 1.25rem;
+        }
+
+        .code {
+            font-family: 'Cinzel', serif;
+            font-size: clamp(4rem, 18vw, 7rem);
+            font-weight: 500;
+            line-height: 1;
+            letter-spacing: .06em;
+            color: var(--blood);
+            margin-bottom: .5rem;
+        }
+
+        h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(1.9rem, 6vw, 2.75rem);
+            font-weight: 500;
+            line-height: 1.1;
+            margin: 0 0 1rem;
+        }
+
+        p {
+            color: var(--text-dim);
+            margin: 0 0 2.25rem;
+            max-width: 40ch;
+            margin-inline: auto;
+        }
+
+        .rule {
+            height: 1px;
+            background: var(--rule);
+            margin: 2rem 0;
+        }
+
+        .acciones {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        a {
+            font-family: 'Cinzel', serif;
+            font-size: .72rem;
+            letter-spacing: .2em;
+            text-transform: uppercase;
+            color: var(--text);
+            text-decoration: none;
+            border-bottom: 1px solid var(--rule);
+            padding-bottom: .3rem;
+            transition: color .2s, border-color .2s;
+        }
+
+        a:hover {
+            color: var(--blood);
+            border-color: var(--blood);
+        }
+
+        .firma {
+            margin-top: 3rem;
+            font-family: 'Cinzel', serif;
+            font-size: .66rem;
+            letter-spacing: .22em;
+            text-transform: uppercase;
+            color: var(--gold);
+        }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <span class="ornament">❦</span>
+        <div class="code">503</div>
+        <h1>Volvemos en un momento</h1>
+        <p>
+            Estamos haciendo mantenimiento o actualizando el sitio.
+            Vuelve en unos minutos.
+        </p>
+
+        <div class="rule"></div>
+
+        <div class="acciones">
+            <a href="/">Volver al inicio</a>
+            <a href="mailto:">Escribir mientras tanto</a>
+        </div>
+
+        <div class="firma">Salvamartinez</div>
+    </div>
+</body>
+</html>

@@ -197,7 +197,21 @@ if [ -f deploy/portfolio/index.html ]; then
 fi
 
 # ---------------------------------------------------------------------------
-# 9. Worker de la cola
+# 9. Vhosts y paginas de error
+#
+# Cada subdominio sirve sus propias paginas de error (desde el disco), de modo
+# que un fallo de FisioApp se vea en fisio.salvamartinez.es y con el estilo de
+# FisioApp, y nunca se redirigia al dominio principal.
+# ---------------------------------------------------------------------------
+if [ -x deploy/aplicar-vhosts.sh ]; then
+    log "Aplicando los vhosts y las paginas de error…"
+    bash deploy/aplicar-vhosts.sh
+else
+    warn "deploy/aplicar-vhosts.sh no existe: no se tocan los vhosts."
+fi
+
+# ---------------------------------------------------------------------------
+# 10. Worker de la cola
 # ---------------------------------------------------------------------------
 # El análisis de IA del feedback se genera en segundo plano: si el worker no
 # está vivo, el feedback se guarda pero el análisis nunca aparece.
@@ -210,7 +224,7 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# 10. Comprobación de salud
+# 11. Comprobación de salud
 # ---------------------------------------------------------------------------
 log "Comprobando salud de la aplicación…"
 HEALTHY=0
@@ -229,7 +243,7 @@ if [ "$HEALTHY" -ne 1 ]; then
 fi
 
 # ---------------------------------------------------------------------------
-# 11. Limpieza
+# 12. Limpieza
 # ---------------------------------------------------------------------------
 log "Limpiando imágenes Docker sin uso…"
 docker image prune -f --filter "until=168h" > /dev/null 2>&1 || true
