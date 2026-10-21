@@ -97,6 +97,20 @@ docker compose exec -T laravel.test php artisan route:cache
 docker compose exec -T laravel.test php artisan view:cache
 docker compose exec -T laravel.test php artisan event:cache
 
+# Los comandos artisan se ejecutan dentro del contenedor como root, por lo que
+# los ficheros de caché y de logs quedan como root. Sin este chown, el siguiente
+# despliegue fallaría con "Permission denied" al intentar escribir el log.
+WWWUSER_VAL="$(grep -E '^WWWUSER=' .env 2>/dev/null | tail -1 | cut -d= -f2)"
+WWWGROUP_VAL="$(grep -E '^WWWGROUP=' .env 2>/dev/null | tail -1 | cut -d= -f2)"
+WWWUSER_VAL="${WWWUSER_VAL:-1000}"
+WWWGROUP_VAL="${WWWGROUP_VAL:-1000}"
+
+log "Ajustando permisos de caché y logs…"
+docker compose exec -u root laravel.test chown -R "${WWWUSER_VAL}:${WWWGROUP_VAL}" \
+    /var/www/html/bootstrap/cache /var/www/html/storage
+docker compose exec -u root laravel.test chmod -R ug+rwX \
+    /var/www/html/bootstrap/cache /var/www/html/storage
+
 # ---------------------------------------------------------------------------
 # 6. Worker de la cola
 # ---------------------------------------------------------------------------
