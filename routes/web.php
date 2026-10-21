@@ -31,8 +31,13 @@ Route::post('/register', [RegisterController::class, 'register'])->middleware(['
 
 // Verificación de email (obligatoria para entrar en el panel del fisio)
 Route::get('/email/verify', [VerifyEmailController::class, 'notice'])->middleware('auth')->name('verification.notice');
+
+// El enlace NO exige sesión: se abre por email y se pulsa desde cualquier
+// dispositivo (habitualmente el móvil, sin sesión iniciada). La seguridad la
+// aporta la firma del enlace (middleware "signed"), que no se puede falsificar
+// sin la APP_KEY, más la comprobación del hash del email en el controlador.
 Route::get('/email/verify/{id}/{hash}', [VerifyEmailController::class, 'verify'])
-    ->middleware(['auth', 'signed', 'throttle:6,1'])
+    ->middleware(['signed', 'throttle:6,1'])
     ->name('verification.verify');
 Route::post('/email/verification-notification', [VerifyEmailController::class, 'resend'])
     ->middleware('auth')

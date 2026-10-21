@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\URL;
 
@@ -15,7 +17,7 @@ class VerifyEmailController extends Controller
      */
     public function notice(Request $request)
     {
-        if ($request->user()->hasVerifiedEmail()) {
+        if ($request->user()?->hasVerifiedEmail()) {
             return redirect()->route('admin.dashboard');
         }
 
@@ -24,29 +26,42 @@ class VerifyEmailController extends Controller
 
     /**
      * Confirma la dirección de email a partir del enlace firmado.
+     *
+     * La ruta NO exige sesión iniciada: el enlace se recibe por email y se abre
+     * desde cualquier dispositivo (normalmente el móvil, donde no hay sesión).
+     * La seguridad la aporta la firma del enlace (middleware "signed"), que no se
+     * puede falsificar sin la APP_KEY, más la comprobación del hash del email.
      */
     public function verify(Request $request, $id, $hash)
     {
-        $user = $request->user();
+        $user = User::find($id);
 
-        if ($user->hasVerifiedEmail()) {
-            return redirect()->route('admin.dashboard')
-                ->with('success', 'Tu email ya estaba verificado.');
+        if (! $user) {
+            return $this->fallo('El enlace de verificación no es válido.');
         }
 
         if (! hash_equals((string) $hash, sha1($user->getEmailForVerification()))) {
-            // Enlace caducado o manipulado: se avisa al usuario en lugar de
-            // dejarle en un 403 genérico.
-            return redirect()->route('verification.notice')
-                ->with('error', 'El enlace de verificación no es válido o ha caducado. Pide uno nuevo.');
+            return $this->fallo('El enlace de verificación no corresponde a esta cuenta.');
         }
 
-        if ($user->markEmailAsVerified()) {
+        if (! $user->hasVerifiedEmail()) {
+            $user->markEmailAsVerified();
             event(new Verified($user));
         }
 
+        // Si no hay sesión (por ejemplo, se abre desde el móvil) se inicia una
+        // con la cuenta verificada. Si ya hay sesión de otro usuario, se
+        // respeta: no se le cambia la sesión a otra persona.
+        if (! Auth::check()) {
+            Auth::login($user, remember: true);
+            $request->session()->regenerate();
+
+            return redirect()->route('admin.dashboard')
+                ->with('success', '¡Email verificado! Ya puedes usar FisioApp.');
+        }
+
         return redirect()->route('admin.dashboard')
-            ->with('success', '¡Email verificado! Ya puedes usar FisioApp.');
+            ->with('success', '¡Email verificado!');
     }
 
     /**
@@ -60,7 +75,7 @@ class VerifyEmailController extends Controller
 
         $request->user()->sendEmailVerificationNotification();
 
-        // Con MAIL_MAILER=log el email no sale: el enlace se deja en el log.
+        // Con MAIL_MAILER=log el email no se envía: el enlace se deja en el log.
         if (config('mail.default') === 'log') {
             Log::warning('Enlace de verificación (MAIL_MAILER=log, el email no se envía): '.URL::temporarySignedRoute(
                 'verification.verify',
@@ -73,5 +88,14 @@ class VerifyEmailController extends Controller
         }
 
         return back()->with('success', 'Te hemos reenviado el email de verificación.');
+    }
+
+    /**
+     * El enlace no vale: se vuelve al login con un mensaje claro, en vez de
+     * dejar al usuario en un bucle de redirecciones.
+     */
+    private function fallo(string $mensaje)
+    {
+        return redirect()->route('login')->withErrors(['email' => $mensaje]);
     }
 }

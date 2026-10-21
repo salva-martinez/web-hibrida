@@ -1,10 +1,13 @@
 <?php
 
+use App\Http\Middleware\CheckRole;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Exceptions\InvalidSignatureException;
 use Illuminate\Support\Facades\Auth;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -27,7 +30,7 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         $middleware->alias([
-            'role' => \App\Http\Middleware\CheckRole::class,
+            'role' => CheckRole::class,
         ]);
         $middleware->redirectGuestsTo(fn () => route('login'));
         $middleware->redirectUsersTo(fn () => Auth::check()
@@ -38,16 +41,20 @@ return Application::configure(basePath: dirname(__DIR__))
         );
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        // Un enlace de verificación caducado o manipulado no debe dejar al usuario
-        // en un 403 genérico: se le devuelve a la pantalla de verificación.
-        $exceptions->render(function (\Illuminate\Routing\Exceptions\InvalidSignatureException $e, Request $request) {
+        // Un enlace de verificación caducado o manipulado no debe dejar al
+        // usuario en un bucle de redirecciones: se le lleva al login (si no
+        // tiene sesión) o a la pantalla de verificación, con un mensaje claro.
+        $exceptions->render(function (InvalidSignatureException $e, Request $request) {
             if ($request->routeIs('verification.verify')) {
-                return redirect()->route('verification.notice')
-                    ->with('error', 'El enlace de verificación no es válido o ha caducado. Pide uno nuevo.');
+                $mensaje = 'El enlace de verificación no es válido o ha caducado. Pide uno nuevo.';
+
+                return Auth::check()
+                    ? redirect()->route('verification.notice')->with('error', $mensaje)
+                    : redirect()->route('login')->withErrors(['email' => $mensaje]);
             }
         });
 
-        $exceptions->render(function (\Symfony\Component\HttpKernel\Exception\HttpException $e, Request $request) {
+        $exceptions->render(function (HttpException $e, Request $request) {
             if ($e->getStatusCode() === 403) {
                 // Las peticiones AJAX (el polling del análisis de IA) necesitan
                 // un 403 en JSON, no una redirección a una página HTML.
@@ -57,8 +64,10 @@ return Application::configure(basePath: dirname(__DIR__))
 
                 if (Auth::check()) {
                     $route = Auth::user()->role === 'fisio' ? 'admin.dashboard' : 'paciente.dashboard';
+
                     return redirect()->route($route)->with('error', 'No tienes permisos para acceder a esta sección.');
                 }
+
                 return redirect()->route('login')->with('error', 'Inicia sesión para acceder.');
             }
         });
