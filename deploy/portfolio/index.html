@@ -4,60 +4,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Salvamartinez — Licenciado en DAW</title>
-    <meta name="description" content="Salvamartinez. Licenciado en Desarrollo de Aplicaciones Web. Laravel, PHP, JavaScript y MySQL. Orientación para la búsqueda de trabajo y formación en DAW.">
+    <title>Salva Martinez Juan — Licenciado en DAW · Busco trabajo</title>
+    <meta name="description" content="Salva Martinez Juan. Licenciado en Desarrollo de Aplicaciones Web. Desarrollo web con Laravel, PHP, JavaScript y MySQL. Busco un puesto donde seguir construyendo y formo en DAW.">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=UnifrakturMaguntia&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
-    <link rel="icon" type="image/webp" href="https://fisio.salvamartinez.es/fisio.webp">
-    <link rel="shortcut icon" href="https://fisio.salvamartinez.es/favicon.ico">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="alternate icon" type="image/png" href="/favicon-32.png">
+    <link rel="shortcut icon" href="/favicon.ico">
 
     <style>
         /* ==========================================================
-           Salvamartinez — gótico victoriano
-           Tinta, pergamino, sangre y oro viejo.
+           Salva Martinez Juan
+           Editorial técnico: serif para el texto, monoespaciada
+           para los datos. Tinta, pergamino, sangre y oro viejo.
            ========================================================== */
         :root {
             color-scheme: light dark;
 
             --ink: #12100e;
-            --ink-soft: #2a251f;
             --parchment: #efe8d8;
-            --parchment-dim: #ddd3bd;
+            --parchment-dim: #d8cfba;
             --blood: #8a1c14;
             --blood-bright: #a8281d;
             --gold: #8f7434;
             --gold-bright: #b3944c;
 
-            --rule: color-mix(in srgb, var(--gold) 38%, transparent);
-            --rule-faint: color-mix(in srgb, var(--gold) 18%, transparent);
+            --rule: color-mix(in srgb, var(--gold) 34%, transparent);
+            --rule-faint: color-mix(in srgb, var(--gold) 15%, transparent);
+
             --text: var(--ink);
-            --text-dim: #55503f;
+            --text-dim: #5a5443;
             --bg: var(--parchment);
-            --bg-alt: color-mix(in srgb, var(--parchment) 88%, var(--gold));
-            --panel: color-mix(in srgb, var(--parchment) 94%, var(--gold));
+            --bg-alt: color-mix(in srgb, var(--parchment) 90%, var(--gold));
+            --hover: color-mix(in srgb, var(--parchment) 94%, var(--gold));
         }
 
         @media (prefers-color-scheme: dark) {
             :root {
                 --ink: #0a0908;
-                --ink-soft: #1a1613;
                 --parchment: #e8e1d1;
-                --parchment-dim: #b9b09b;
+                --parchment-dim: #b5ac97;
                 --blood: #a8281d;
                 --blood-bright: #c2372a;
                 --gold: #b3944c;
                 --gold-bright: #d0b269;
 
-                --rule: color-mix(in srgb, var(--gold) 42%, transparent);
-                --rule-faint: color-mix(in srgb, var(--gold) 20%, transparent);
+                --rule: color-mix(in srgb, var(--gold) 38%, transparent);
+                --rule-faint: color-mix(in srgb, var(--gold) 17%, transparent);
+
                 --text: var(--parchment);
                 --text-dim: #9c9481;
                 --bg: var(--ink);
-                --bg-alt: var(--ink-soft);
-                --panel: #131110;
+                --bg-alt: #131110;
+                --hover: #171513;
             }
         }
 
@@ -75,20 +77,20 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* Grano de papel: la textura que separa esto de una web plana */
+        /* Grano de papel, muy sutil: da textura sin parecerEffecto */
         body::before {
             content: '';
             position: fixed;
             inset: 0;
             z-index: 0;
             pointer-events: none;
-            opacity: .5;
+            opacity: .3;
             mix-blend-mode: multiply;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.22'/%3E%3C/svg%3E");
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.16'/%3E%3C/svg%3E");
         }
 
         @media (prefers-color-scheme: dark) {
-            body::before { mix-blend-mode: screen; opacity: .18; }
+            body::before { mix-blend-mode: screen; opacity: .12; }
         }
 
         .wrap { position: relative; z-index: 1; }
@@ -97,36 +99,29 @@
         h1, h2, h3 {
             font-family: 'Cormorant Garamond', 'EB Garamond', serif;
             font-weight: 600;
-            line-height: 1.08;
-            letter-spacing: -.01em;
+            line-height: 1.1;
+            letter-spacing: -.005em;
             margin: 0;
         }
 
-        h1 { font-size: clamp(3.25rem, 11vw, 7.5rem); font-weight: 500; letter-spacing: -.02em; }
+        h1 { font-size: clamp(2.9rem, 9vw, 6rem); font-weight: 500; letter-spacing: -.02em; }
 
-        h2 { font-size: clamp(2rem, 5vw, 3.25rem); }
+        h2 { font-size: clamp(1.9rem, 4.5vw, 3rem); }
 
-        h3 { font-size: 1.6rem; font-weight: 600; }
+        h3 { font-size: 1.45rem; font-weight: 600; }
 
-        .caps {
-            font-family: 'Cinzel', serif;
-            text-transform: uppercase;
-            letter-spacing: .22em;
-            font-size: .72rem;
-            font-weight: 500;
-        }
-
+        /* Las etiquetas y los datos van en monoespaciada: el registro técnico */
         .mono {
-            font-family: 'JetBrains Mono', ui-monospace, monospace;
-            font-size: .72rem;
-            letter-spacing: .06em;
+            font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+            font-size: .7rem;
+            letter-spacing: .12em;
+            text-transform: uppercase;
         }
 
         .lead {
-            font-size: 1.35rem;
-            font-weight: 400;
+            font-size: 1.3rem;
             color: var(--text-dim);
-            max-width: 42ch;
+            max-width: 54ch;
         }
 
         a { color: inherit; }
@@ -136,14 +131,14 @@
             border-bottom: 1px solid var(--rule);
             position: sticky;
             top: 0;
-            /* Fondo opaco a proposito: nada de cristal ni desenfoque. */
             background: var(--bg);
+            z-index: 10;
         }
 
         .top-inner {
-            max-width: 62rem;
+            max-width: 64rem;
             margin: 0 auto;
-            padding: 1.1rem 1.5rem;
+            padding: 1rem 1.5rem;
             display: flex;
             align-items: baseline;
             justify-content: space-between;
@@ -151,22 +146,27 @@
         }
 
         .wordmark {
-            font-family: 'Cinzel', serif;
-            font-size: .82rem;
-            letter-spacing: .26em;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: .74rem;
+            letter-spacing: .18em;
             text-transform: uppercase;
             text-decoration: none;
             color: var(--text);
         }
 
+        nav {
+            display: flex;
+            align-items: baseline;
+            gap: 1.4rem;
+        }
+
         nav a {
             text-decoration: none;
-            font-family: 'Cinzel', serif;
-            font-size: .7rem;
-            letter-spacing: .2em;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: .68rem;
+            letter-spacing: .14em;
             text-transform: uppercase;
             color: var(--text-dim);
-            margin-left: 1.6rem;
             transition: color .2s;
         }
 
@@ -174,123 +174,140 @@
 
         /* ---------- Secciones ---------- */
         section {
-            max-width: 62rem;
+            max-width: 64rem;
             margin: 0 auto;
-            padding: 5.5rem 1.5rem;
+            padding: 5rem 1.5rem;
             border-bottom: 1px solid var(--rule-faint);
         }
 
         .section-head {
             display: flex;
             align-items: baseline;
-            gap: 1.4rem;
-            margin-bottom: 3rem;
+            gap: 1.2rem;
+            margin-bottom: 2.75rem;
         }
 
         .numeral {
-            font-family: 'Cinzel', serif;
-            font-size: 1rem;
-            letter-spacing: .18em;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: .78rem;
+            letter-spacing: .2em;
             color: var(--gold);
             border-bottom: 1px solid var(--rule);
-            padding-bottom: .25rem;
+            padding-bottom: .2rem;
         }
 
         .section-head h2 { flex: 1; }
 
         /* ---------- Héroe ---------- */
         .hero {
-            padding-top: 7rem;
-            padding-bottom: 5rem;
-            position: relative;
+            padding-top: 6.5rem;
+            padding-bottom: 4.5rem;
         }
 
-        .hero .ornament {
-            font-family: 'UnifrakturMaguntia', serif;
-            font-size: 1.6rem;
+        .hero .mark {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1rem;
             color: var(--gold);
             display: block;
-            margin-bottom: 1.5rem;
+            margin-bottom: 1.4rem;
         }
 
-        .hero h1 { margin-bottom: .4rem; }
+        .hero h1 { margin-bottom: .5rem; }
 
         .hero .role {
-            font-family: 'Cinzel', serif;
-            font-size: clamp(.72rem, 2.2vw, .85rem);
-            letter-spacing: .3em;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: .72rem;
+            letter-spacing: .22em;
             text-transform: uppercase;
             color: var(--blood);
-            margin-bottom: 2.2rem;
+            margin-bottom: 2.25rem;
         }
 
-        .hero p { margin: 0 0 1.2rem; }
+        .hero p { margin: 0 0 1.1rem; }
 
         .hero .aside {
-            margin-top: 3rem;
-            padding-top: 1.6rem;
+            margin-top: 2.75rem;
+            padding-top: 1.5rem;
             border-top: 1px solid var(--rule-faint);
             color: var(--text-dim);
             font-style: italic;
-            max-width: 46ch;
+            max-width: 52ch;
         }
+
+        /* Barra de stack: el registro técnico */
+        .stack {
+            margin-top: 2.5rem;
+            padding: .8rem 1rem;
+            border: 1px solid var(--rule-faint);
+            border-left: 2px solid var(--gold);
+            background: color-mix(in srgb, var(--bg-alt) 55%, transparent);
+            display: flex;
+            flex-wrap: wrap;
+            gap: .35rem 1.1rem;
+            color: var(--text-dim);
+            max-width: 34rem;
+        }
+
+        .stack span { color: var(--gold); }
 
         /* ---------- Listas ---------- */
         .ledger { list-style: none; margin: 0; padding: 0; }
 
         .ledger li {
             display: grid;
-            grid-template-columns: 5.5rem 1fr;
-            gap: 1.6rem;
-            padding: 1.9rem 0;
+            grid-template-columns: 8rem 1fr;
+            gap: 1.5rem;
+            padding: 1.85rem 0;
             border-bottom: 1px solid var(--rule-faint);
         }
 
         .ledger li:first-child { border-top: 1px solid var(--rule-faint); }
 
         .ledger .key {
-            font-family: 'Cinzel', serif;
+            font-family: 'JetBrains Mono', monospace;
             font-size: .68rem;
-            letter-spacing: .18em;
+            letter-spacing: .12em;
             text-transform: uppercase;
             color: var(--gold);
-            padding-top: .45rem;
+            padding-top: .4rem;
         }
 
         .ledger h3 { margin-bottom: .35rem; }
 
-        .ledger p { margin: 0; color: var(--text-dim); max-width: 58ch; }
+        .ledger p { margin: 0; color: var(--text-dim); max-width: 60ch; }
 
         .tags {
-            margin-top: .9rem;
+            margin-top: .85rem;
             display: flex;
             flex-wrap: wrap;
-            gap: .45rem;
+            gap: .4rem;
         }
 
         .tag {
             font-family: 'JetBrains Mono', monospace;
-            font-size: .68rem;
+            font-size: .66rem;
             letter-spacing: .04em;
+            text-transform: none;
             color: var(--text-dim);
             border: 1px solid var(--rule-faint);
-            padding: .16rem .55rem;
+            padding: .15rem .5rem;
         }
 
         .soon {
-            font-family: 'Cinzel', serif;
+            font-family: 'JetBrains Mono', monospace;
             font-size: .62rem;
-            letter-spacing: .2em;
+            letter-spacing: .1em;
             text-transform: uppercase;
             color: var(--blood);
             border: 1px solid var(--blood);
-            padding: .2rem .5rem;
+            padding: .18rem .45rem;
+            margin-left: .5rem;
+            vertical-align: middle;
         }
 
         .entry {
             text-decoration: none;
             display: block;
-            transition: border-color .2s;
         }
 
         .entry:hover .ledger-title { color: var(--blood); }
@@ -298,38 +315,46 @@
         .ledger-title { transition: color .2s; }
 
         /* ---------- Contacto ---------- */
-        .contacts { display: grid; gap: 0; border-top: 1px solid var(--rule-faint); }
+        .contacts { border-top: 1px solid var(--rule-faint); }
 
         .contact {
             display: grid;
-            grid-template-columns: 7rem 1fr auto;
+            grid-template-columns: 8rem 1fr auto;
             align-items: baseline;
             gap: 1.4rem;
-            padding: 1.35rem 0;
+            padding: 1.25rem 0;
             border-bottom: 1px solid var(--rule-faint);
             text-decoration: none;
-            transition: padding-left .25s, color .25s;
+            transition: padding-left .25s, color .25s, background .25s;
         }
 
-        .contact:hover { padding-left: .7rem; color: var(--blood); }
+        .contact:hover {
+            padding-left: .7rem;
+            color: var(--blood);
+            background: color-mix(in srgb, var(--hover) 60%, transparent);
+        }
 
         .contact .label {
-            font-family: 'Cinzel', serif;
+            font-family: 'JetBrains Mono', monospace;
             font-size: .66rem;
-            letter-spacing: .2em;
+            letter-spacing: .14em;
             text-transform: uppercase;
             color: var(--gold);
         }
 
-        .contact .value { font-size: 1.15rem; }
+        .contact .value { font-size: 1.1rem; }
 
-        .contact .arrow { color: var(--gold); font-family: 'JetBrains Mono', monospace; font-size: .8rem; }
+        .contact .arrow {
+            color: var(--gold);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: .8rem;
+        }
 
         /* ---------- Pie ---------- */
         footer {
-            max-width: 62rem;
+            max-width: 64rem;
             margin: 0 auto;
-            padding: 3rem 1.5rem 4rem;
+            padding: 2.75rem 1.5rem 3.5rem;
             display: flex;
             flex-wrap: wrap;
             justify-content: space-between;
@@ -337,16 +362,16 @@
             color: var(--text-dim);
         }
 
-        footer .ornament { font-family: 'UnifrakturMaguntia', serif; color: var(--gold); }
+        footer .mono { text-transform: none; letter-spacing: .06em; }
 
         /* ---------- Adaptación ---------- */
-        @media (max-width: 620px) {
+        @media (max-width: 640px) {
             section { padding: 3.5rem 1.25rem; }
-            .hero { padding-top: 4.5rem; }
+            .hero { padding-top: 4rem; }
             .ledger li { grid-template-columns: 1fr; gap: .5rem; }
-            .contact { grid-template-columns: 1fr; gap: .25rem; }
+            .contact { grid-template-columns: 1fr; gap: .2rem; }
             .contact .arrow { display: none; }
-            nav a { margin-left: .9rem; letter-spacing: .12em; }
+            nav { gap: .9rem; }
             .top-inner { flex-wrap: wrap; }
         }
 
@@ -362,7 +387,7 @@
 
         <header class="top">
             <div class="top-inner">
-                <a class="wordmark" href="#inicio">Salvamartinez</a>
+                <a class="wordmark" href="#inicio">Salva Martinez Juan</a>
                 <nav>
                     <a href="#servicios">Servicios</a>
                     <a href="#proyectos">Proyectos</a>
@@ -375,23 +400,35 @@
 
             <!-- ================= HÉROE ================= -->
             <section class="hero" id="inicio">
-                <span class="ornament">❦</span>
-                <h1>Salvamartinez</h1>
+                <span class="mark">◆</span>
+                <h1>Salva Martinez Juan</h1>
                 <p class="role">Licenciado en Desarrollo de Aplicaciones Web</p>
 
                 <p class="lead">
-                    Desarrollo software con <strong>Laravel</strong>, PHP, JavaScript y MySQL.
+                    Desarrollo de software con <strong>Laravel</strong>, PHP, JavaScript y MySQL.
                     Con inteligencia artificial he automatizado procesos que antes se comían horas.
                 </p>
                 <p class="lead">
-                    Y entre un despliegue y otro: mi casita del campo, el perro, el monte
-                    y la ciudad.
+                    Ahora busco un puesto donde aplicar todo esto, y mientras tanto construyo
+                    proyectos propios y formo a quien empieza en DAW.
+                </p>
+                <p class="lead">
+                    Y entre un despliegue y otro: mi casita del campo, el perro, el monte y la ciudad.
                 </p>
 
+                <div class="stack mono">
+                    <span>laravel</span>
+                    <span>php</span>
+                    <span>mysql</span>
+                    <span>javascript</span>
+                    <span>tailwind</span>
+                    <span>docker</span>
+                    <span>automatización</span>
+                </div>
+
                 <p class="aside">
-                    Esto no es una agencia ni un portafolio de plantillas.
-                    Es el sitio de un desarrollador que además sabe lo que es
-                    arduous una búsqueda de trabajo.
+                    Esto no es una agencia ni un portafolio de plantillas. Es el sitio de alguien
+                    que está empezando, y prefiere que lo sepas antes de que le escribas.
                 </p>
             </section>
 
@@ -404,29 +441,44 @@
 
                 <ul class="ledger">
                     <li>
-                        <span class="key">Búsqueda de<br>trabajo</span>
+                        <span class="key">Lo que sé hacer</span>
                         <div>
-                            <h3>Te acompaño en la búsqueda</h3>
+                            <h3>Desarrollo web a medida</h3>
                             <p>
-                                Curriculum, perfil, carta de presentación, preparación de entrevistas
-                                y, sobre todo, dejar de enviar candidaturas a ciegas.
+                                Aplicaciones con Laravel, PHP y MySQL: paneles, APIs y
+                                automatizaciones. Y lo que nadie dice en la web: también hay
+                                que mantenerlo.
                             </p>
+                            <div class="tags">
+                                <span class="tag">laravel</span>
+                                <span class="tag">php</span>
+                                <span class="tag">mysql</span>
+                                <span class="tag">javascript</span>
+                                <span class="tag">docker</span>
+                            </div>
                         </div>
                     </li>
 
                     <li>
-                        <span class="key">Curso<br>DAW</span>
+                        <span class="key">Lo que enseño</span>
                         <div>
                             <h3>Formación en Desarrollo de Aplicaciones Web</h3>
                             <p>
                                 PHP, Laravel, bases de datos MySQL, JavaScript, HTML, CSS y SCSS.
-                                Del primer <em>hola mundo</em> a desplegar en un servidor de verdad.
+                                Del primer «hola mundo» a desplegar en un servidor de verdad.
                             </p>
+                            <div class="tags">
+                                <span class="tag">curso daw</span>
+                                <span class="tag">php</span>
+                                <span class="tag">laravel</span>
+                                <span class="tag">scss</span>
+                                <span class="tag">tailwind</span>
+                            </div>
                         </div>
                     </li>
 
                     <li>
-                        <span class="key">En<br>desarrollo</span>
+                        <span class="key">Lo que construyo</span>
                         <div>
                             <h3>Burocracia
                                 <span class="soon">En desarrollo</span>
@@ -460,11 +512,11 @@
                                 </p>
                             </a>
                             <div class="tags">
-                                <span class="tag">Laravel</span>
-                                <span class="tag">PHP</span>
-                                <span class="tag">MySQL</span>
-                                <span class="tag">Gemini AI</span>
-                                <span class="tag">Docker</span>
+                                <span class="tag">laravel</span>
+                                <span class="tag">php</span>
+                                <span class="tag">mysql</span>
+                                <span class="tag">gemini-ai</span>
+                                <span class="tag">docker</span>
                             </div>
                         </div>
                     </li>
@@ -480,11 +532,11 @@
                                 </p>
                             </a>
                             <div class="tags">
-                                <span class="tag">PHP</span>
-                                <span class="tag">Twig</span>
-                                <span class="tag">REST API</span>
-                                <span class="tag">MySQL</span>
-                                <span class="tag">Docker</span>
+                                <span class="tag">php</span>
+                                <span class="tag">twig</span>
+                                <span class="tag">rest-api</span>
+                                <span class="tag">mysql</span>
+                                <span class="tag">docker</span>
                             </div>
                         </div>
                     </li>
@@ -499,21 +551,21 @@
                 </div>
 
                 <div class="contacts">
-                    <a class="contact" href="mailto:TU-EMAIL@DOMINIO.COM">
+                    <a class="contact" href="mailto:salvamartienzjuan98@gmail.com">
                         <span class="label">Email</span>
-                        <span class="value">TU-EMAIL@DOMINIO.COM</span>
+                        <span class="value">salvamartienzjuan98@gmail.com</span>
                         <span class="arrow">→</span>
                     </a>
 
-                    <a class="contact" href="https://www.linkedin.com/in/TU-PERFIL" target="_blank" rel="noopener noreferrer">
+                    <a class="contact" href="https://www.linkedin.com/in/salva-mart%C3%ADnez-juan-031a4b258/" target="_blank" rel="noopener noreferrer">
                         <span class="label">LinkedIn</span>
-                        <span class="value">/in/TU-PERFIL</span>
+                        <span class="value">/in/salva-martinez-juan</span>
                         <span class="arrow">→</span>
                     </a>
 
-                    <a class="contact" href="https://wa.me/TUNUMERO" target="_blank" rel="noopener noreferrer">
+                    <a class="contact" href="https://wa.me/34675670712" target="_blank" rel="noopener noreferrer">
                         <span class="label">WhatsApp</span>
-                        <span class="value">+34 TU-NUMERO</span>
+                        <span class="value">+34 675 670 712</span>
                         <span class="arrow">→</span>
                     </a>
 
@@ -528,8 +580,8 @@
         </main>
 
         <footer>
-            <span class="ornament">❦</span>
-            <span class="mono">Salvamartinez &middot; <span id="year"></span></span>
+            <span class="mono">Salva Martinez Juan</span>
+            <span class="mono">&copy; <span id="year"></span> &middot; Laravel, PHP y MySQL</span>
         </footer>
 
     </div>

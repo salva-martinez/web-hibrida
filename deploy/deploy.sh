@@ -193,7 +193,10 @@ if [ -f deploy/portfolio/index.html ]; then
     log "Publicando el portfolio…"
     mkdir -p /var/www/portfolio
     install -m 644 deploy/portfolio/index.html /var/www/portfolio/index.html
-    chown www-data:www-data /var/www/portfolio/index.html 2>/dev/null || true
+    for favicon in deploy/portfolio/favicon.*; do
+        [ -f "$favicon" ] && install -m 644 "$favicon" /var/www/portfolio/"$(basename "$favicon")"
+    done
+    chown www-data:www-data /var/www/portfolio/* 2>/dev/null || true
 fi
 
 # ---------------------------------------------------------------------------

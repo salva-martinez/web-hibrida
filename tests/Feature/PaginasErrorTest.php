@@ -83,7 +83,7 @@ class PaginasErrorTest extends TestCase
         $contenido = File::get($ruta);
 
         // El mismo lenguaje visual que la landing.
-        $this->assertStringContainsString('Salvamartinez', $contenido);
+        $this->assertStringContainsString('Salva Martinez Juan', $contenido);
         $this->assertStringContainsString('Cormorant Garamond', $contenido);
         $this->assertStringNotContainsString('backdrop-filter', $contenido);
     }

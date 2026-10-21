@@ -3,10 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Página no encontrada — Salvamartinez</title>
+    <title>Página no encontrada — Salva Martinez Juan</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Cormorant+Garamond:wght@300;400;500;600&family=EB+Garamond:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=EB+Garamond:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="shortcut icon" href="/favicon.ico">
     <style>
         :root {
             color-scheme: light dark;
@@ -15,10 +17,10 @@
             --blood: #8a1c14;
             --gold: #8f7434;
             --gold-bright: #b3944c;
-            --rule: color-mix(in srgb, var(--gold) 38%, transparent);
-            --rule-faint: color-mix(in srgb, var(--gold) 18%, transparent);
+            --rule: color-mix(in srgb, var(--gold) 34%, transparent);
+            --rule-faint: color-mix(in srgb, var(--gold) 15%, transparent);
             --text: var(--ink);
-            --text-dim: #55503f;
+            --text-dim: #5a5443;
             --bg: var(--parchment);
         }
 
@@ -59,13 +61,13 @@
             inset: 0;
             z-index: 0;
             pointer-events: none;
-            opacity: .5;
+            opacity: .3;
             mix-blend-mode: multiply;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.22'/%3E%3C/svg%3E");
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.16'/%3E%3C/svg%3E");
         }
 
         @media (prefers-color-scheme: dark) {
-            body::before { mix-blend-mode: screen; opacity: .18; }
+            body::before { mix-blend-mode: screen; opacity: .12; }
         }
 
         .wrap {
@@ -76,37 +78,35 @@
             text-align: center;
         }
 
-        .ornament {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 1.6rem;
+        .mark {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1rem;
             color: var(--gold);
             display: block;
             margin-bottom: 1.25rem;
         }
 
         .code {
-            font-family: 'Cinzel', serif;
-            font-size: clamp(4rem, 18vw, 7rem);
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: clamp(4rem, 16vw, 6.5rem);
             font-weight: 500;
             line-height: 1;
-            letter-spacing: .06em;
             color: var(--blood);
             margin-bottom: .5rem;
         }
 
         h1 {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: clamp(1.9rem, 6vw, 2.75rem);
-            font-weight: 500;
-            line-height: 1.1;
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: clamp(1.8rem, 5.5vw, 2.6rem);
+            font-weight: 600;
+            line-height: 1.12;
             margin: 0 0 1rem;
         }
 
         p {
             color: var(--text-dim);
-            margin: 0 0 2.25rem;
+            margin: 0 auto 2.25rem;
             max-width: 40ch;
-            margin-inline: auto;
         }
 
         .rule {
@@ -117,15 +117,15 @@
 
         .acciones {
             display: flex;
-            gap: 1.5rem;
+            gap: 1.6rem;
             justify-content: center;
             flex-wrap: wrap;
         }
 
         a {
-            font-family: 'Cinzel', serif;
-            font-size: .72rem;
-            letter-spacing: .2em;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: .68rem;
+            letter-spacing: .14em;
             text-transform: uppercase;
             color: var(--text);
             text-decoration: none;
@@ -141,9 +141,9 @@
 
         .firma {
             margin-top: 3rem;
-            font-family: 'Cinzel', serif;
+            font-family: 'JetBrains Mono', monospace;
             font-size: .66rem;
-            letter-spacing: .22em;
+            letter-spacing: .18em;
             text-transform: uppercase;
             color: var(--gold);
         }
@@ -151,7 +151,7 @@
 </head>
 <body>
     <div class="wrap">
-        <span class="ornament">❦</span>
+        <span class="mark">◆</span>
         <div class="code">404</div>
         <h1>Esta página no existe</h1>
         <p>
@@ -166,7 +166,7 @@
             <a href="/#proyectos">Ver los proyectos</a>
         </div>
 
-        <div class="firma">Salvamartinez</div>
+        <div class="firma">Salva Martinez Juan</div>
     </div>
 </body>
 </html>
