@@ -57,10 +57,18 @@ if [ ! -s "$DESTINO" ]; then
 fi
 
 # Se comprueba que el dump contiene datos de verdad.
-if ! gzip -cd "$DESTINO" | grep -q "CREATE TABLE"; then
-    log "ERROR: el dump no parece válido. Revísalo antes de continuar."
+#
+# OJO: no se usa "grep -q": al encontrar la coincidencia cierra la pipe y gzip
+# recibe SIGPIPE, que con "set -o pipefail" hace que el pipeline devuelva
+# error aunque el grep haya funcionado. Con "grep -c" se lee todo el fichero.
+NUM_TABLAS="$(gzip -cd "$DESTINO" | grep -c "CREATE TABLE" || true)"
+
+if [ "${NUM_TABLAS:-0}" -lt 1 ]; then
+    log "ERROR: el dump no parece válido (0 tablas). Revísalo antes de continuar."
     exit 1
 fi
+
+log "El dump contiene $NUM_TABLAS tablas."
 
 chmod 600 "$DESTINO"
 log "Copia creada: $DESTINO ($(du -h "$DESTINO" | cut -f1))"

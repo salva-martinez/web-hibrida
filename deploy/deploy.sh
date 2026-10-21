@@ -24,6 +24,10 @@ log()  { printf '\033[0;36m[deploy]\033[0m %s\n' "$*"; }
 warn() { printf '\033[0;33m[deploy]\033[0m %s\n' "$*"; }
 die()  { printf '\033[0;31m[deploy] ERROR:\033[0m %s\n' "$*" >&2; exit 1; }
 
+# Todos los "docker compose exec" necesitan stdin cerrado: si lo heredan de una
+# sesion SSH abierta, se quedan esperando entrada y el despliegue se cuelga.
+dc() { docker compose exec -T "$@" < /dev/null; }
+
 # ---------------------------------------------------------------------------
 # FASE A: obtener el codigo y re-ejecutar la version recien descargada.
 #
