@@ -24,12 +24,53 @@ log()  { printf '\033[0;36m[deploy]\033[0m %s\n' "$*"; }
 warn() { printf '\033[0;33m[deploy]\033[0m %s\n' "$*"; }
 die()  { printf '\033[0;31m[deploy] ERROR:\033[0m %s\n' "$*" >&2; exit 1; }
 
+# ---------------------------------------------------------------------------
+# FASE A: obtener el codigo y re-ejecutar la version recien descargada.
+#
+# bash lee el script por offset: si este fichero cambia mientras se ejecuta
+# (y aqui lo hace "git reset --hard"), el resto se lee desplazado y se ejecutan
+# lineas equivocadas - se saltan pasos sin avisar. Por eso, tras actualizar el
+# codigo, el script se copia a /tmp y se ejecuta desde ahi con "exec", que
+# sustituye el proceso actual: asi bash no llega a leer ni una linea mas del
+# fichero original.
+#
+# Todo va en una sola linea encadenada con && a proposito: bash lee la linea
+# entera antes de ejecutarla, asi que el reset no puede descolocar nada.
+# ---------------------------------------------------------------------------
+if [ "${FISIOAPP_DEPLOY_REEXEC:-0}" != "1" ]; then
+    cd "$APP_DIR"
+
+    COPIA="$(mktemp /tmp/fisioapp-deploy-XXXXXX.sh)"
+
+    if [ "$SKIP_GIT" = "1" ]; then
+        warn "SKIP_GIT=1: no se toca el código."
+        cp deploy/deploy.sh "$COPIA" \
+            && chmod +x "$COPIA" \
+            && exec env FISIOAPP_DEPLOY_REEXEC=1 bash "$COPIA"
+    else
+        # Toda la secuencia va en una sola línea encadenada con &&: bash lee la
+        # línea entera antes de ejecutarla, así que el "git reset" (que cambia
+        # este fichero) no puede descolocar la lectura.
+        git fetch --prune origin "$BRANCH" \
+            && git reset --hard "origin/$BRANCH" \
+            && git clean -fd -e vendor -e node_modules -e public/build -e storage -e .env \
+            && cp deploy/deploy.sh "$COPIA" \
+            && chmod +x "$COPIA" \
+            && exec env FISIOAPP_DEPLOY_REEXEC=1 bash "$COPIA"
+    fi
+
+    # Si se llega aquí es que algo ha fallado antes del exec.
+    rm -f "$COPIA"
+    exit 1
+fi
+
+# ---------------------------------------------------------------------------
+# FASE B: despliegue real. A partir de aqui el script no puede cambiar.
+# ---------------------------------------------------------------------------
 cd "$APP_DIR"
 
 # Todos los "docker compose exec" necesitan stdin cerrado: si lo heredan de una
-# sesión SSH abierta, se quedan esperando entrada y el despliegue se cuelga.
-dc() { docker compose exec -T "$@" < /dev/null; }
-
+# sesion SSH abierta, se quedan esperando entrada y el despliegue se cuelga.
 # ---------------------------------------------------------------------------
 # 1. Lock: evita que dos despliegues simultáneos se pisen
 # ---------------------------------------------------------------------------
@@ -43,16 +84,11 @@ START_TS=$(date +%s)
 
 # ---------------------------------------------------------------------------
 # 2. Código
+#
+# La fase A ya hizo el fetch/reset/clean y reinició el script con la versión
+# nueva, así que aquí solo se informa de qué commit se ha desplegado.
 # ---------------------------------------------------------------------------
-if [ "$SKIP_GIT" = "1" ]; then
-    warn "SKIP_GIT=1: no se toca el código. Commit actual: $(git rev-parse --short HEAD)"
-else
-    log "Obteniendo $BRANCH desde origin…"
-    git fetch --prune origin "$BRANCH"
-    git reset --hard "origin/$BRANCH"
-    git clean -fd -e vendor -e node_modules -e public/build -e storage -e .env
-    log "Commit desplegado: $(git rev-parse --short HEAD) ($(git log -1 --format=%s))"
-fi
+log "Commit desplegado: $(git rev-parse --short HEAD) ($(git log -1 --format=%s))"
 
 # ---------------------------------------------------------------------------
 # 3. Contenedores
