@@ -1,0 +1,60 @@
+name: Deploy producción
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Nunca dos despliegues a la vez: el script del servidor usa un lock, pero
+# esto evita además que se encolen pushes seguidos.
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Desplegar en el VPS
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Preparar la clave SSH
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          printf '%s\n' "${{ secrets.DEPLOY_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+
+      - name: Desplegar
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_PORT: ${{ secrets.DEPLOY_PORT }}
+        run: |
+          set -euo pipefail
+          ssh -i ~/.ssh/deploy_key \
+              -p "${DEPLOY_PORT:-22}" \
+              -o StrictHostKeyChecking=yes \
+              -o BatchMode=yes \
+              "${DEPLOY_USER}@${DEPLOY_HOST}" \
+              "cd /var/www/fisioapp && ./deploy/deploy.sh"
+
+      - name: Comprobar la aplicación
+        env:
+          APP_URL: ${{ vars.APP_URL }}
+        run: |
+          set -euo pipefail
+          if [ -z "${APP_URL}" ]; then
+            echo "APP_URL no configurada: se omite la comprobación externa."
+            exit 0
+          fi
+          for i in $(seq 1 10); do
+            if curl -fsS "${APP_URL}/up" > /dev/null; then
+              echo "✅ ${APP_URL} responde correctamente."
+              exit 0
+            fi
+            sleep 3
+          done
+          echo "❌ ${APP_URL} no responde." >&2
+          exit 1
