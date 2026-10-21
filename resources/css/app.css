@@ -1,10 +1,20 @@
 /* ============================================
    FISIOAPP — Design System
+   ============================================
+
+   Nota: este proyecto NO usa Tailwind. El diseño se apoya en este design
+   system propio (tokens CSS + componentes), que cubre todo lo que la
+   aplicación necesita. Activar Tailwind añadiría ~29 kB de utilities al
+   bundle para un puñado de clases sueltas, y su preflight resetearía los
+   estilos base del tema oscuro.
    ============================================ */
 
 :root {
     /* Color Palette — Professional Medical/Fitness */
     --primary: #0ea5e9;
+    /* Alias con nombre de componente, para no depender del nombre del token */
+    --primary-color: var(--primary);
+    --primary-rgb: 14, 165, 233;
     --primary-dark: #0284c7;
     --primary-light: #38bdf8;
     --primary-50: #f0f9ff;
@@ -234,6 +244,18 @@ a:hover {
     color: white;
 }
 
+.btn-outline-primary {
+    background: transparent;
+    color: var(--primary);
+    border: 1px solid var(--primary);
+}
+
+.btn-outline-primary:hover {
+    background: rgba(var(--primary-rgb), 0.12);
+    color: var(--primary-light);
+    border-color: var(--primary-light);
+}
+
 .btn-secondary {
     background: var(--bg-hover);
     color: var(--text-primary);
@@ -268,6 +290,22 @@ a:hover {
 .btn-sm {
     padding: 0.375rem 0.75rem;
     font-size: 0.8rem;
+}
+
+/* Enlace con aspecto de botón: para acciones secundarias (limpiar filtros…) */
+.btn-link {
+    background: none;
+    border: none;
+    color: var(--primary);
+    font-weight: 500;
+    padding: 0;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.btn-link:hover {
+    background: none;
+    color: var(--primary-light);
 }
 
 .btn-logout {
@@ -1017,6 +1055,32 @@ textarea.form-control {
 }
 
 /* ============================================
+   Utilidades de texto
+   ============================================ */
+.text-muted {
+    color: var(--text-muted) !important;
+}
+
+.small {
+    font-size: 0.85rem;
+}
+
+/* Mensaje de error de un campo concreto del formulario */
+.field-error {
+    display: block;
+    margin-top: 0.3rem;
+    font-size: 0.8rem;
+    color: var(--danger);
+}
+
+/* Contenedor de búsqueda */
+.search-container {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+/* ============================================
    Badge / Tags
    ============================================ */
 .badge {
@@ -1036,6 +1100,11 @@ textarea.form-control {
 .badge-success {
     background: rgba(16, 185, 129, 0.15);
     color: var(--secondary);
+}
+
+.badge-info {
+    background: rgba(var(--primary-rgb), 0.15);
+    color: var(--primary);
 }
 
 .badge-warning {

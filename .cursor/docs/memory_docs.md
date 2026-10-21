@@ -5,7 +5,7 @@ Aplicación web diseñada para la gestión clínica en el área de fisioterapia.
 
 ## Stack Tecnológico
 - **Backend:** PHP 8.2+, Laravel 12 (v12.62.0)
-- **Frontend:** TailwindCSS v4, Vite, Blade Templates, Vanilla JS
+- **Frontend:** Design system CSS propio (`resources/css/app.css`), Vite, Blade Templates, JavaScript modular (ES modules en `resources/js/`). **No se usa Tailwind.**
 - **Base de Datos:** SQLite (desarrollo) / Relacional estándar (producción). Gestionada vía Migraciones de Laravel.
 - **Autorización:** Sesiones nativas de Laravel, segmentadas por middleware (`role:fisio`, `role:paciente`).
 

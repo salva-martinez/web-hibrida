@@ -14,6 +14,19 @@ class Ejercicio extends Model
 
     protected $fillable = ['estimulo_id', 'nombre', 'video_url', 'descripcion', 'fisio_id'];
 
+    /**
+     * Hosts de YouTube admitidos.
+     */
+    public const YOUTUBE_HOSTS = [
+        'youtube.com',
+        'www.youtube.com',
+        'm.youtube.com',
+        'youtu.be',
+        'www.youtu.be',
+        'youtube-nocookie.com',
+        'www.youtube-nocookie.com',
+    ];
+
     protected static function booted(): void
     {
         // Cada fisio trabaja con su propio catálogo de ejercicios.
@@ -38,34 +51,78 @@ class Ejercicio extends Model
     }
 
     /**
-     * Extract YouTube embed URL from various YouTube URL formats.
+     * Extrae el identificador del vídeo de una URL de YouTube.
+     *
+     * Devuelve null si la URL no es de YouTube, si no usa https o si no apunta
+     * a un vídeo con el formato esperado. Es la única puerta de entrada: tanto
+     * el iframe como el enlace externo se construyen a partir de aquí, así que
+     * nunca se renderiza una URL proporcionada por el usuario.
+     */
+    public static function youtubeVideoId(?string $url): ?string
+    {
+        if ($url === null || trim($url) === '') {
+            return null;
+        }
+
+        $url = trim($url);
+
+        // Solo https: descarta "javascript:", "data:", "http:" y cualquier otro esquema.
+        if (! preg_match('#^https://#i', $url)) {
+            return null;
+        }
+
+        $parts = parse_url($url);
+
+        if ($parts === false || empty($parts['host'])) {
+            return null;
+        }
+
+        $host = strtolower($parts['host']);
+        $path = $parts['path'] ?? '';
+        $id = null;
+
+        if (in_array($host, ['youtu.be', 'www.youtu.be'], true)) {
+            $id = explode('/', ltrim($path, '/'))[0] ?? null;
+        } elseif (in_array($host, self::YOUTUBE_HOSTS, true)) {
+            if (preg_match('#^/embed/([A-Za-z0-9_-]+)#', $path, $m)) {
+                $id = $m[1];
+            } elseif (preg_match('#^/shorts/([A-Za-z0-9_-]+)#', $path, $m)) {
+                $id = $m[1];
+            } elseif ($path === '/watch') {
+                parse_str($parts['query'] ?? '', $query);
+                $id = $query['v'] ?? null;
+            }
+        }
+
+        // El identificador de un vídeo de YouTube tiene siempre 11 caracteres.
+        return (is_string($id) && preg_match('/^[A-Za-z0-9_-]{11}$/', $id)) ? $id : null;
+    }
+
+    /**
+     * URL del embed (para el iframe del modal).
+     *
+     * Se construye siempre a partir del identificador: la URL original nunca
+     * llega al navegador.
      */
     public function getEmbedUrlAttribute(): ?string
     {
-        if (!$this->video_url) return null;
+        $id = static::youtubeVideoId($this->video_url);
 
-        $url = $this->video_url;
+        return $id ? "https://www.youtube-nocookie.com/embed/{$id}" : null;
+    }
 
-        // Already an embed URL
-        if (str_contains($url, 'youtube.com/embed/')) {
-            return $url;
-        }
+    /**
+     * URL canónica del vídeo en YouTube (para el enlace "ver en YouTube").
+     */
+    public function getYoutubeUrlAttribute(): ?string
+    {
+        $id = static::youtubeVideoId($this->video_url);
 
-        // youtube.com/watch?v=VIDEO_ID
-        if (preg_match('/youtube\.com\/watch\?v=([a-zA-Z0-9_-]+)/', $url, $matches)) {
-            return "https://www.youtube.com/embed/{$matches[1]}";
-        }
+        return $id ? "https://www.youtube.com/watch?v={$id}" : null;
+    }
 
-        // youtu.be/VIDEO_ID
-        if (preg_match('/youtu\.be\/([a-zA-Z0-9_-]+)/', $url, $matches)) {
-            return "https://www.youtube.com/embed/{$matches[1]}";
-        }
-
-        // youtube.com/shorts/VIDEO_ID
-        if (preg_match('/youtube\.com\/shorts\/([a-zA-Z0-9_-]+)/', $url, $matches)) {
-            return "https://www.youtube.com/embed/{$matches[1]}";
-        }
-
-        return null;
+    public function tieneVideo(): bool
+    {
+        return static::youtubeVideoId($this->video_url) !== null;
     }
 }

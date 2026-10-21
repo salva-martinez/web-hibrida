@@ -6,6 +6,7 @@
 - [ ] Migrar los datos existentes a la nueva columna `fisio_id` en entornos con varios profesionales (la migración `2026_10_21_090200` asigna todo al primer fisio).
 - [ ] Resolver la ambigüedad de "restaurar" cuando un plan archivado era `activo` y el paciente ya tiene otro plan activo (hoy se desactiva el otro).
 - [ ] Limpiar la tabla `fisio_invitations` (huérfana desde la retirada del registro por invitación).
+- [ ] Migrar el JavaScript inline que queda en las vistas a módulos en `resources/js/` (el polling del análisis IA ya está fuera).
 
 ## Tareas en Progreso (DOING)
 - [ ] ...
@@ -19,6 +20,6 @@
 - [x] Corrección del bug que hacía perder los días 2..N al duplicar un plan (Oct 2026).
 - [x] Corrección del fallo que impedía borrar la cuenta de otro fisioterapeuta (Oct 2026).
 - [x] Actualización del core a Laravel 12.62.0 y dependencias relacionadas (Junio 2026).
-- [x] Setup inicial del proyecto Laravel 12 y Tailwind v4.
+- [x] Setup inicial del proyecto Laravel 12 y design system CSS propio (Tailwind se retiró: estaba inerte y solo engordaba el bundle).
 - [x] Definición de rutas y middlewares base.
 - [x] Estructura de base de datos inicial (migraciones).

@@ -49,6 +49,12 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $exceptions->render(function (\Symfony\Component\HttpKernel\Exception\HttpException $e, Request $request) {
             if ($e->getStatusCode() === 403) {
+                // Las peticiones AJAX (el polling del análisis de IA) necesitan
+                // un 403 en JSON, no una redirección a una página HTML.
+                if ($request->expectsJson()) {
+                    return response()->json(['error' => 'No tienes permisos para acceder a esta sección.'], 403);
+                }
+
                 if (Auth::check()) {
                     $route = Auth::user()->role === 'fisio' ? 'admin.dashboard' : 'paciente.dashboard';
                     return redirect()->route($route)->with('error', 'No tienes permisos para acceder a esta sección.');

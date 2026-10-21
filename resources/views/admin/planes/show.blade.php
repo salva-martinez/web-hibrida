@@ -57,8 +57,8 @@
                                 @foreach($ejercicios as $pe)
                                     <tr>
                                         <td class="ejercicio-nombre">
-                                            @if($pe->ejercicio->video_url)
-                                                <a href="{{ $pe->ejercicio->video_url }}" target="_blank" class="video-link"
+                                            @if($pe->ejercicio->tieneVideo())
+                                                <a href="{{ $pe->ejercicio->youtube_url }}" target="_blank" rel="noopener noreferrer" class="video-link"
                                                     style="text-decoration: none; display: inline-flex; align-items: center; gap: 0.3rem;">
                                                     <span>▶️</span> {{ $pe->ejercicio->nombre }}
                                                 </a>
@@ -130,7 +130,8 @@
                                 @else
                                     <div
                                         style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; color: var(--text-muted);">
-                                        <p>Análisis pendiente o no disponible.</p>
+                                        <x-feedback-ai-status :feedback="$dia->feedback" />
+                                        <p style="margin-top: .5rem">La IA está redactando el informe. Aparecerá solo, sin recargar.</p>
                                     </div>
                                 @endif
                             </div>

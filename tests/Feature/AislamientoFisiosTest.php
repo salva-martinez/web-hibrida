@@ -209,7 +209,7 @@ class AislamientoFisiosTest extends TestCase
                     ],
                 ],
             ])
-            ->assertRedirect(route('admin.dashboard'));
+            ->assertSessionHasErrors('paciente_id');
 
         $this->assertDatabaseMissing('planes', ['titulo' => 'Plan intruso']);
     }

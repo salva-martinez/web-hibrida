@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Ejercicio;
 use App\Models\Estimulo;
+use App\Rules\YouTubeUrl;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -14,12 +15,14 @@ class EjercicioController extends Controller
     {
         // El aislamiento global limita la lista a los ejercicios de este fisio.
         $ejercicios = Ejercicio::with('estimulo')->latest()->get();
+
         return view('admin.ejercicios.index', compact('ejercicios'));
     }
 
     public function create()
     {
         $estimulos = Estimulo::orderBy('orden')->get();
+
         return view('admin.ejercicios.create', compact('estimulos'));
     }
 
@@ -28,7 +31,7 @@ class EjercicioController extends Controller
         $validated = $request->validate([
             'nombre' => 'required|string|max:255',
             'estimulo_id' => 'required|exists:estimulos,id',
-            'video_url' => 'nullable|url',
+            'video_url' => ['nullable', new YouTubeUrl],
             'descripcion' => 'nullable|string',
         ]);
 
@@ -44,6 +47,7 @@ class EjercicioController extends Controller
     public function edit(Ejercicio $ejercicio)
     {
         $estimulos = Estimulo::orderBy('orden')->get();
+
         return view('admin.ejercicios.edit', compact('ejercicio', 'estimulos'));
     }
 
@@ -52,7 +56,7 @@ class EjercicioController extends Controller
         $validated = $request->validate([
             'nombre' => 'required|string|max:255',
             'estimulo_id' => 'required|exists:estimulos,id',
-            'video_url' => 'nullable|url',
+            'video_url' => ['nullable', new YouTubeUrl],
             'descripcion' => 'nullable|string',
         ]);
 

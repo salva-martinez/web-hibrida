@@ -2,6 +2,13 @@
 @section('title', isset($plan) ? 'Editar Plan' : 'Nuevo Plan')
 
 @section('content')
+    @php
+        // Días del plan actual que ya tienen feedback del paciente: si
+        // desaparecen del formulario, ese feedback se borra.
+        $diasConFeedback = isset($plan)
+            ? $plan->planDias->filter(fn ($dia) => $dia->feedback !== null)->count()
+            : 0;
+    @endphp
     <div class="page-header">
         <div>
             <h1>{{ isset($plan) ? 'Editar Plan' : (isset($clonedPlan) ? 'Duplicar Plan (Nuevo)' : 'Nuevo Plan de Ejercicios') }}</h1>
@@ -27,20 +34,40 @@
                                 </option>
                             @endforeach
                         </select>
+                        @error('paciente_id')
+                            <span class="field-error">{{ $message }}</span>
+                        @enderror
                     </div>
                     <div class="form-group">
                         <label for="titulo">Título del Plan *</label>
                         <input type="text" name="titulo" id="titulo" class="form-control"
                             value="{{ old('titulo', $plan->titulo ?? ($clonedPlan ? $clonedPlan->titulo . ' (Copia)' : '')) }}" placeholder="Ej: Semana 1 - Plan Inicial"
                             required>
+                        @error('titulo')
+                            <span class="field-error">{{ $message }}</span>
+                        @enderror
                     </div>
                     <div class="form-group">
                         <label for="fecha">Fecha *</label>
                         <input type="date" name="fecha" id="fecha" class="form-control"
                             value="{{ old('fecha', isset($plan) ? $plan->fecha->format('Y-m-d') : now()->format('Y-m-d')) }}"
                             required>
+                        @error('fecha')
+                            <span class="field-error">{{ $message }}</span>
+                        @enderror
                     </div>
                 </div>
+
+                @if($errors->any())
+                    <div class="alert alert-error" style="margin-top: 1rem">
+                        <span>⚠️</span>
+                        <ul style="margin: .25rem 0 0 1rem">
+                            @foreach($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
                 @if(isset($plan))
                     <div class="form-group">
                         <label class="form-inline">
@@ -54,29 +81,41 @@
 
         <div class="card" style="margin-bottom: 1.5rem">
             <div class="card-body">
-                <div class="form-group mb-0">
+                <div class="form-group" style="margin-bottom: 0">
                     <label for="num_dias">Días de entrenamiento por semana</label>
-                    <select id="num_dias" class="form-control" style="max-width: 200px;" onchange="updateTabs()">
+                    <select id="num_dias" class="form-control" style="max-width: 200px;" onchange="onChangeNumDias()">
                         @php
                             // Al clonar un plan hay que preseleccionar tantos días como
                             // tenía el plan de origen: si no, el DOM solo se crea para
                             // el día 1 y los días 2..N se pierden en silencio al guardar.
-                            $diasDelPlan = isset($plan)
-                                ? $plan->planDias->count()
-                                : (isset($clonedPlan) ? $clonedPlan->planDias->count() : 1);
+                            // Si la validación falló, manda lo que el usuario escribió.
+                            $diasRepuestos = old('dias');
+                            $diasDelPlan = is_array($diasRepuestos) && count($diasRepuestos) > 0
+                                ? count($diasRepuestos)
+                                : (isset($plan)
+                                    ? $plan->planDias->count()
+                                    : (isset($clonedPlan) ? $clonedPlan->planDias->count() : 1));
                         @endphp
                         @for($i = 1; $i <= 7; $i++)
                             <option value="{{ $i }}" {{ $diasDelPlan == $i ? 'selected' : '' }}>{{ $i }} {{ $i == 1 ? 'Día' : 'Días' }}</option>
                         @endfor
                     </select>
+
+                    @if($diasConFeedback > 0)
+                        <p style="font-size: .8rem; color: var(--text-muted); margin-top: .5rem">
+                            ⚠️ Este plan tiene feedback registrado en {{ $diasConFeedback }}
+                            {{ $diasConFeedback === 1 ? 'día' : 'días' }}. Si reduces el número de días,
+                            el feedback de los días eliminados se perderá.
+                        </p>
+                    @endif
                 </div>
             </div>
         </div>
 
         {{-- Dynamic Exercise Builder --}}
         <div class="card" style="margin-bottom: 1.5rem">
-            <div class="card-header border-b border-gray-200 bg-gray-50">
-                <div class="flex space-x-2" id="tabs-container" style="display: flex; gap: 0.5rem; overflow-x: auto;">
+            <div class="card-header">
+                <div id="tabs-container" style="display: flex; gap: 0.5rem; overflow-x: auto;">
                     <!-- Tabs will be generated here -->
                 </div>
             </div>
@@ -97,6 +136,31 @@
             const estimulos = @json($estimulos);
             let exerciseIndexes = {}; // To keep track of exercise index per day
             let currentDay = 1;
+
+            // Días con feedback ya registrado: al reducirlos se borra ese feedback.
+            const DIAS_CON_FEEDBACK = @json($diasConFeedback ?? 0);
+            let numDiasPrevio = null;
+
+            function onChangeNumDias() {
+                const select = document.getElementById('num_dias');
+                const nuevo = parseInt(select.value, 10);
+
+                if (numDiasPrevio !== null && nuevo < numDiasPrevio && DIAS_CON_FEEDBACK > 0) {
+                    const acepta = window.confirm(
+                        'Al reducir los días desaparecen del plan. Si alguno de los días que ' +
+                        'eliminas tiene feedback del paciente, ese feedback se perderá.\n\n' +
+                        '¿Quieres continuar?'
+                    );
+
+                    if (!acepta) {
+                        select.value = numDiasPrevio;
+                        return;
+                    }
+                }
+
+                numDiasPrevio = nuevo;
+                updateTabs();
+            }
 
             function updateTabs() {
                 const numDias = parseInt(document.getElementById('num_dias').value);
@@ -268,19 +332,64 @@
 
             // Initialize on load
             document.addEventListener('DOMContentLoaded', function() {
+                numDiasPrevio = parseInt(document.getElementById('num_dias').value, 10);
                 updateTabs();
 
-                // Load existing data if editing or cloning
+                // Datos a cargar: si la validación falló se repone lo que el
+                // usuario ya había escrito (si no, se pierde todo el trabajo).
                 @php
-                    $planDiasToLoad = isset($plan) ? $plan->planDias : (isset($clonedPlan) ? $clonedPlan->planDias : collect());
+                    $diasRepuestos = old('dias');
+                    $diasACargar = [];
+
+                    if (is_array($diasRepuestos) && count($diasRepuestos) > 0) {
+                        // Formato del formulario (tras un error de validación)
+                        foreach ($diasRepuestos as $numDia => $dia) {
+                            $diasACargar[(int) $numDia] = [
+                                'numero_dia' => (int) $numDia,
+                                'notas_fisio' => $dia['notas_fisio'] ?? null,
+                                'plan_ejercicios' => array_values(array_map(function ($ej) {
+                                    return [
+                                        'ejercicio_id' => $ej['ejercicio_id'] ?? null,
+                                        'series' => $ej['series'] ?? null,
+                                        'repeticiones' => $ej['repeticiones'] ?? null,
+                                        'intensidad' => $ej['intensidad'] ?? null,
+                                        'kg' => $ej['kg'] ?? null,
+                                        'descanso' => $ej['descanso'] ?? null,
+                                    ];
+                                }, $dia['ejercicios'] ?? [])),
+                            ];
+                        }
+                    } else {
+                        // Plan existente o plan clonado
+                        $planDiasToLoad = isset($plan)
+                            ? $plan->planDias
+                            : (isset($clonedPlan) ? $clonedPlan->planDias : collect());
+
+                        foreach ($planDiasToLoad as $dia) {
+                            $diasACargar[$dia->numero_dia] = [
+                                'numero_dia' => $dia->numero_dia,
+                                'notas_fisio' => $dia->notas_fisio,
+                                'plan_ejercicios' => $dia->planEjercicios->map(function ($pe) {
+                                    return [
+                                        'ejercicio_id' => $pe->ejercicio_id,
+                                        'series' => $pe->series,
+                                        'repeticiones' => $pe->repeticiones,
+                                        'intensidad' => $pe->intensidad,
+                                        'kg' => $pe->kg,
+                                        'descanso' => $pe->descanso,
+                                    ];
+                                })->values()->all(),
+                            ];
+                        }
+                    }
                 @endphp
-                
-                const planDias = @json($planDiasToLoad);
-                
-                if (planDias && planDias.length > 0) {
-                    planDias.forEach(function(dia) {
+
+                const planDias = @json($diasACargar);
+
+                if (planDias && Object.keys(planDias).length > 0) {
+                    Object.values(planDias).forEach(function(dia) {
                         const dayNum = dia.numero_dia;
-                        
+
                         // Set notes if editing
                         const notesInput = document.querySelector(`input[name="dias[${dayNum}][notas_fisio]"]`);
                         if (notesInput && dia.notas_fisio) {

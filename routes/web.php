@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\EstimuloController;
 use App\Http\Controllers\Admin\EjercicioController;
 use App\Http\Controllers\Admin\PlanController;
 use App\Http\Controllers\Admin\ChatController;
+use App\Http\Controllers\Admin\AnalisisController;
 use App\Http\Controllers\Admin\PapeleraController;
 use App\Http\Controllers\Paciente\DashboardController as PacienteDashboard;
 use App\Http\Controllers\Paciente\PlanController as PacientePlanController;
@@ -48,6 +49,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:fisio', 'verif
         'planes' => 'plan'
     ]);
     Route::post('/chat/send', [ChatController::class, 'sendMessage'])->name('chat.send')->middleware('throttle:10,1');
+    Route::get('/feedback/{feedback}/analisis', [AnalisisController::class, 'show'])->name('feedback.analisis')->middleware('throttle:60,1');
 
     // Papelera: restauración de elementos desactivados
     Route::prefix('papelera')->name('papelera.')->group(function () {

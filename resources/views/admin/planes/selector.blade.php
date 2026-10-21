@@ -11,7 +11,7 @@
     </div>
 
     <div class="card" style="max-width: 800px; margin: 2rem auto;">
-        <div class="card-body text-center" style="padding: 3rem;">
+        <div class="card-body" style="padding: 3rem; text-align: center;">
             <div style="font-size: 3rem; margin-bottom: 1rem;">🤔</div>
             <h2>El paciente ya tiene planes previos</h2>
             <p style="margin-bottom: 2.5rem; color: var(--text-secondary);">¿Cómo quieres proceder con el nuevo plan?</p>

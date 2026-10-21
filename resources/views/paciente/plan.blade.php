@@ -80,7 +80,7 @@
                                 @foreach($ejercicios as $pe)
                                     <tr>
                                         <td class="ejercicio-nombre">
-                                            @if($pe->ejercicio->video_url)
+                                            @if($pe->ejercicio->tieneVideo())
                                                 <a href="javascript:void(0)" class="video-link"
                                                     onclick="openVideo({{ Js::from($pe->ejercicio->embed_url) }}, {{ Js::from($pe->ejercicio->nombre) }})">
                                                     <span>▶️</span> {{ $pe->ejercicio->nombre }}
@@ -175,7 +175,8 @@
                 <button class="video-modal-close" onclick="closeVideo()">✕</button>
             </div>
             <div class="video-modal-body">
-                <iframe id="videoFrame" src="" allowfullscreen></iframe>
+                <iframe id="videoFrame" src="" title="Vídeo del ejercicio"
+                    referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
             </div>
         </div>
     </div>

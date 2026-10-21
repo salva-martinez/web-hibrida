@@ -67,7 +67,11 @@ docker compose up -d --remove-orphans
 # ficheros de storage/ o bootstrap/cache no son escribibles por ese usuario, el
 # compilador de Blade no puede crear las vistas y TODAS las peticiones fallan
 # con un 500 y el error "tempnam(): file created in the system's temporary
-# directory". Por eso se detectan los ids reales en vez de confiar en el .env.
+# directory".
+#
+# El chown usa el WWWUSER/WWWGROUP del .env (no el uid del contenedor): así el
+# propietario sigue siendo el usuario del host y el contenedor puede escribir
+# porque WWWGROUP=0 (el usuario "sail" pertenece al grupo root).
 # ---------------------------------------------------------------------------
 log "Detectando el usuario del contenedor…"
 CONTAINER_UID="$(dc laravel.test id -u sail 2>/dev/null | tr -d '\r\n' || echo 1337)"
@@ -75,6 +79,12 @@ CONTAINER_GID="$(dc laravel.test id -g sail 2>/dev/null | tr -d '\r\n' || echo 0
 [ -n "$CONTAINER_UID" ] || CONTAINER_UID=1337
 [ -n "$CONTAINER_GID" ] || CONTAINER_GID=0
 log "  el servidor web usa uid=$CONTAINER_UID gid=$CONTAINER_GID"
+
+WWWUSER_VAL="$(grep -E '^WWWUSER=' .env 2>/dev/null | tail -1 | cut -d= -f2)"
+WWWGROUP_VAL="$(grep -E '^WWWGROUP=' .env 2>/dev/null | tail -1 | cut -d= -f2)"
+WWWUSER_VAL="${WWWUSER_VAL:-$CONTAINER_UID}"
+WWWGROUP_VAL="${WWWGROUP_VAL:-$CONTAINER_GID}"
+log "  los ficheros serán del usuario $WWWUSER_VAL:$WWWGROUP_VAL"
 
 # Los directorios de trabajo deben existir ANTES de cachear la configuración:
 # config/view.php resuelve 'compiled' con realpath(storage_path('framework/views'))
@@ -128,10 +138,10 @@ dc laravel.test php artisan event:cache
 # vistas, y la aplicación devuelve 500.
 # ---------------------------------------------------------------------------
 log "Ajustando permisos de caché y logs…"
-dc -u root laravel.test chown -R "${CONTAINER_UID}:${CONTAINER_GID}" \
-    /var/www/html/bootstrap/cache /var/www/html/storage > /dev/null
+dc -u root laravel.test chown -R "${WWWUSER_VAL}:${WWWGROUP_VAL}" \
+    /var/www/html/bootstrap/cache /var/www/html/storage /var/www/html/node_modules /var/www/html/public/build > /dev/null
 dc -u root laravel.test chmod -R ug+rwX \
-    /var/www/html/bootstrap/cache /var/www/html/storage > /dev/null
+    /var/www/html/bootstrap/cache /var/www/html/storage /var/www/html/node_modules /var/www/html/public/build > /dev/null
 
 # El enlace simbólico de los ficheros públicos (vídeos, imágenes).
 dc -u root laravel.test sh -c '

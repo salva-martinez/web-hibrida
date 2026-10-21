@@ -1,11 +1,27 @@
 ---
-description: Reglas de diseño y desarrollo frontend usando Blade y Tailwind.
+description: Reglas de diseño y desarrollo frontend usando Blade y el design system propio.
 globs: ["resources/views/**/*.blade.php", "resources/css/**/*.css", "resources/js/**/*.js"]
 ---
-# Reglas de Frontend (Tailwind CSS v4 & Blade)
+# Reglas de Frontend (Design System propio & Blade)
 
-- **Framework CSS:** Utilizamos Tailwind CSS v4.
-- **Vistas Modulares:** Utiliza componentes de Blade (`<x-component>`) y directivas (`@extends`, `@section`) alojados en `resources/views/layouts/`.
-- **Separación de roles en la UI:** Asegúrate de que las vistas de `admin` mantengan coherencia visual distinta (o clara jerarquía) respecto a las de `paciente`.
-- **Responsividad:** El diseño debe ser prioritariamente mobile-first usando las clases responsivas estándar de Tailwind (`sm:`, `md:`, `lg:`).
-- **JavaScript:** Si se requiere interactividad ligera, puede usarse Vanilla JS directamente o a través de assets gestionados por Vite.
+- **Framework CSS:** **No usamos Tailwind.** El diseño se apoya en el design system
+  propio de `resources/css/app.css` (tokens CSS + componentes: `.btn`, `.card`,
+  `.form-group`, `.badge`, `.exercise-table`…). Tailwind estuvo instalado pero
+  estaba inerte (no se importaba en el CSS) y su activación añadiría ~29 kB de
+  utilities al bundle para un puñado de clases sueltas, además de que su
+  preflight resetearía los estilos base del tema oscuro.
+- **Tokens:** usa siempre las variables CSS (`var(--primary)`, `var(--text-secondary)`,
+  `var(--border)`…) en lugar de colores literales.
+- **Vistas Modulares:** Utiliza componentes de Blade (`<x-component>`) y directivas
+  (`@extends`, `@section`) alojados en `resources/views/layouts/`. Los componentes
+  viven en `resources/views/components/`.
+- **Separación de roles en la UI:** Asegúrate de que las vistas de `admin` mantengan
+  coherencia visual distinta (o clara jerarquía) respecto a las de `paciente`.
+- **Responsividad:** el design system tiene un único breakpoint (`768px`) en
+  `app.css`. Si hace falta más, añade el bloque `@media` junto al resto.
+- **JavaScript:** el JavaScript con comportamiento debe vivir en `resources/js/`
+  como módulo ES y se importa desde `resources/js/app.js` (así se cachea, se
+  versiona y se puede testear). El JS inline residual en las vistas eslegacy.
+- **Seguridad en el DOM:** nunca uses `innerHTML` con datos de la base de datos.
+  Construye el DOM con `createElement` + `textContent`/`value`, o interpola con
+  `@js()` / `Js::from()`.

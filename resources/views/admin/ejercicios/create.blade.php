@@ -44,13 +44,16 @@
                         placeholder="Notas sobre la técnica del ejercicio...">{{ old('descripcion', $ejercicio->descripcion ?? '') }}</textarea>
                 </div>
 
-                @if(isset($ejercicio) && $ejercicio->video_url)
+                @if(isset($ejercicio) && $ejercicio->tieneVideo())
                     <div class="form-group">
                         <label>Preview del vídeo</label>
                         <div style="max-width: 480px; border-radius: var(--radius-sm); overflow: hidden;">
                             <div style="position: relative; padding-top: 56.25%;">
                                 <iframe src="{{ $ejercicio->embed_url }}"
                                     style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;"
+                                    title="Vídeo del ejercicio {{ $ejercicio->nombre }}"
+                                    referrerpolicy="strict-origin-when-cross-origin"
+                                    loading="lazy"
                                     allowfullscreen></iframe>
                             </div>
                         </div>

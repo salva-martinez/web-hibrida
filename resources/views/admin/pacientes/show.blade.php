@@ -67,6 +67,8 @@
                                                     @endif
                                                     @if($dia->feedback->analisis_ia)
                                                         <br><span class="badge badge-info" title="Análisis IA disponible">IA ✨</span>
+                                                    @else
+                                                        <br><x-feedback-ai-status :feedback="$dia->feedback" />
                                                     @endif
                                                 </div>
                                             @endforeach

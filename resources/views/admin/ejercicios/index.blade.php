@@ -36,8 +36,8 @@
                                     <td><strong>{{ $ej->nombre }}</strong></td>
                                     <td><span class="badge badge-primary">{{ $ej->estimulo->nombre }}</span></td>
                                     <td>
-                                        @if($ej->video_url)
-                                            <a href="{{ $ej->video_url }}" target="_blank" class="btn btn-sm btn-secondary">▶ Ver
+                                        @if($ej->tieneVideo())
+                                            <a href="{{ $ej->youtube_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-secondary">▶ Ver
                                                 vídeo</a>
                                         @else
                                             <span style="color: var(--text-muted)">Sin vídeo</span>
