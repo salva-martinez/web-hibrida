@@ -17,12 +17,23 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => \App\Http\Middleware\CheckRole::class,
         ]);
         $middleware->redirectGuestsTo(fn () => route('login'));
-        $middleware->redirectUsersTo(fn () => Auth::check() 
-            ? (Auth::user()->role === 'fisio' ? route('admin.dashboard') : route('paciente.dashboard'))
+        $middleware->redirectUsersTo(fn () => Auth::check()
+            ? (Auth::user()->role === 'fisio'
+                ? (Auth::user()->hasVerifiedEmail() ? route('admin.dashboard') : route('verification.notice'))
+                : route('paciente.dashboard'))
             : route('login')
         );
     })
     ->withExceptions(function (Exceptions $exceptions): void {
+        // Un enlace de verificación caducado o manipulado no debe dejar al usuario
+        // en un 403 genérico: se le devuelve a la pantalla de verificación.
+        $exceptions->render(function (\Illuminate\Routing\Exceptions\InvalidSignatureException $e, Request $request) {
+            if ($request->routeIs('verification.verify')) {
+                return redirect()->route('verification.notice')
+                    ->with('error', 'El enlace de verificación no es válido o ha caducado. Pide uno nuevo.');
+            }
+        });
+
         $exceptions->render(function (\Symfony\Component\HttpKernel\Exception\HttpException $e, Request $request) {
             if ($e->getStatusCode() === 403) {
                 if (Auth::check()) {

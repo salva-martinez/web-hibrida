@@ -30,6 +30,8 @@ class PlanEjercicio extends Model
 
     public function ejercicio()
     {
-        return $this->belongsTo(Ejercicio::class);
+        // withTrashed(): un ejercicio desactivado sigue visible en el histórico
+        // de los planes donde ya fue pautado.
+        return $this->belongsTo(Ejercicio::class)->withTrashed();
     }
 }

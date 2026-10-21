@@ -32,6 +32,16 @@ class LoginController extends Controller
                 'password' => $request->password,
                 'role' => 'fisio',
             ], $request->boolean('remember'))) {
+                // La cuenta debe estar activada: sin verificar el email no se entra.
+                if (!Auth::user()->hasVerifiedEmail()) {
+                    Auth::logout();
+                    $request->session()->regenerate();
+
+                    return back()
+                        ->withErrors(['email' => 'Debes verificar tu email para poder entrar. Revisa tu bandeja de entrada.'])
+                        ->withInput();
+                }
+
                 $request->session()->regenerate();
                 return redirect()->intended('/admin/dashboard');
             }

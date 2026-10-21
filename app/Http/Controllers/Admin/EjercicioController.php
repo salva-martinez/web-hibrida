@@ -6,11 +6,13 @@ use App\Http\Controllers\Controller;
 use App\Models\Ejercicio;
 use App\Models\Estimulo;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class EjercicioController extends Controller
 {
     public function index()
     {
+        // El aislamiento global limita la lista a los ejercicios de este fisio.
         $ejercicios = Ejercicio::with('estimulo')->latest()->get();
         return view('admin.ejercicios.index', compact('ejercicios'));
     }
@@ -30,7 +32,10 @@ class EjercicioController extends Controller
             'descripcion' => 'nullable|string',
         ]);
 
-        Ejercicio::create($validated);
+        Ejercicio::create([
+            ...$validated,
+            'fisio_id' => Auth::id(),
+        ]);
 
         return redirect()->route('admin.ejercicios.index')
             ->with('success', 'Ejercicio creado correctamente.');
@@ -57,10 +62,17 @@ class EjercicioController extends Controller
             ->with('success', 'Ejercicio actualizado correctamente.');
     }
 
+    /**
+     * Desactiva un ejercicio (borrado lógico).
+     *
+     * El ejercicio desaparece del catálogo, pero sigue visible en los planes
+     * antiguos donde ya fue pautado, con su feedback intacto.
+     */
     public function destroy(Ejercicio $ejercicio)
     {
         $ejercicio->delete();
+
         return redirect()->route('admin.ejercicios.index')
-            ->with('success', 'Ejercicio eliminado correctamente.');
+            ->with('success', 'Ejercicio desactivado. Puede restaurarse desde la Papelera.');
     }
 }

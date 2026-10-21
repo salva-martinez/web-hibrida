@@ -42,19 +42,34 @@ return new class extends Migration
         }
 
         // 4. Drop old plan_id column
-        Schema::table('plan_ejercicios', function (Blueprint $table) {
-            if (DB::getDriverName() !== 'sqlite') {
+        // SQLite no admite "DROP CONSTRAINT": hay que quitar primero la clave
+        // foránea (Laravel reconstruye la tabla) y solo después eliminar la
+        // columna, en dos operaciones separadas.
+        if (DB::getDriverName() === 'sqlite') {
+            Schema::table('plan_ejercicios', function (Blueprint $table) {
                 $table->dropForeign(['plan_id']);
-            }
-            $table->dropColumn('plan_id');
-        });
+            });
+            Schema::table('plan_ejercicios', function (Blueprint $table) {
+                $table->dropColumn('plan_id');
+            });
 
-        Schema::table('feedback', function (Blueprint $table) {
-            if (DB::getDriverName() !== 'sqlite') {
+            Schema::table('feedback', function (Blueprint $table) {
                 $table->dropForeign(['plan_id']);
-            }
-            $table->dropColumn('plan_id');
-        });
+            });
+            Schema::table('feedback', function (Blueprint $table) {
+                $table->dropColumn('plan_id');
+            });
+        } else {
+            Schema::table('plan_ejercicios', function (Blueprint $table) {
+                $table->dropForeign(['plan_id']);
+                $table->dropColumn('plan_id');
+            });
+
+            Schema::table('feedback', function (Blueprint $table) {
+                $table->dropForeign(['plan_id']);
+                $table->dropColumn('plan_id');
+            });
+        }
     }
 
     public function down(): void

@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Plan;
 use App\Models\Ejercicio;
+use App\Models\Feedback;
+use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
@@ -17,7 +19,10 @@ class DashboardController extends Controller
             'ejercicios' => Ejercicio::count(),
         ];
 
-        $ultimosFeedbacks = \App\Models\Feedback::with('planDia.plan.paciente')
+        // Solo los feedbacks de los planes de este fisio: la relación planDia.plan
+        // ya está aislada por el global scope, así que whereHas filtra por ella.
+        $ultimosFeedbacks = Feedback::whereHas('planDia.plan')
+            ->with('planDia.plan.paciente')
             ->latest()
             ->take(5)
             ->get();

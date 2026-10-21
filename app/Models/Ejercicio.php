@@ -2,18 +2,34 @@
 
 namespace App\Models;
 
+use App\Scopes\FisioScope;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Ejercicio extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
-    protected $fillable = ['estimulo_id', 'nombre', 'video_url', 'descripcion'];
+    protected $fillable = ['estimulo_id', 'nombre', 'video_url', 'descripcion', 'fisio_id'];
+
+    protected static function booted(): void
+    {
+        // Cada fisio trabaja con su propio catálogo de ejercicios.
+        static::addGlobalScope(new FisioScope);
+    }
+
+    public function scopeDeFisio(Builder $query, $fisioId): Builder
+    {
+        return $query->where('ejercicios.fisio_id', $fisioId);
+    }
 
     public function estimulo()
     {
-        return $this->belongsTo(Estimulo::class);
+        // withTrashed(): un estímulo desactivado sigue mostrándose en los planes
+        // antiguos donde ya fue pautado.
+        return $this->belongsTo(Estimulo::class)->withTrashed();
     }
 
     public function planEjercicios()

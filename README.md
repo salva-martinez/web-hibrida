@@ -25,6 +25,36 @@ La plataforma utiliza la API de **Google Gemini** para transformar datos subjeti
 
 ---
 
+## 🔐 Acceso, Aislamiento y Borrado Lógico
+
+### Registro abierto con verificación por email
+Los fisioterapeutas se registran libremente en `/register` (ya **no hace falta invitación**).
+La cuenta nace inactiva: hay que abrir el enlace de verificación que llega por email
+antes de poder entrar al panel.
+
+> En desarrollo el mailer está en modo `log`, así que el enlace aparece en
+> `storage/logs/laravel.log`. En producción hay que configurar `MAIL_MAILER` con un
+> SMTP real (ver `.env.example`).
+
+### Cada fisio es una isla
+Los pacientes, los planes y el catálogo de ejercicios y estímulos de un fisioterapeuta
+**nunca son visibles para otro profesional**. El aislamiento se aplica por dos vías
+complementarias:
+
+- Un **global scope** (`App\Scopes\FisioScope`) que filtra automáticamente las
+  consultas de planes, ejercicios y estímulos por propietario.
+- Comprobaciones **explícitas** de pertenencia en los controladores, para los
+  recursos que se localizan por ID (fichas de paciente, chat IA, papelera).
+
+### Nada se borra físicamente
+No existe el borrado definitivo. Desactivar un paciente, plan, estímulo o ejercicio
+lo saca de las listas activas y le impide el acceso, pero **conserva intactos** los
+días del plan, los ejercicios pautados y todo el feedback clínico registrado.
+
+Todo lo desactivado se recupera desde **Papelera** (`/admin/papelera`).
+
+---
+
 ## 📖 Manual de Uso
 
 ### 🩺 Perfil Fisioterapeuta (Administrador)
@@ -37,9 +67,10 @@ La plataforma utiliza la API de **Google Gemini** para transformar datos subjeti
 3.  **Seguimiento e IA**:
     - Desde la ficha del paciente o el detalle del plan, revisa el **Análisis de IA** generado tras el feedback del paciente.
     - Usa el **Chat IA** para profundizar en el estado del paciente usando lenguaje natural.
+4.  **Papelera**: Recupera cualquier paciente, plan, estímulo o ejercicio que hayas desactivado.
 
 ### 🏃 Perfil Paciente
-1.  **Acceso**: Login rápido con **Nombre + Primer Apellido + Segundo Apellido**. (Password: `password`).
+1.  **Acceso**: Login rápido con **Nombre + Primer Apellido + Segundo Apellido + Fecha de nacimiento**.
 2.  **Entrenamiento**: Visualiza tu rutina con vídeos integrados. El diseño estilo Excel facilita la lectura de cargas.
 3.  **Feedback**: Al terminar, pulsa **"Enviar Feedback"**. El sistema mostrará un estado de carga mientras la IA analiza tu sesión. Puedes consultar tus planes antiguos en la sección "Historial".
 
@@ -60,16 +91,35 @@ La plataforma utiliza la API de **Google Gemini** para transformar datos subjeti
 ## 🛠️ Instalación Rápida (Sail)
 
 ```bash
-# 1. Preparar entorno
-cp .env.example .env
-./vendor/bin/sail up -d
-./vendor/bin/sail composer install
-./vendor/bin/sail npm install && ./vendor/bin/sail npm run build
+# 1. Dependencias (antes de levantar los contenedores: Sail usa ./vendor para construir la imagen)
+composer install
+npm install && npm run build
 
-# 2. Base de datos e IA
-./vendor/bin/sail artisan migrate:fresh --seed
+# 2. Entorno
+cp .env.example .env
+./vendor/bin/sail artisan key:generate
 # Clave API requerida en .env: GEMINI_API_KEY=tu_clave
+
+# 3. Contenedores y base de datos
+./vendor/bin/sail up -d
+./vendor/bin/sail artisan migrate:fresh --seed
+
+# 4. Worker de la cola (IMPRESCINDIBLE: el análisis de IA del feedback se genera en segundo plano)
+./vendor/bin/sail artisan queue:work
 ```
+
+> ⚠️ Sin el worker de la cola, el feedback del paciente se guarda pero el **análisis de
+> IA nunca se genera**. En desarrollo, `composer dev` levanta servidor, cola, logs y
+> Vite en un solo comando.
+
+### Tests
+
+```bash
+./vendor/bin/sail artisan test      # o: php artisan test
+```
+
+La suite cubre el aislamiento entre profesionales, el registro con verificación de
+email, la papelera, el clon de planes y las reglas de negocio de `PlanService`.
 
 ---
 

@@ -10,13 +10,21 @@
                 <p>Gestión de pautas de rehabilitación</p>
             </div>
 
+            @php
+                // Si el login falla se repone la pestaña que el usuario estaba usando.
+                $pestanaActiva = old('login_type', 'fisio');
+            @endphp
+
             <div class="login-tabs">
-                <button class="login-tab active" onclick="switchTab('fisio')">🩺 Fisioterapeuta</button>
-                <button class="login-tab" onclick="switchTab('paciente')">🏃 Paciente</button>
+                <button type="button" class="login-tab {{ $pestanaActiva === 'fisio' ? 'active' : '' }}"
+                    onclick="switchTab(this, 'fisio')">🩺 Fisioterapeuta</button>
+                <button type="button" class="login-tab {{ $pestanaActiva === 'paciente' ? 'active' : '' }}"
+                    onclick="switchTab(this, 'paciente')">🏃 Paciente</button>
             </div>
 
             {{-- Fisio Login --}}
-            <form class="login-form active" id="form-fisio" method="POST" action="{{ route('login') }}">
+            <form class="login-form {{ $pestanaActiva === 'fisio' ? 'active' : '' }}" id="form-fisio" method="POST"
+                action="{{ route('login') }}">
                 @csrf
                 <input type="hidden" name="login_type" value="fisio">
 
@@ -33,10 +41,16 @@
                 </div>
 
                 <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
+
+                <p style="text-align:center; margin-top: 1rem; font-size: .85rem; color: var(--text-secondary)">
+                    ¿Eres fisioterapeuta y aún no tienes cuenta?
+                    <a href="{{ route('register') }}" style="color: var(--primary);">Regístrate gratis</a>
+                </p>
             </form>
 
             {{-- Paciente Login --}}
-            <form class="login-form" id="form-paciente" method="POST" action="{{ route('login') }}">
+            <form class="login-form {{ $pestanaActiva === 'paciente' ? 'active' : '' }}" id="form-paciente" method="POST"
+                action="{{ route('login') }}">
                 @csrf
                 <input type="hidden" name="login_type" value="paciente">
 
@@ -71,11 +85,11 @@
 
     @push('scripts')
         <script>
-            function switchTab(type) {
+            function switchTab(button, type) {
                 document.querySelectorAll('.login-tab').forEach(t => t.classList.remove('active'));
                 document.querySelectorAll('.login-form').forEach(f => f.classList.remove('active'));
 
-                event.target.classList.add('active');
+                button.classList.add('active');
                 document.getElementById('form-' + type).classList.add('active');
             }
         </script>

@@ -82,7 +82,7 @@
                                         <td class="ejercicio-nombre">
                                             @if($pe->ejercicio->video_url)
                                                 <a href="javascript:void(0)" class="video-link"
-                                                    onclick="openVideo('{{ $pe->ejercicio->embed_url }}', '{{ $pe->ejercicio->nombre }}')">
+                                                    onclick="openVideo({{ Js::from($pe->ejercicio->embed_url) }}, {{ Js::from($pe->ejercicio->nombre) }})">
                                                     <span>▶️</span> {{ $pe->ejercicio->nombre }}
                                                 </a>
                                             @else

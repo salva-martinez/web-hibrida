@@ -57,8 +57,16 @@
                 <div class="form-group mb-0">
                     <label for="num_dias">Días de entrenamiento por semana</label>
                     <select id="num_dias" class="form-control" style="max-width: 200px;" onchange="updateTabs()">
+                        @php
+                            // Al clonar un plan hay que preseleccionar tantos días como
+                            // tenía el plan de origen: si no, el DOM solo se crea para
+                            // el día 1 y los días 2..N se pierden en silencio al guardar.
+                            $diasDelPlan = isset($plan)
+                                ? $plan->planDias->count()
+                                : (isset($clonedPlan) ? $clonedPlan->planDias->count() : 1);
+                        @endphp
                         @for($i = 1; $i <= 7; $i++)
-                            <option value="{{ $i }}" {{ (isset($plan) && $plan->planDias->count() == $i) ? 'selected' : ($i == 1 ? 'selected' : '') }}>{{ $i }} {{ $i == 1 ? 'Día' : 'Días' }}</option>
+                            <option value="{{ $i }}" {{ $diasDelPlan == $i ? 'selected' : '' }}>{{ $i }} {{ $i == 1 ? 'Día' : 'Días' }}</option>
                         @endfor
                     </select>
                 </div>
@@ -186,34 +194,71 @@
 
                 const idx = exerciseIndexes[day]++;
 
-                let options = '<option value="">— Ejercicio —</option>';
-                estimulos.forEach(est => {
-                    options += `<optgroup label="${est.nombre}">`;
-                    est.ejercicios.forEach(ej => {
-                        const selected = (exerciseData && exerciseData.ejercicio_id == ej.id) ? 'selected' : '';
-                        options += `<option value="${ej.id}" ${selected}>${ej.nombre}</option>`;
-                    });
-                    options += '</optgroup>';
-                });
-
+                // El DOM se construye con createElement + textContent/value (que NO
+                // interpretan HTML). Usar innerHTML con datos de la base de datos
+                // permitiría XSS almacenado (un nombre de ejercicio con comillas o
+                // etiquetas se ejecutaría en el navegador de otro fisio).
                 const row = document.createElement('div');
                 row.className = 'exercise-row';
-                
-                const series = exerciseData ? exerciseData.series : '2';
-                const repeticiones = exerciseData ? exerciseData.repeticiones : '10';
-                const intensidad = exerciseData ? exerciseData.intensidad : '7';
-                const kg = exerciseData ? (exerciseData.kg || '') : '';
-                const descanso = exerciseData ? (exerciseData.descanso || '') : '';
 
-                row.innerHTML = `
-                    <select name="dias[${day}][ejercicios][${idx}][ejercicio_id]" class="form-control" required>${options}</select>
-                    <input type="number" name="dias[${day}][ejercicios][${idx}][series]" class="form-control" value="${series}" min="1" placeholder="3" required>
-                    <input type="text" name="dias[${day}][ejercicios][${idx}][repeticiones]" class="form-control" value="${repeticiones}" placeholder="10" required>
-                    <input type="number" name="dias[${day}][ejercicios][${idx}][intensidad]" class="form-control" value="${intensidad}" min="0" max="10" placeholder="7" required>
-                    <input type="number" name="dias[${day}][ejercicios][${idx}][kg]" class="form-control" value="${kg}" min="0" step="any" placeholder="—">
-                    <input type="text" name="dias[${day}][ejercicios][${idx}][descanso]" class="form-control" value="${descanso}" placeholder="2-3'">
-                    <button type="button" class="btn-remove" onclick="removeRow(this)">✕</button>
-                `;
+                const select = document.createElement('select');
+                select.name = `dias[${day}][ejercicios][${idx}][ejercicio_id]`;
+                select.className = 'form-control';
+                select.required = true;
+
+                const vacio = document.createElement('option');
+                vacio.value = '';
+                vacio.textContent = '— Ejercicio —';
+                select.appendChild(vacio);
+
+                estimulos.forEach(est => {
+                    const group = document.createElement('optgroup');
+                    group.label = est.nombre;
+
+                    est.ejercicios.forEach(ej => {
+                        const option = document.createElement('option');
+                        option.value = ej.id;
+                        option.textContent = ej.nombre;
+                        if (exerciseData && exerciseData.ejercicio_id == ej.id) {
+                            option.selected = true;
+                        }
+                        group.appendChild(option);
+                    });
+
+                    select.appendChild(group);
+                });
+
+                const crearCampo = (name, type, value, attrs = {}) => {
+                    const input = document.createElement('input');
+                    input.type = type;
+                    input.name = name;
+                    input.className = 'form-control';
+                    input.value = value === null || value === undefined ? '' : value;
+                    Object.entries(attrs).forEach(([key, val]) => input.setAttribute(key, val));
+                    return input;
+                };
+
+                const prefijo = `dias[${day}][ejercicios][${idx}]`;
+
+                row.appendChild(select);
+                row.appendChild(crearCampo(`${prefijo}[series]`, 'number', exerciseData ? exerciseData.series : '2',
+                    { min: '1', placeholder: '3', required: 'required' }));
+                row.appendChild(crearCampo(`${prefijo}[repeticiones]`, 'text', exerciseData ? exerciseData.repeticiones : '10',
+                    { placeholder: '10', required: 'required' }));
+                row.appendChild(crearCampo(`${prefijo}[intensidad]`, 'number', exerciseData ? exerciseData.intensidad : '7',
+                    { min: '0', max: '10', placeholder: '7', required: 'required' }));
+                row.appendChild(crearCampo(`${prefijo}[kg]`, 'number', exerciseData ? (exerciseData.kg || '') : '',
+                    { min: '0', step: 'any', placeholder: '—' }));
+                row.appendChild(crearCampo(`${prefijo}[descanso]`, 'text', exerciseData ? (exerciseData.descanso || '') : '',
+                    { placeholder: "2-3'" }));
+
+                const btnRemove = document.createElement('button');
+                btnRemove.type = 'button';
+                btnRemove.className = 'btn-remove';
+                btnRemove.textContent = '✕';
+                btnRemove.setAttribute('onclick', 'removeRow(this)');
+                row.appendChild(btnRemove);
+
                 list.appendChild(row);
             }
 

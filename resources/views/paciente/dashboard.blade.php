@@ -49,7 +49,7 @@
                                         @endif
                                     </td>
                                     <td>
-                                        @if($plan->feedback)
+                                        @if($plan->planDias->contains(fn($dia) => $dia->feedback))
                                             <span class="badge badge-primary">✓ Enviado</span>
                                         @else
                                             <span style="color: var(--text-muted)">Pendiente</span>

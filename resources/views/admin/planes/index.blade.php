@@ -45,9 +45,16 @@
                                         @endif
                                     </td>
                                     <td>
-                                        @if($plan->feedback)
+                                        @php
+                                            // El feedback cuelga de los días del plan, no del plan.
+                                            $feedbacks = $plan->planDias->pluck('feedback')->filter();
+                                        @endphp
+                                        @if($feedbacks->isNotEmpty())
+                                            @php $durezaMedia = round($feedbacks->avg('dureza')); @endphp
                                             <span
-                                                class="badge badge-{{ $plan->feedback->dureza > 7 ? 'danger' : ($plan->feedback->dureza > 4 ? 'warning' : 'success') }}">{{ $plan->feedback->dureza }}/10</span>
+                                                class="badge badge-{{ $durezaMedia > 7 ? 'danger' : ($durezaMedia > 4 ? 'warning' : 'success') }}">{{ $durezaMedia }}/10</span>
+                                            <span style="color: var(--text-muted); font-size: .8rem">
+                                                ({{ $feedbacks->count() }}/{{ $plan->planDias->count() }} días)</span>
                                         @else
                                             <span style="color: var(--text-muted)">—</span>
                                         @endif
@@ -59,9 +66,9 @@
                                             <a href="{{ route('admin.planes.edit', $plan) }}"
                                                 class="btn btn-sm btn-primary">Editar</a>
                                             <form action="{{ route('admin.planes.destroy', $plan) }}" method="POST"
-                                                onsubmit="return confirm('¿Eliminar plan?')">
+                                                onsubmit="return confirm('¿Archivar el plan? El paciente dejará de verlo, pero su feedback clínico se conserva y podrás restaurarlo desde la Papelera.')">
                                                 @csrf @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
+                                                <button type="submit" class="btn btn-sm btn-danger">Archivar</button>
                                             </form>
                                         </div>
                                     </td>

@@ -10,6 +10,7 @@ Aplicación web diseñada para la gestión clínica en el área de fisioterapia.
 - **Autorización:** Sesiones nativas de Laravel, segmentadas por middleware (`role:fisio`, `role:paciente`).
 
 ## Actualizaciones Recientes
+- **21 de Octubre de 2026:** Aislamiento por fisioterapeuta ("cada fisio es una isla"), registro abierto con verificación por email, borrado lógico con Papelera y primera suite de tests (43 tests). Ver detalle en la sección "Aislamiento Multi-Fisio" más abajo.
 - **14 de Junio de 2026:** Refactorización de la arquitectura de Planes para soportar "Planificador Semanal Dinámico". Introducción del modelo `PlanDia` para agrupar ejercicios por días de la semana y permitir Feedback y análisis de IA por cada día independiente.
 - **13 de Junio de 2026:** Framework y dependencias actualizadas a la última versión estable (Laravel 12.62.0, Symfony 7.4.x / 8.1.x, etc.). Se garantizan las mejoras de seguridad y rendimiento.
 
@@ -19,12 +20,72 @@ Aplicación web diseñada para la gestión clínica en el área de fisioterapia.
 - **Rutas:** Definidas en `routes/web.php` con prefijos `/admin` y `/paciente`.
 
 ## Estado Actual
-- **Autenticación:** Implementada y funcional (Login, Logout) con redirecciones basadas en el rol.
-- **Panel Fisio (Admin):** CRUD básico implementado para Pacientes, Estímulos, Ejercicios y Planes de ejercicios. Sistema de chat iniciado.
-- **Panel Paciente:** Dashboard implementado, visualización de planes de ejercicios e interfaz de feedback (con campos AI).
+- **Autenticación:** Login de fisio (email + contraseña, **con verificación de email obligatoria**) y login de paciente (nombre + 2 apellidos + fecha de nacimiento). Registro abierto de fisioterapeutas en `/register`.
+- **Aislamiento:** Cada fisio solo ve y toca sus pacientes, planes, ejercicios y estímulos.
+- **Papelera:** Nada se borra físicamente; todo se desactiva y se puede restaurar.
+- **Panel Fisio (Admin):** CRUD de Pacientes, Estímulos, Ejercicios y Planes, Chat IA y Papelera.
+- **Panel Paciente:** Dashboard, visualización de planes con vídeo e interfaz de feedback (con análisis IA).
+- **Tests:** 43 tests en `tests/Feature` y `tests/Unit`. Ejecutar con `php artisan test`.
 
 ## Notas Importantes
 - *Siempre consultar este documento antes de generar nuevas funcionalidades estructurales.*
+
+---
+
+## Aislamiento Multi-Fisio — 21 de Octubre de 2026
+
+Implementación del modelo "cada fisio es una isla": los pacientes, planes y el
+catálogo de ejercicios de un fisioterapeuta nunca son visibles para otro.
+
+### Decisiones de diseño
+- **Alcance:** Se eligió el aislamiento total (no el modelo por clínica/equipo).
+  Cada fisio gestiona su propia cartera y su propio catálogo.
+- **Registro:** Abierto, con verificación de email obligatoria antes de entrar al
+  panel. Se eliminó el sistema de invitación por token (tabla `fisio_invitations`
+  queda huérfana por histórico de migraciones).
+- **Borrado:** Nada se borra físicamente. `users`, `planes`, `estimulos` y
+  `ejercicios` usan `SoftDeletes` y se recuperan desde la sección **Papelera**.
+
+### Piezas técnicas
+| Pieza | Ubicación | Función |
+|---|---|---|
+| Global scope | `app/Scopes/FisioScope.php` | Filtra por `fisio_id` cuando el usuario autenticado es un fisio. Aplicado a `Plan`, `Estimulo`, `Ejercicio`. |
+| Scopes explícitos | `User::scopePacientes()`, `User::scopeDeFisio()` | Filtran la cartera de pacientes sin depender de la sesión. |
+| Autorización | `User::perteneceAlFisioAutenticado()` + `autorizarPaciente()` en los controladores | Comprobación explícita de pertenencia (evita depender solo del scope). |
+| Verificación de email | `Auth\VerifyEmailController` + middleware `verified` | La cuenta nace inactiva; el enlace firmado la activa. |
+| Papelera | `Admin\PapeleraController` + `admin/papelera.blade.php` | Lista y restaura lo desactivado. |
+
+### Reglas a no olvidar
+1. **Cualquier modelo nuevo con datos clínicos debe llevar `fisio_id`** y aplicar el
+   global scope, o quedaría fuera del alcance de otros profesionales.
+2. **El modelo `User` NO lleva el global scope** a propósito: el propio fisio tiene
+   `fisio_id = NULL` y se quedaría fuera de sus propias consultas.
+3. **`withTrashed()` solo funciona en relaciones cuyo modelo usa `SoftDeletes`.**
+   Aplicarlo a `PlanDia` lanza `RelationNotFoundException` ("relación inexistente"),
+   que es un error muy difícil de diagnosticar. Ver `tests/Feature/RelacionesEagerLoadingTest.php`.
+4. **Las relaciones `belongsTo` hacia un modelo con `SoftDeletes` sí admiten
+   `withTrashed()`** (se hace forward al builder del modelo relacionado).
+
+### Hallazgos corregidos en la misma tanda
+- 🔴 **CRÍTICO:** `DELETE /admin/pacientes/{id}` borraba físicamente cualquier
+  usuario, **incluidos los fisioterapeutas**. Ahora solo se puede desactivar un
+  paciente propio y nunca se borra nada físicamente.
+- 🟠 **ALTO:** El clon de un plan de N días solo conservaba el **Día 1** (los días
+  2..N se perdían en silencio). Ahora el selector de días se preselecciona con el
+  número de días del plan de origen.
+- 🟠 **ALTO:** XSS almacenado en `paciente/plan.blade.php` (el nombre del ejercicio
+  se interpolaba en un `onclick` inline). Corregido con `Js::from()`.
+- 🟠 **ALTO:** XSS almacenado en el constructor de planes (`innerHTML` con datos de
+  la BD). Corregido construyendo el DOM con `createElement` + `textContent`.
+- 🟡 **MEDIO:** El dashboard del fisio cargaba feedbacks de otros profesionales y
+  fallaba con "Attempt to read property titulo on null". Corregido filtrando por
+  `whereHas('planDia.plan')` y usando operadores null-safe en la vista.
+- 🟡 **MEDIO:** La migración `2026_06_14` fallaba en SQLite al hacer `dropColumn`
+  dejando la clave foránea huérfana. Corregida separando `dropForeign` y `dropColumn`.
+- 🟡 **MEDIO:** El seeder creaba **dos `PlanDia` con el mismo `numero_dia = 1`** en
+  cada plan con feedback, dejando el feedback colgado de un día vacío. Corregido.
+- 🟡 **MEDIO:** La fecha histórica del feedback sembrado se perdía (`created_at` no
+  está en el `$fillable`). Corregido con `forceFill()`.
 
 ---
 

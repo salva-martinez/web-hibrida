@@ -56,9 +56,9 @@
                                             <a href="{{ route('admin.pacientes.edit', $pac) }}"
                                                 class="btn btn-sm btn-primary">Editar</a>
                                             <form action="{{ route('admin.pacientes.destroy', $pac) }}" method="POST"
-                                                onsubmit="return confirm('¿Eliminar paciente?')">
+                                                onsubmit="return confirm({{ Js::from('¿Desactivar a ' . $pac->nombre_completo . '? Dejará de poder acceder a la aplicación, pero todo su historial clínico se conserva y podrás restaurarlo desde la Papelera.') }})">
                                                 @csrf @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
+                                                <button type="submit" class="btn btn-sm btn-danger">Desactivar</button>
                                             </form>
                                         </div>
                                     </td>

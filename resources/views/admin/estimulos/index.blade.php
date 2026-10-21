@@ -43,9 +43,9 @@
                                             <a href="{{ route('admin.estimulos.edit', $est) }}"
                                                 class="btn btn-sm btn-primary">Editar</a>
                                             <form action="{{ route('admin.estimulos.destroy', $est) }}" method="POST"
-                                                onsubmit="return confirm('¿Eliminar estímulo y sus ejercicios?')">
+                                                onsubmit="return confirm({{ Js::from('¿Desactivar el estímulo y sus ejercicios? Seguirán visibles en los planes antiguos donde ya estaban pautados. Podrás restaurarlos desde la Papelera.') }})">
                                                 @csrf @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
+                                                <button type="submit" class="btn btn-sm btn-danger">Desactivar</button>
                                             </form>
                                         </div>
                                     </td>

@@ -16,12 +16,9 @@ class ChatController extends Controller
             'patient_id' => 'required|exists:users,id',
         ]);
 
-        $paciente = User::findOrFail($request->patient_id);
-
-        // Security check: ensure user is a patient
-        if (!$paciente->isPaciente()) {
-            return response()->json(['error' => 'El usuario no es un paciente válido.'], 400);
-        }
+        // Solo se puede consultar el historial de un paciente propio: scopePacientes()
+        // filtra por propietario y findOrFail devuelve 404 si no es tuyo.
+        $paciente = User::pacientes()->findOrFail($request->patient_id);
 
         // Recuperar historial completo
         $historial = $paciente->planesComoPaciente()

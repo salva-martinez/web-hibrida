@@ -60,9 +60,10 @@
                         </thead>
                         <tbody>
                             @foreach($ultimosFeedbacks as $fb)
+                                @php $plan = $fb->planDia?->plan; @endphp
                                 <tr>
-                                    <td>{{ $fb->planDia->plan->paciente->nombre_completo ?? '—' }}</td>
-                                    <td>{{ $fb->planDia->plan->titulo }} (Día {{ $fb->planDia->numero_dia }})</td>
+                                    <td>{{ $plan?->paciente?->nombre_completo ?? '—' }}</td>
+                                    <td>{{ $plan?->titulo ?? '—' }} (Día {{ $fb->planDia?->numero_dia ?? '—' }})</td>
                                     <td><span
                                             class="badge badge-{{ $fb->dureza > 7 ? 'danger' : ($fb->dureza > 4 ? 'warning' : 'success') }}">{{ $fb->dureza }}/10</span>
                                     </td>

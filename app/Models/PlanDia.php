@@ -15,7 +15,8 @@ class PlanDia extends Model
 
     public function plan()
     {
-        return $this->belongsTo(Plan::class);
+        // withTrashed(): los días de un plan archivado siguen siendo legibles.
+        return $this->belongsTo(Plan::class)->withTrashed();
     }
 
     public function planEjercicios()

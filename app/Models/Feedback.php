@@ -15,6 +15,8 @@ class Feedback extends Model
 
     public function planDia()
     {
+        // Sin withTrashed(): PlanDia no usa SoftDeletes, y el macro only-with-trashed
+        // solo existe en los builders de los modelos que sí lo usan.
         return $this->belongsTo(PlanDia::class);
     }
 }

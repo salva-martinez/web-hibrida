@@ -218,22 +218,28 @@ class PlanHistorialSeeder extends Seeder
         $comentario,
         $analisis
     ) {
+        // Reutiliza el día que ya creó addEjercicios(): crear un segundo PlanDia
+        // con el mismo numero_dia duplicaría los días del plan y dejaría el
+        // feedback colgado de un día vacío.
+        $planDia = PlanDia::firstOrCreate(
+            ['plan_id' => $plan->id, 'numero_dia' => 1],
+            ['notas_fisio' => null]
+        );
 
-        // Crear el día del plan
-        $planDia = PlanDia::create([
-            'plan_id' => $plan->id,
-            'numero_dia' => 1,
-            'notas_fisio' => null,
-        ]);
-
-        Feedback::create([
+        $feedback = Feedback::create([
             'plan_dia_id' => $planDia->id,
             'dureza' => $dureza,
             'dolor' => $dolor,
             'evolucion' => $evolucion,
             'comentario' => $comentario,
             'analisis_ia' => $analisis,
-            'created_at' => $plan->fecha->copy()->addDays(5),
         ]);
+
+        // Retrocede la fecha del feedback para que el histórico tenga la
+        // cronología real (created_at no está en el fillable del modelo).
+        $feedback->forceFill([
+            'created_at' => $plan->fecha->copy()->addDays(5),
+            'updated_at' => $plan->fecha->copy()->addDays(5),
+        ])->save();
     }
 }
